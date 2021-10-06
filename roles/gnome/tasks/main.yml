@@ -47,6 +47,8 @@
       v: "['google-chrome.desktop', 'slack.desktop', 'code.desktop', 'alacritty.desktop']"
     - k: "/org/gnome/shell/overrides/dynamic-workspaces"
       v: "false"
+    - k: "/org/gnome/desktop/wm/preferences/num-workspaces"
+      v: "6"
     - k: "/org/gnome/shell/overrides/workspaces-only-on-primary"
       v: "true"
     - k: "/org/gnome/shell/window-switcher/current-workspace-only"
