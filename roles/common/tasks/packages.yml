@@ -81,6 +81,8 @@
       - bat
       - ripgrep
       - 1password
+      - vlc
+      - ffmpeg
     state: installed
 - name: Install extra fonts
   dnf:
