@@ -106,16 +106,9 @@
 - name: Remove packages
   dnf:
     name:
-      - libreoffice-calc
-      - libreoffice-core
-      - libreoffice-data
-      - libreoffice-impress
-      - libreoffice-langpack-en
-      - libreoffice-writer
       - firefox
       - gnome-calendar
       - gnome-contacts
-      - cheese
       - gnome-photos
       - gnome-maps
       - rhythmbox
