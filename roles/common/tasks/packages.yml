@@ -84,7 +84,7 @@
       - vlc
       - ffmpeg
       - remmina
-      - https://go.microsoft.com/fwlink/p/?LinkID=2112907&clcid=0x409&culture=en-us&country=US
+      - 'https://go.microsoft.com/fwlink/p/?LinkID=2112907&clcid=0x409&culture=en-us&country=US'
     state: installed
 - name: Install extra fonts
   dnf:
