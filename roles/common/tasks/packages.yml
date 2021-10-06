@@ -1,0 +1,134 @@
+---
+- name: Install group packages
+  dnf:
+    name:
+      - '@Development Tools'
+      - '@C Development Tools and Libraries'
+      - '@D Development Tools and Libraries'
+      - '@fedora-packager'
+    state: installed
+- name: Install extra packages
+  dnf:
+    name:
+      - direnv
+      - nmon
+      - awscli
+      - fail2ban
+      - flatpak
+      - python3-psutil
+      - dnf-plugins-extras-common
+      - dnf-plugins-extras-kickstart
+      - dnf-plugins-extras-repoclosure
+      - dnf-plugins-extras-repograph
+      - dnf-plugins-extras-show-leaves
+      - dnf-plugins-extras-tracer
+      - acpi
+      - ansible
+      - ansible-lint
+      - arpwatch
+      - asciidoc
+      - asciidoc-doc
+      - aspell
+      - aspell-en
+      - autoconf
+      - autofs
+      - automake
+      - cmake
+      - firewalld
+      - firewalld-filesystem
+      - flatpak-builder
+      - gnome-tweak-tool
+      - golang
+      - golang-godoc
+      - golang-gotype
+      - htop
+      - iotop
+      - jq
+      - kernel-devel
+      - letsencrypt
+      - lshw
+      - lsscsi
+      - nfs-utils
+      - ngrep
+      - nmap
+      - nmon
+      - npm
+      - snapd
+      - speedtest-cli
+      - sysstat
+      - tmux
+      - transmission
+      - vagrant
+      - vagrant-doc
+      - vagrant-libvirt
+      - vagrant-libvirt-doc
+      - neovim
+      - VirtualBox
+      - terraform
+      - vault
+      - consul
+      - nomad
+      - packer
+      - ruby-devel
+      - deja-dup
+      - dconf-editor
+      - gnome-extensions-app
+      - chrome-gnome-shell
+      - unzip
+      - gnome-abrt
+      - alacritty
+      - exa
+      - bat
+      - ripgrep
+    state: installed
+- name: Install extra fonts
+  dnf:
+    name:
+      - adobe-source-code-pro-fonts
+      - dejavu-sans-fonts
+      - dejavu-sans-mono-fonts
+      - dejavu-serif-fonts
+      - gnu-free-fonts-common
+      - gnu-free-mono-fonts
+      - gnu-free-sans-fonts
+      - gnu-free-serif-fonts
+      - levien-inconsolata-fonts
+      - liberation-fonts-common
+      - liberation-mono-fonts
+      - liberation-sans-fonts
+      - liberation-serif-fonts
+      - mozilla-fira-mono-fonts
+      - msimonson-anonymouspro-fonts
+      - overpass-fonts
+      - terminus-fonts
+    state: installed
+- name: Remove packages
+  dnf:
+    name:
+      - libreoffice-calc
+      - libreoffice-core
+      - libreoffice-data
+      - libreoffice-impress
+      - libreoffice-langpack-en
+      - libreoffice-writer
+      - firefox
+      - gnome-calendar
+      - gnome-contacts
+      - cheese
+      - gnome-photos
+      - gnome-maps
+      - rhythmbox
+      - totem
+      - gnome-tour
+      - gnome-abrt
+      - gnome-logs
+    autoremove: 'yes'
+    state: absent
+- name: Install RPMFusion Packages
+  dnf:
+    name:
+      - ffmpeg
+    state: installed
+
+- name: Install npm packages
+  command: npm install -g electron nativefier node.js --unsafe-perm=true

@@ -1,0 +1,45 @@
+---
+- name: Clone Auto-CPUFreq
+  git:
+    repo: https://github.com/AdnanHodzic/auto-cpufreq.git
+    dest: /tmp/autocpu
+    version: "master"
+
+- name:  Install Auto-CPUFreq Files
+  dnf:
+    name:
+      - python-devel 
+      - dmidecode
+
+- name: Compile Auto-CPUFreq with PIP
+  shell:
+    cmd: python3 -m pip install -r requirements.txt
+    chdir: /tmp/autocpu
+
+- name: Compile Auto-CPUFreq with Python
+  shell:
+    cmd: python3 setup.py install --record files.txt
+    chdir: /tmp/autocpu
+
+- name: Create auto-cpufreq directory
+  file:
+    path: /usr/local/share/auto-cpufreq/
+    state: directory
+    owner: 'root'
+    group: 'root'
+    mode: '0755'
+
+- name: Copy File for Auto-CPUFreq
+  shell:
+    cmd: cp -r /tmp/autocpu/scripts/ /usr/local/share/auto-cpufreq/
+
+# - name:  Configure Auto-CPUFreq Daemon
+#   shell:
+#     cmd: sed -i 's|ExecStart=/usr/local/bin/auto-cpufreq|ExecStart=/usr/bin/auto-cpufreq|' /usr/local/share/auto-cpufreq/scripts/auto-cpufreq.service
+#     warn: false
+
+# - name: Start Auto-CPUFreq Service
+#   service:
+#     name: auto-cpufreq.service
+#     enabled: yes
+#     state: started

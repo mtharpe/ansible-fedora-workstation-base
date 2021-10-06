@@ -1,0 +1,31 @@
+- block:
+    - name: Google Linux Signing Keys
+      rpm_key:
+        state: present
+        key: "{{ item }}"
+      become: yes
+      with_items:
+        - https://dl-ssl.google.com/linux/linux_signing_key.pub
+        - https://packages.cloud.google.com/yum/doc/yum-key.gpg
+        - https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+
+    - name: Check for Google Chrome repo
+      stat: 
+        path: /etc/yum.repos.d/google-chrome.repo
+      register: chrome_installed
+
+    - name: Install Google Chrome repo
+      dnf:
+        name: "https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm"
+        state: present
+      when: not chrome_installed.stat.exists
+
+    - name: Enable Google Chrome repo
+      command: dnf config-manager --set-enabled google-chrome
+      args:
+        warn: false
+
+- name: Install Google Chrome
+  dnf:
+    name: google-chrome-stable
+    state: present

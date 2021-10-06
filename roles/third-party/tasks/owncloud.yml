@@ -1,0 +1,31 @@
+---
+- name: Owncloud Linux Signing Keys
+  rpm_key:
+    state: present
+    key: "{{ item }}"
+  become: yes
+  with_items:
+    - https://download.owncloud.com/desktop/ownCloud/stable/latest/linux/Fedora_33/repodata/repomd.xml.key
+
+- name: Enable OwnCloud repo
+  command: dnf config-manager --add-repo https://download.owncloud.com/desktop/ownCloud/stable/latest/linux/Fedora_33/owncloud.repo
+  args:
+    warn: false
+
+- name: Check for OwnCloud repo
+  stat: 
+    path: /etc/yum.repos.d/owncloud.repo
+  register: owncloud_installed
+
+- name: Install OwnCloud
+  dnf:
+    name: owncloud-client
+    state: present
+
+- name: Template ownCloud Desktop
+  copy:
+    src: templates/owncloud.desktop
+    dest: /home/{{ local_user }}/.config/autostart/
+    owner: "{{ local_user }}"
+    group: wheel
+    mode: '0644'

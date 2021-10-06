@@ -1,0 +1,27 @@
+- name: Remove Old Docker Agents
+  dnf:
+    name:
+      - docker
+      - docker-client
+      - docker-client-latest
+      - docker-common
+      - docker-latest
+      - docker-latest-logrotate
+      - docker-logrotate
+      - docker-selinux
+      - docker-engine-selinux
+      - docker-engine
+    state: absent
+
+- name: Install Podman Docker
+  dnf:
+    name:
+      - podman-docker
+      - docker-compose
+    state: present
+
+- name: Disable Docker-Podman Warnings
+  command: touch /etc/containers/nodocker
+  become: yes
+  args:
+    warn: false

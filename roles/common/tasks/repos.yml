@@ -1,0 +1,37 @@
+---
+- name: Install RPM Fusion repo rpms
+  dnf:
+    name: "http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-{{ ansible_distribution_version }}.noarch.rpm"
+    disable_gpg_check: yes
+    state: present
+    # args:
+    #   warn: false
+
+- name: Install RPM Fusion Nonfree repo rpms
+  dnf:
+    name: "http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-{{ ansible_distribution_version }}.noarch.rpm"
+    disable_gpg_check: yes
+    state: present
+    # args:
+    #   warn: false
+
+- name: Enable Flathub
+  flatpak_remote:
+    name: flathub
+    state: present
+    flatpakrepo_url: https://flathub.org/repo/flathub.flatpakrepo
+
+- name: HashiCorp Signing Keys
+  rpm_key:
+    state: present
+    key: "{{ item }}"
+  become: yes
+  with_items:
+  - https://rpm.releases.hashicorp.com/gpg
+
+- name: Add HashiCorp Repo
+  yum_repository:
+    name: hashicorp
+    description: HashiCorp Repo
+    baseurl: https://rpm.releases.hashicorp.com/fedora/$releasever/$basearch/stable
+    gpgcheck: yes
