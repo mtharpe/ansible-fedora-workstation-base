@@ -35,3 +35,11 @@
     description: HashiCorp Repo
     baseurl: https://rpm.releases.hashicorp.com/fedora/$releasever/$basearch/stable
     gpgcheck: yes
+
+- name: Add 1Password Repo
+  yum_repository:
+    name: 1password
+    description: 1Password Repo
+    baseurl: https://downloads.1password.com/linux/rpm/stable/$basearch
+    gpgcheck: yes
+    gpgkey: https://downloads.1password.com/linux/keys/1password.asc
