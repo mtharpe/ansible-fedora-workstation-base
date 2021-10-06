@@ -80,6 +80,7 @@
       - exa
       - bat
       - ripgrep
+      - 1password
     state: installed
 - name: Install extra fonts
   dnf:
