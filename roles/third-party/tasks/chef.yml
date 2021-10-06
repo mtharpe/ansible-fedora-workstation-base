@@ -1,0 +1,18 @@
+---
+- name: Check for Chef
+  stat: 
+    path: /opt/chef-workstation/bin/chef
+  register: chef_installed
+
+- name: Install Chef-Workstation
+  dnf:
+    name: https://packages.chef.io/files/stable/chef-workstation/21.7.545/el/8/chef-workstation-21.7.545-1.el7.x86_64.rpm
+    disable_gpg_check: yes
+    state: installed
+  when: not chef_installed.stat.exists
+
+- name: Install Test-Kitchen Gems
+  command: chef gem install kitchen-vagrant kitchen-ansible
+  environment:
+    CHEF_LICENSE: "accept"
+  become:  '{{ local_user}}'

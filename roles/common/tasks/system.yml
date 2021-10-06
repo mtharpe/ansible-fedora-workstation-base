@@ -1,0 +1,33 @@
+---
+- name: Enable net.ipv4.ip_forward
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    sysctl_set: yes
+    state: present
+    reload: yes
+
+- name: Set fs.inotify.max_user_watches to 524288
+  sysctl:
+    name: fs.inotify.max_user_watches
+    value: '524288'
+    sysctl_set: yes
+    state: present
+    reload: yes
+  when: install_vscode
+
+- name: Allow wheel group to sudo without a password
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    regexp: '^%wheel'
+    line: '%wheel ALL=(ALL) NOPASSWD: ALL'
+    validate: visudo -cf %s
+
+- name: Template GDM custom.conf
+  copy:
+    src: templates/gdm_custom.conf
+    dest: /etc/gdm/custom.conf
+    owner: 'root'
+    group: 'root'
+    mode: '0755'

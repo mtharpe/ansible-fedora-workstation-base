@@ -1,0 +1,48 @@
+---
+
+# User
+local_user:  
+local_user_email:  
+local_user_passwordless_sudo: true
+
+# Services
+enable_fail2ban: true 
+# enable_libvirtd: true
+enable_sshd: true
+enable_vagrant_nfs: true
+
+# Extras
+install_packager: true
+
+# Third party
+install_chrome: true
+install_slack: true
+install_spotify: false
+install_atom: false
+install_vscode: true
+install_zoom: true
+install_lutris: false
+install_steam: false
+install_owncloud: true
+install_docker: true
+install_gcloud: true
+install_chef: true
+install_autocpu: true
+install_virtualbox: false
+install_alacritty: true
+
+#python3
+ansible_python_interpreter: /usr/bin/python3
+
+
+gnome_extension_ids:
+  - 906
+  - 4099
+  - 16
+  - 4158
+  - 4052
+  - 615
+  - 4135
+  - 2594
+  - 1401
+  - 112

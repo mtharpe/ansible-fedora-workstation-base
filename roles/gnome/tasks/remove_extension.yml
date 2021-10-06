@@ -1,0 +1,27 @@
+---
+
+- name: Remove global garbage extensions
+  file:
+    path: "/usr/share/gnome-shell/extensions/{{ item }}"
+    state: absent
+  with_items:
+    - appindicatorsupport@rgcjonas.gmail.com
+    - native-window-placement@gnome-shell-extensions.gcampax.github.com
+    - apps-menu@gnome-shell-extensions.gcampax.github.com
+    - nightthemeswitcher@romainvigier.fr
+    - arcmenu@arcmenu.com
+    - auto-move-windows@gnome-shell-extensions.gcampax.github.com
+    - places-menu@gnome-shell-extensions.gcampax.github.com
+    - dash-to-dock@micxgx.gmail.com
+    - pop-shell@system76.com
+    - dash-to-panel@jderose9.github.com
+    - screenshot-window-sizer@gnome-shell-extensions.gcampax.github.com
+    - ding@rastersoft.com
+    - unite@hardpixel.eu
+    - drive-menu@gnome-shell-extensions.gcampax.github.com
+    - window-list@gnome-shell-extensions.gcampax.github.com
+    - gsconnect@andyholmes.github.io
+    - windowsNavigator@gnome-shell-extensions.gcampax.github.com
+    - launch-new-instance@gnome-shell-extensions.gcampax.github.com
+    - workspace-indicator@gnome-shell-extensions.gcampax.github.com
+    - material-shell@papyelgringo

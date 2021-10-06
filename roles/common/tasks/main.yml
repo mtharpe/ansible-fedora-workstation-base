@@ -1,0 +1,20 @@
+- name: Setup Repos
+  import_tasks: repos.yml
+
+- name: Setup Packages
+  import_tasks: packages.yml
+
+- name: Setup Users
+  import_tasks: users.yml
+
+- name: Setup Services
+  import_tasks: services.yml
+
+- name: Setup System
+  import_tasks: system.yml
+
+- name: Setup Harden
+  import_tasks: harden.yml
+
+- name: Setup Bash
+  import_tasks: bash.yml

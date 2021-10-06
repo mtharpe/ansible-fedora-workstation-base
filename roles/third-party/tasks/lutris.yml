@@ -1,0 +1,45 @@
+---
+- name: Check for Wine
+  stat: 
+    path: /usr/bin/wine
+  register: wine_installed
+
+- name: Check for Lutris
+  stat: 
+    path: /usr/bin/lutris
+  register: lutris_installed
+- name: Install Wine
+  dnf:
+    name: wine
+    state: present
+  when: not wine_installed.stat.exists
+- name: Install Lutris
+  dnf:
+    name: lutris
+    state: present
+  when: not lutris_installed.stat.exists
+
+- name: Install Vulkan Loader
+  dnf:
+    name:
+      - vulkan-loader
+      - vulkan-loader.i686
+    state: present
+  when: not lutris_installed.stat.exists
+- name: Install Missing Libs for Lutris
+  dnf:
+    name:
+      - freetype
+      - freetype.i686
+      - gnutls gnutls.i686
+      - gnutls-devel
+      - gnutls-devel.i686
+      - openldap openldap.i686
+      - openldap-devel
+      - openldap-devel.i686
+      - libgpg-error
+      - libgpg-error.i686
+      - sqlite2.i686
+      - sqlite2.x86_64
+    state: present
+  when: not lutris_installed.stat.exists

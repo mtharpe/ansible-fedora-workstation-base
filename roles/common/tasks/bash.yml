@@ -1,0 +1,37 @@
+- name: Template bashrc
+  copy:
+    src: templates/bashrc
+    dest: /home/{{ local_user }}/.bashrc
+    owner: "{{ local_user }}"
+    group: wheel
+    mode: '0644'
+
+- name: Template bash_profile
+  copy:
+    src: templates/bash_profile
+    dest: /home/{{ local_user }}/.bash_profile
+    owner: "{{ local_user }}"
+    group: wheel
+    mode: '0644'
+
+- name: Template bash_aliases
+  copy:
+    src: templates/bash_aliases
+    dest: /home/{{ local_user }}/.bash_aliases
+    owner: "{{ local_user }}"
+    group: wheel
+    mode: '0644'
+
+- name: Template tmux.conf
+  copy:
+    src: templates/tmux.conf
+    dest: /home/{{ local_user }}/.tmux.conf
+    owner: "{{ local_user }}"
+    group: "{{ local_user }}"
+    mode: '0644'
+
+- name: Install Tmux TPM
+  git:
+    repo: https://github.com/tmux-plugins/tpm
+    dest: /home/{{ local_user }}/.tmux/plugins/tpm
+    version: "master"

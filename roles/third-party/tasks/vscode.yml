@@ -1,0 +1,25 @@
+---
+- name: Check for vscode repo
+  stat: 
+    path: /etc/yum.repos.d/vscode.repo
+  register: fedora_vscode_installed
+
+- name: Import Microsoft GPG key
+  rpm_key:
+    state: present
+    key: https://packages.microsoft.com/keys/microsoft.asc
+
+- name: Enable vscode repo
+  yum_repository:
+    name: code
+    description: Visual Studio Code
+    file: vscode
+    baseurl: "https://packages.microsoft.com/yumrepos/vscode"
+    gpgkey: "https://packages.microsoft.com/keys/microsoft.asc"
+    gpgcheck: no
+  when: not fedora_vscode_installed.stat.exists
+
+- name: Install VSCode
+  dnf:
+    name: code
+    state: present

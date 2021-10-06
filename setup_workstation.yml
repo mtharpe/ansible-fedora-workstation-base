@@ -1,0 +1,16 @@
+---
+- name: Setup Workstation
+  hosts: workstation
+  become: true
+  gather_facts: true
+
+  vars_files:
+    - vars/vars.yml
+
+  roles:
+    - common
+    - third-party
+    - gnome
+
+  handlers:
+    - import_tasks: handlers/main.yml

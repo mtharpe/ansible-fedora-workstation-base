@@ -1,0 +1,13 @@
+# {{ ansible_managed }}
+
+[Desktop Entry]
+Name=ownCloud
+GenericName=File Synchronizer
+Exec=sh -c 'sleep 10 && /opt/ownCloud/ownCloud/bin/owncloud'
+Terminal=false
+Icon=owncloud
+Categories=Network
+Type=Application
+StartupNotify=false
+X-GNOME-Autostart-enabled=true
+X-GNOME-Autostart-Delay=10
