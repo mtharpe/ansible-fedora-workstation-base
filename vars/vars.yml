@@ -7,7 +7,7 @@ local_user_passwordless_sudo: true
 
 # Services
 enable_fail2ban: true 
-# enable_libvirtd: true
+enable_libvirtd: true
 enable_sshd: true
 enable_vagrant_nfs: true
 
