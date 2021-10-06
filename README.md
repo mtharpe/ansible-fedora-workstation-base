@@ -1,4 +1,4 @@
-![Ansible Lint](https://github.com/mtharpe/ansible-fedora-workstation-base/workflows/Ansible%20Lint/badge.svg)
+[![Ansible Lint](https://github.com/mtharpe/ansible-fedora-workstation-base/actions/workflows/main.yml/badge.svg)](https://github.com/mtharpe/ansible-fedora-workstation-base/actions/workflows/main.yml)
 
 # Fedora Workstation Base
 
