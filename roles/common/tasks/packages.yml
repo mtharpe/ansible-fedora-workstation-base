@@ -1,6 +1,6 @@
 ---
 - name: Install group packages
-  pacakge:
+  package:
     name:
       - '@Development Tools'
       - '@C Development Tools and Libraries'
