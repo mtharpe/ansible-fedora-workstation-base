@@ -1,14 +1,14 @@
 ---
 - name: Install group packages
-  dnf:
+  pacakge:
     name:
       - '@Development Tools'
       - '@C Development Tools and Libraries'
       - '@D Development Tools and Libraries'
       - '@fedora-packager'
-    state: installed
+    state: present
 - name: Install extra packages
-  dnf:
+  package:
     name:
       - direnv
       - nmon
@@ -84,10 +84,9 @@
       - vlc
       - ffmpeg
       - remmina
-      - 'https://go.microsoft.com/fwlink/p/?LinkID=2112907&clcid=0x409&culture=en-us&country=US'
-    state: installed
+    state: present
 - name: Install extra fonts
-  dnf:
+  package:
     name:
       - adobe-source-code-pro-fonts
       - dejavu-sans-fonts
@@ -106,9 +105,9 @@
       - msimonson-anonymouspro-fonts
       - overpass-fonts
       - terminus-fonts
-    state: installed
+    state: present
 - name: Remove packages
-  dnf:
+  package:
     name:
       - firefox
       - gnome-calendar
@@ -120,13 +119,12 @@
       - gnome-tour
       - gnome-abrt
       - gnome-logs
-    autoremove: 'yes'
     state: absent
 - name: Install RPMFusion Packages
-  dnf:
+  package:
     name:
       - ffmpeg
-    state: installed
+    state: present
 
 - name: Install npm packages
   command: npm install -g electron nativefier node.js --unsafe-perm=true

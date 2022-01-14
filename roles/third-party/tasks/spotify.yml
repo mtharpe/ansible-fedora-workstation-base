@@ -9,7 +9,7 @@
   when: not fedora_spotify_installed.stat.exists
 
 - name: Install Spotify
-  dnf:
+  package:
     name: spotify-client
     state: present
   ignore_errors: yes

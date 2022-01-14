@@ -6,7 +6,7 @@
     version: "master"
 
 - name:  Install Auto-CPUFreq Files
-  dnf:
+  package:
     name:
       - python-devel 
       - dmidecode

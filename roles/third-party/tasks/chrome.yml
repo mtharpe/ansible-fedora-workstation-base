@@ -15,7 +15,7 @@
       register: chrome_installed
 
     - name: Install Google Chrome repo
-      dnf:
+      package:
         name: "https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm"
         state: present
       when: not chrome_installed.stat.exists
@@ -26,6 +26,6 @@
         warn: false
 
 - name: Install Google Chrome
-  dnf:
+  package:
     name: google-chrome-stable
     state: present

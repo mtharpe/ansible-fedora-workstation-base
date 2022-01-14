@@ -11,7 +11,7 @@
   when: not atom_installed.stat.exists
 
 - name: Install Atom RPM
-  dnf:
+  package:
     name: /tmp/atom.rpm
     state: present
   when: not atom_installed.stat.exists
