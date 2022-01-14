@@ -20,6 +20,6 @@
   when: not fedora_vscode_installed.stat.exists
 
 - name: Install VSCode
-  dnf:
+  package:
     name: code
     state: present

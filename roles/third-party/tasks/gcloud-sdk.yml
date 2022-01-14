@@ -15,7 +15,7 @@
     gpgcheck: yes
 
 - name: Install Google Cloud SDK
-  dnf:
+  package:
     name:
       - google-cloud-sdk
       - kubectl
