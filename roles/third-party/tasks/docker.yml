@@ -1,5 +1,5 @@
 - name: Remove Old Docker Agents
-  dnf:
+  package:
     name:
       - docker
       - docker-client
@@ -14,7 +14,7 @@
     state: absent
 
 - name: Install Podman Docker
-  dnf:
+  package:
     name:
       - podman-docker
       - docker-compose

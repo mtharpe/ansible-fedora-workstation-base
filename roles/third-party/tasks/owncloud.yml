@@ -18,7 +18,7 @@
   register: owncloud_installed
 
 - name: Install OwnCloud
-  dnf:
+  package:
     name: owncloud-client
     state: present
 

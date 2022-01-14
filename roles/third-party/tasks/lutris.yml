@@ -9,25 +9,25 @@
     path: /usr/bin/lutris
   register: lutris_installed
 - name: Install Wine
-  dnf:
+  package:
     name: wine
     state: present
   when: not wine_installed.stat.exists
 - name: Install Lutris
-  dnf:
+  package:
     name: lutris
     state: present
   when: not lutris_installed.stat.exists
 
 - name: Install Vulkan Loader
-  dnf:
+  package:
     name:
       - vulkan-loader
       - vulkan-loader.i686
     state: present
   when: not lutris_installed.stat.exists
 - name: Install Missing Libs for Lutris
-  dnf:
+  package:
     name:
       - freetype
       - freetype.i686

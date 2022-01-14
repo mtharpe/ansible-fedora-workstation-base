@@ -1,5 +1,5 @@
 - name: Install Steam
-  dnf:
+  package:
     name:
       - steam
     state: present
