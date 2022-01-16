@@ -27,7 +27,7 @@ install_owncloud: true
 install_docker: true
 install_gcloud: true
 install_chef: true
-install_autocpu: true
+install_autocpu: false
 install_virtualbox: false
 install_alacritty: true
 
