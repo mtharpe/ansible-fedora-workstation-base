@@ -1,4 +1,5 @@
-[![Ansible Lint](https://github.com/mtharpe/ansible-fedora-workstation-base/actions/workflows/main.yml/badge.svg)](https://github.com/mtharpe/ansible-fedora-workstation-base/actions/workflows/main.yml)
+[![Ansible Lint](https://github.com/mtharpe/ansible-fedora-workstation-base/actions/workflows/ansible.yml/badge.svg)](https://github.com/mtharpe/ansible-fedora-workstation-base/actions/workflows/ansible.yml)
+[![SonarQube](https://github.com/mtharpe/ansible-fedora-workstation-base/actions/workflows/sonarqube.yml/badge.svg)](https://github.com/mtharpe/ansible-fedora-workstation-base/actions/workflows/sonarqube.yml)
 
 # Fedora Workstation Base
 
