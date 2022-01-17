@@ -4,13 +4,13 @@ on: [push, pull_request]
 
 jobs:
   build:
-
-    runs-on: ubuntu-18.04
-
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
     - name: Lint Ansible Playbook
       uses: ansible/ansible-lint-action@master
       with:
         targets: "./"
-        override-deps: "-q"
+        override-deps: |
+          ansible-lint==5.3.2
+        args: "-q"
