@@ -31,10 +31,12 @@
     name:
       - freetype
       - freetype.i686
-      - gnutls gnutls.i686
+      - gnutls
+      - gnutls.i686
       - gnutls-devel
       - gnutls-devel.i686
-      - openldap openldap.i686
+      - openldap
+      - openldap.i686
       - openldap-devel
       - openldap-devel.i686
       - libgpg-error
