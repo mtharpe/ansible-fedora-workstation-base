@@ -4,16 +4,16 @@
     name: "http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-{{ ansible_distribution_version }}.noarch.rpm"
     disable_gpg_check: yes
     state: present
-    args:
-      warn: false
+  args:
+    warn: false
 
 - name: Install RPM Fusion Nonfree repo rpms
   dnf:
     name: "http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-{{ ansible_distribution_version }}.noarch.rpm"
     disable_gpg_check: yes
     state: present
-    args:
-      warn: false
+  args:
+    warn: false
 
 - name: Enable Flathub
   flatpak_remote:
