@@ -5,12 +5,11 @@
   register: chef_installed
 
 - name: Install Chef-Workstation
-  dnf:
+  package:
     name: https://packages.chef.io/files/stable/chef-workstation/22.1.745/el/8/chef-workstation-22.1.745-1.el8.x86_64.rpm
     disable_gpg_check: yes
     state: installed
-    retries: 3
-    delay: 3
+  retries: 3
   when: not chef_installed.stat.exists
 
 - name: Install Test-Kitchen Gems
