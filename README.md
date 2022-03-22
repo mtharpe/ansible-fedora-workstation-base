@@ -1,4 +1,5 @@
 [![SonarQube](https://github.com/mtharpe/ansible-fedora-workstation-base/actions/workflows/sonarqube.yml/badge.svg)](https://github.com/mtharpe/ansible-fedora-workstation-base/actions/workflows/sonarqube.yml)
+
 [![CircleCI](https://circleci.com/gh/mtharpe/ansible-fedora-workstation-base/tree/main.svg?style=svg)](https://circleci.com/gh/mtharpe/ansible-fedora-workstation-base/tree/main)
 
 
