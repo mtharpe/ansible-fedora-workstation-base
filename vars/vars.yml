@@ -30,6 +30,8 @@ install_chef: true
 install_autocpu: false
 install_virtualbox: false
 install_alacritty: true
+install_bash: false
+install_fish: true
 
 #python3
 ansible_python_interpreter: /usr/bin/python3
