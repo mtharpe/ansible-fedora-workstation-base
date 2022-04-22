@@ -84,6 +84,7 @@
       - vlc
       - ffmpeg
       - remmina
+      - util-linux
     state: present
 - name: Install extra fonts
   package:
