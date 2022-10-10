@@ -5,6 +5,6 @@ jobs:
       - image: python:3-slim
     steps:
       - checkout
-      - run: pip install ansible ansible-lint
+      - run: pip install ansible ansible-lint==5.4.0
       - run: ansible-lint --version
       - run: ansible-lint .
