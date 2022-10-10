@@ -35,3 +35,7 @@
     repo: https://github.com/tmux-plugins/tpm
     dest: /home/{{ local_user }}/.tmux/plugins/tpm
     version: "master"
+
+- name: Podman autocompleete
+  command: podman completion -f /etc/bash_completion.d/podman bash
+  become: yes
