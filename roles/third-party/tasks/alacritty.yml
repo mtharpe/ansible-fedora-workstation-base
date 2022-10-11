@@ -35,7 +35,7 @@
   register: alacritty_stat
 
 - name: Disable Alacritty Built-in icon
-  become: yes
+  become: true
   command: mv /usr/share/applications/Alacritty.desktop /usr/share/applications/Alacritty.desktop.not
   when: alacritty_stat.stat.exists
 
@@ -45,6 +45,6 @@
   register: gnome_terminal_stat
 
 - name: Disable Gnome-Terminal Built-in icon
-  become: yes
+  become: true
   command: mv /usr/share/applications/org.gnome.Terminal.desktop /usr/share/applications/org.gnome.Terminal.desktop.not
   when: gnome_terminal_stat.stat.exists

@@ -21,7 +21,7 @@
   rpm_key:
     state: present
     key: "{{ item }}"
-  become: yes
+  become: true
   with_items:
   - https://rpm.releases.hashicorp.com/gpg
 

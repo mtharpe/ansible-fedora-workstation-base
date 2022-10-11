@@ -118,4 +118,4 @@
 
 - name: Uninstall junk (Have to use command because DNF mod is broken in Ansible)
   command: dnf erase -y firefox gnome-calendar gnome-contacts gnome-photos gnome-maps rhythmbox totem gnome-tour gnome-abrt gnome-logs
-  become: yes
+  become: true

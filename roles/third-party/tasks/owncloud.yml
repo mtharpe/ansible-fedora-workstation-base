@@ -3,7 +3,7 @@
   rpm_key:
     state: present
     key: "{{ item }}"
-  become: yes
+  become: true
   with_items:
     - https://download.owncloud.com/desktop/ownCloud/stable/latest/linux/Fedora_33/repodata/repomd.xml.key
 
