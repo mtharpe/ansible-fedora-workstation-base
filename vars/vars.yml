@@ -18,7 +18,6 @@ install_packager: true
 install_chrome: true
 install_slack: true
 install_spotify: false
-install_atom: false
 install_vscode: true
 install_zoom: true
 install_lutris: false
