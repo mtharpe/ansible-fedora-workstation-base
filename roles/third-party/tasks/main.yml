@@ -1,7 +1,3 @@
-- name: Setup Atom
-  import_tasks: atom.yml
-  when: install_atom
-
 - name: Setup Chrome
   import_tasks: chrome.yml
   when: install_chrome
