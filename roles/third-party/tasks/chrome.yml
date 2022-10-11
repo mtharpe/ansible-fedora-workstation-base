@@ -3,7 +3,7 @@
       rpm_key:
         state: present
         key: "{{ item }}"
-      become: yes
+      become: true
       with_items:
         - https://dl-ssl.google.com/linux/linux_signing_key.pub
         - https://packages.cloud.google.com/yum/doc/yum-key.gpg
