@@ -13,7 +13,10 @@ if [ -z "$ansible" ]; then
  sudo dnf install ansible -y
 fi
 
-ansible-playbook setup_workstation.yml --extra-vars "local_user=${USER} local_user_email=${USER}@gmail.com"
+until ansible-playbook --extra-vars "local_user=${USER}" site.yml; do
+  echo Ansible run disrupted, retrying in 10 seconds...
+  sleep 10
+done
 
 sudo rm -f /etc/sudoers.d/${USER}
 
