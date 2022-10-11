@@ -14,5 +14,5 @@
   package:
     name: /tmp/atom.rpm
     state: present
-    disable_gpg_check: true
+    disable_gpg_check: yes
   when: not atom_installed.stat.exists
