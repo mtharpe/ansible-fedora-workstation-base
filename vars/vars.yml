@@ -26,12 +26,12 @@ install_steam: false
 install_owncloud: true
 install_docker: true
 install_gcloud: true
-install_chef: true
+install_chef: false
 install_autocpu: false
-install_virtualbox: false
+install_virtualbox: true
 install_alacritty: true
-install_bash: false
-install_fish: true
+install_bash: true
+install_fish: false
 
 #python3
 ansible_python_interpreter: /usr/bin/python3
