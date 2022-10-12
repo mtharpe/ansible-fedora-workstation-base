@@ -27,7 +27,6 @@ install_docker: true
 install_gcloud: true
 install_chef: false
 install_autocpu: false
-install_virtualbox: true
 install_alacritty: true
 install_bash: true
 install_fish: false
