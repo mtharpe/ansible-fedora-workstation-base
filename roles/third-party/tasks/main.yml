@@ -42,10 +42,6 @@
   import_tasks: auto-cpufreq.yml
   when: install_autocpu
 
-- name: Setup VirtualBox
-  import_tasks: virtualbox.yml
-  when: install_virtualbox
-
 - name: Setup Chef
   import_tasks: chef.yml
   when: install_chef  
