@@ -49,3 +49,7 @@
 - name: Setup Alacritty
   import_tasks: alacritty.yml
   when: install_alacritty
+
+- name: Setup Work Apps
+  import_tasks: work-apps.yml
+  when: install_work_apps
