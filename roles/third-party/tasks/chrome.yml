@@ -22,8 +22,6 @@
 
     - name: Enable Google Chrome repo
       command: dnf config-manager --set-enabled google-chrome
-      args:
-        warn: false
 
 - name: Install Google Chrome
   package:

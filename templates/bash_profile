@@ -102,8 +102,5 @@ function parse_git_dirty {
         fi
 }
 
-# ChefDK paths for Ruby
-eval "$(chef shell-init bash)"
-
 # Direnv setup
 eval "$(direnv hook bash)"
