@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Google Tasks
+Icon=/home/tharpem/Pictures/icons/tasksboard-round.png
+Exec=/home/tharpem/Applications/GoogleTasks-linux-x64/GoogleTasks
+Comment=Asana
+Categories=Office;
+Terminal=false
+StartupWMClass=googletasks-nativefier-57762f

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Asana
+Icon=/home/tharpem/Pictures/icons/new-asana-logo.png
+Exec=/home/tharpem/Applications/Asana-linux-x64/Asana
+Comment=Asana
+Categories=Office;
+Terminal=false
+StartupWMClass=asana-nativefier-c63cf9

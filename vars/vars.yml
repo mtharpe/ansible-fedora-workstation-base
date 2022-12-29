@@ -30,6 +30,7 @@ install_autocpu: false
 install_alacritty: true
 install_bash: true
 install_fish: false
+install_work_apps: true
 
 #python3
 ansible_python_interpreter: /usr/bin/python3
