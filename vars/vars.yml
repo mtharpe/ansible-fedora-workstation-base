@@ -36,14 +36,12 @@ ansible_python_interpreter: /usr/bin/python3
 
 
 gnome_extension_ids:
-  - 906
   - 4099
   - 16
   - 4158
   - 4052
   - 615
   - 4135
-  - 2594
   - 1401
   - 112
   - 4412
