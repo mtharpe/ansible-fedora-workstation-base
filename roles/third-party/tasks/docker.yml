@@ -23,5 +23,3 @@
 - name: Disable Docker-Podman Warnings
   command: touch /etc/containers/nodocker
   become: true
-  args:
-    warn: false
