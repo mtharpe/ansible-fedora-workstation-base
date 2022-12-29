@@ -1,0 +1,134 @@
+---
+
+- name: Create Icons in the Pictures Directory
+  ansible.builtin.file:
+    path: /home/{{ local_user }}/Pictures/icons
+    state: directory
+    mode: '0755'
+
+- name: Copy Google Cal Icon to Pictures Directory
+  copy:
+    src: templates/icons/gcal.png
+    dest: /home/{{ local_user }}/Pictures/icons
+    owner: "{{ local_user }}"
+    group: wheel
+    mode: '644'
+
+- name: Copy Google Keep Icon to Pictures Directory
+  copy:
+    src: templates/icons/gkeep.png
+    dest: /home/{{ local_user }}/Pictures/icons
+    owner: "{{ local_user }}"
+    group: wheel
+    mode: '644'
+
+- name: Copy Google Mail Icon to Pictures Directory
+  copy:
+    src: templates/icons/gmail.png
+    dest: /home/{{ local_user }}/Pictures/icons
+    owner: "{{ local_user }}"
+    group: wheel
+    mode: '644'
+
+- name: Copy Asana Icon to Pictures Directory
+  copy:
+    src: templates/icons/new-asana-logo.png
+    dest: /home/{{ local_user }}/Pictures/icons
+    owner: "{{ local_user }}"
+    group: wheel
+    mode: '644'
+
+- name: Copy Google Tasks Icon to Pictures Directory
+  copy:
+    src: templates/icons/tasksboard-round.png
+    dest: /home/{{ local_user }}/Pictures/icons
+    owner: "{{ local_user }}"
+    group: wheel
+    mode: '644'
+
+- name: Create Applications Directory
+  ansible.builtin.file:
+    path: /home/{{ local_user }}/Applications
+    state: directory
+    owner: "{{ local_user }}"
+    group: wheel
+    mode: '0755'
+
+- name: Install Google Mail Client (Nativefier)
+  command: nativefier "https://mail.google.com/" --maximize --name "Google Mail" --user-agent "Mozilla/5.0 (X11; Linux x86_64; rv:88.0) Gecko/20100101 Firefox/88.0" --internal-urls "(.*?mail\.google\.com.*?|.*?accounts\.google\.com.*?|.*google.com.*|.*okta.com.*)" -i ~/Pictures/icons/gmail.png
+  become: true
+  become_user: "{{ local_user }}"
+  args:
+    chdir: /home/{{ local_user }}/Applications
+
+- name: Template Google Mail Client Desktop
+  copy:
+    src: templates/gnome_desktop/gmail.desktop
+    dest: /home/{{ local_user }}/.local/share/applications
+    owner: "{{ local_user }}"
+    group: wheel
+    mode: '0644'
+
+- name: Install Google Calendar Client (Nativefier)
+  command: nativefier "https://calendar.google.com/" --maximize --name "Google Calendar" --user-agent "Mozilla/5.0 (X11; Linux x86_64; rv:88.0) Gecko/20100101 Firefox/88.0" --internal-urls "(.*?calendar\.google\.com.*?|.*?accounts\.google\.com.*?|.*google.com.*|.*okta.com.*)" -i ~/Pictures/icons/gcal.png
+  become: true
+  become_user: "{{ local_user }}"
+  args:
+    chdir: /home/{{ local_user }}/Applications
+
+- name: Template Google Calendar Client Desktop
+  copy:
+    src: templates/gnome_desktop/gcal.desktop
+    dest: /home/{{ local_user }}/.local/share/applications
+    owner: "{{ local_user }}"
+    group: wheel
+    mode: '0644'
+
+- name: Install Google Keep Client (Nativefier)
+  command: nativefier "https://keep.google.com/" --maximize --name "Google Keep" --user-agent "Mozilla/5.0 (X11; Linux x86_64; rv:88.0) Gecko/20100101 Firefox/88.0" --internal-urls "(.*?keep\.google\.com.*?|.*?accounts\.google\.com.*?|.*google.com.*|.*okta.com.*)" -i ~/Pictures/icons/gkeep.png
+  become: true
+  become_user: "{{ local_user }}"
+  args:
+    chdir: /home/{{ local_user }}/Applications
+
+- name: Template Google Keep Client Desktop
+  copy:
+    src: templates/gnome_desktop/gkeep.desktop
+    dest: /home/{{ local_user }}/.local/share/applications
+    owner: "{{ local_user }}"
+    group: wheel
+    mode: '0644'
+
+- name: Install Google Tasks Client (Nativefier)
+  command: nativefier "https://tasksboard.com/" --maximize --name "Google Tasks" --user-agent "Mozilla/5.0 (X11; Linux x86_64; rv:88.0) Gecko/20100101 Firefox/88.0" --internal-urls "(.*?tasksboard\\.com.*?|.*?accounts\\.google\\.com.*?|.*google.com.*|.*okta.com.*)" -i ~/Pictures/icons/tasksboard-round.png
+  become: true
+  become_user: "{{ local_user }}"
+  args:
+    chdir: /home/{{ local_user }}/Applications
+
+- name: Template Google Keep Client Desktop
+  copy:
+    src: templates/gnome_desktop/gtasks.desktop
+    dest: /home/{{ local_user }}/.local/share/applications
+    owner: "{{ local_user }}"
+    group: wheel
+    mode: '0644'
+
+- name: Install Asana Client (Nativefier)
+  command: nativefier "https://app.asana.com/" --maximize --name "Asana" --user-agent "Mozilla/5.0 (X11; Linux x86_64; rv:88.0) Gecko/20100101 Firefox/88.0" --internal-urls "(.*?app\.asana\.com.*?|.*?accounts\.google\.com.*?|.*google.com.*|.*okta.com.*)" -i ~/Pictures/icons/new-asana-logo.png
+  become: true
+  become_user: "{{ local_user }}"
+  args:
+    chdir: /home/{{ local_user }}/Applications
+
+- name: Template Asana Client Desktop
+  copy:
+    src: templates/gnome_desktop/asana.desktop
+    dest: /home/{{ local_user }}/.local/share/applications
+    owner: "{{ local_user }}"
+    group: wheel
+    mode: '0644'
+
+- name: Update Desktop Database
+  command: update-desktop-database
+  become: true

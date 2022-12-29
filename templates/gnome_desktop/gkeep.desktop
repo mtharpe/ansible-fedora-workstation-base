@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Google Keep
+Icon=/home/tharpem/Pictures/icons/gkeep.png
+Exec=/home/tharpem/Applications/GoogleKeep-linux-x64/GoogleKeep
+Comment=Google Keep
+Categories=Office;
+Terminal=false
+StartupWMClass=googlekeep-nativefier-d04d04
