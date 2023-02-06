@@ -1,5 +1,0 @@
-{
-    "yaml.schemas": {
-        "https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible.json": "file:///home/tharpem/src/github/mtharpe/ansible/ansible-fedora-workstation-base/roles/third-party/tasks/alacritty.yml"
-    }
-}
