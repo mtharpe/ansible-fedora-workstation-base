@@ -1,33 +1,33 @@
 ---
 - name: Check for Wine
-  stat: 
+  ansible.builtin.stat:
     path: /usr/bin/wine
   register: wine_installed
 
 - name: Check for Lutris
-  stat: 
+  ansible.builtin.stat:
     path: /usr/bin/lutris
   register: lutris_installed
 - name: Install Wine
-  package:
+  ansible.builtin.package:
     name: wine
     state: present
   when: not wine_installed.stat.exists
 - name: Install Lutris
-  package:
+  ansible.builtin.package:
     name: lutris
     state: present
   when: not lutris_installed.stat.exists
 
 - name: Install Vulkan Loader
-  package:
+  ansible.builtin.package:
     name:
       - vulkan-loader
       - vulkan-loader.i686
     state: present
   when: not lutris_installed.stat.exists
 - name: Install Missing Libs for Lutris
-  package:
+  ansible.builtin.package:
     name:
       - freetype
       - freetype.i686

@@ -1,121 +1,129 @@
 ---
 - name: Get Gnome Profile
-  shell: gsettings get org.gnome.Terminal.ProfilesList default  | awk -F \' '{print $2}'
+  ansible.builtin.shell: gsettings get org.gnome.Terminal.ProfilesList default  | awk -F \' '{print $2}'
   become_user: "{{ local_user }}"
   register: profile
 
 - name: Setup Gnome
-  dconf:
+  community.general.dconf:
     key: "{{ item.k }}"
     value: "{{ item.v }}"
     state: present
   become_user: "{{ local_user }}"
   loop:
-    - k: "/org/gnome/desktop/interface/clock-format"
+    - k: /org/gnome/desktop/interface/clock-format
       v: "'12h'"
-    
-    - k: "/org/gnome/desktop/boxes/first-run"
+
+    - k: /org/gnome/desktop/boxes/first-run
       v: "false"
-    
-    - k: "/org/gnome/desktop/interface/cursor-theme"
+
+    - k: /org/gnome/desktop/interface/cursor-theme
       v: "'Adwaita'"
-    
-    - k: "/org/gnome/desktop/interface/enable-hot-corners"
+
+    - k: /org/gnome/desktop/interface/enable-hot-corners
       v: "false"
-    
-    - k: "/org/gnome/desktop/interface/gtk-theme"
+
+    - k: /org/gnome/desktop/interface/gtk-theme
       v: "'Adwaita-dark'"
-    
-    - k: "/org/gnome/desktop/interface/icon-theme"
+
+    - k: /org/gnome/desktop/interface/icon-theme
       v: "'Adwaita'"
-    
-    - k: "/org/gnome/desktop/interface/show-battery-percentage"
+
+    - k: /org/gnome/desktop/interface/show-battery-percentage
       v: "true"
-    
-    - k: "/org/gnome/desktop/datetime/automatic-timezone"
+
+    - k: /org/gnome/desktop/datetime/automatic-timezone
       v: "true"
-    
-    - k: "/org/gnome/desktop/privacy/remember-app-usage"
+
+    - k: /org/gnome/desktop/privacy/remember-app-usage
       v: "false"
-    
-    - k: "/org/gnome/system/location/enabled"
+
+    - k: /org/gnome/system/location/enabled
       v: "true"
-    
-    - k: "/org/gnome/system/location/max-accuracy-level"
+
+    - k: /org/gnome/system/location/max-accuracy-level
       v: "'exact'"
-    
-    - k: "/org/gnome/terminal/legacy/confirm-close"
+
+    - k: /org/gnome/terminal/legacy/confirm-close
       v: "false"
-    
-    - k: "/org/gnome/terminal/legacy/shell-integration-enabled"
+
+    - k: /org/gnome/terminal/legacy/shell-integration-enabled
       v: "true"
-    
-    - k: "/org/gnome/terminal/legacy/theme-variant"
+
+    - k: /org/gnome/terminal/legacy/theme-variant
       v: "'dark'"
-    
-    - k: "/org/gnome/terminal/legacy/unified-menu"
+
+    - k: /org/gnome/terminal/legacy/unified-menu
       v: "false"
-    
-    - k: "/org/gnome/shell/app-picker-layout"
-      v: "[{'Zoom.desktop': <{'position': <0>}>, 'org.gnome.clocks.desktop': <{'position': <1>}>, 'ca.desrt.dconf-editor.desktop': <{'position': <2>}>, 'org.gnome.Calculator.desktop': <{'position': <3>}>, '9c169ee7-5d62-48f7-a8bd-2101a8b7f1db': <{'position': <4>}>, 'org.gnome.gedit.desktop': <{'position': <5>}>, 'simple-scan.desktop': <{'position': <6>}>, 'owncloud.desktop': <{'position': <7>}>, 'gnome-control-center.desktop': <{'position': <8>}>, 'org.gnome.Nautilus.desktop': <{'position': <9>}>, 'Utilities': <{'position': <10>}>, 'org.gnome.Tour.desktop': <{'position': <11>}>}]"
-    
-    - k: "/org/gnome/shell/favorite-apps"
+
+    - k: /org/gnome/shell/app-picker-layout
+      v: "[{'Zoom.desktop': <{'position': <0>}>, 'org.gnome.clocks.desktop': <{'position': <1>}>, 'ca.desrt.dconf-editor.desktop': <{'position': <2>}>, 'org.gnome.Calculator.desktop':
+        <{'position': <3>}>, '9c169ee7-5d62-48f7-a8bd-2101a8b7f1db': <{'position': <4>}>, 'org.gnome.gedit.desktop': <{'position': <5>}>, 'simple-scan.desktop': <{'position':
+        <6>}>, 'owncloud.desktop': <{'position': <7>}>, 'gnome-control-center.desktop': <{'position': <8>}>, 'org.gnome.Nautilus.desktop': <{'position': <9>}>, 'Utilities':
+        <{'position': <10>}>, 'org.gnome.Tour.desktop': <{'position': <11>}>}]"
+
+    - k: /org/gnome/shell/favorite-apps
       v: "['google-chrome.desktop', 'slack.desktop', 'code.desktop', 'alacritty.desktop']"
-    
-    - k: "/org/gnome/shell/overrides/dynamic-workspaces"
+
+    - k: /org/gnome/shell/overrides/dynamic-workspaces
       v: "false"
-    
-    - k: "/org/gnome/desktop/wm/preferences/num-workspaces"
+
+    - k: /org/gnome/desktop/wm/preferences/num-workspaces
       v: "6"
-    
-    - k: "/org/gnome/shell/overrides/workspaces-only-on-primary"
+
+    - k: /org/gnome/shell/overrides/workspaces-only-on-primary
       v: "true"
-    
-    - k: "/org/gnome/shell/window-switcher/current-workspace-only"
+
+    - k: /org/gnome/shell/window-switcher/current-workspace-only
       v: "false"
-    
-    - k: "/org/gnome/desktop/peripherals/touchpad/natural-scroll"
+
+    - k: /org/gnome/desktop/peripherals/touchpad/natural-scroll
       v: "false"
-    
-    - k: "/org/gnome/peripherals/mouse/natural-scroll"
+
+    - k: /org/gnome/peripherals/mouse/natural-scroll
       v: "false"
-    
-    - k: "/org/gnome/settings-daemon/plugins/power/ambient-enabled"
+
+    - k: /org/gnome/settings-daemon/plugins/power/ambient-enabled
       v: "false"
-    
-    - k: "/org/gnome/settings-daemon/plugins/power/idle-brightness"
+
+    - k: /org/gnome/settings-daemon/plugins/power/idle-brightness
       v: "50"
-    
-    - k: "/org/gnome/mutter/dynamic-workspaces"
+
+    - k: /org/gnome/mutter/dynamic-workspaces
       v: "false"
-    
-    - k: "/org/gnome/desktop/wm/preferences/button-layout"
+
+    - k: /org/gnome/desktop/wm/preferences/button-layout
       v: "'appmenu:minimize,maximize,close'"
-    
-    - k: "/org/gnome/shell/enabled-extensions"
-      v: "['background-logo@fedorahosted.org', 'appindicatorsupport@rgcjonas.gmail.com', 'auto-move-windows@gnome-shell-extensions.gcampax.github.com', 'bluetooth-quick-connect@bjarosze.gmail.com', 'espresso@coadmunkee.github.com', 'gnome-ui-tune@itstime.tech', 'hide-universal-access@akiirui.github.io', 'miniCal3@mtharpe', 'no-overview@fthx']"  
-    
-    - k: "/org/gnome/shell/extensions/auto-move-windows/application-list"
+
+    - k: /org/gnome/shell/enabled-extensions
+      v: "['background-logo@fedorahosted.org', 'appindicatorsupport@rgcjonas.gmail.com', 'auto-move-windows@gnome-shell-extensions.gcampax.github.com', 'bluetooth-quick-connect@bjarosze.gmail.com',
+        'espresso@coadmunkee.github.com', 'gnome-ui-tune@itstime.tech', 'hide-universal-access@akiirui.github.io', 'miniCal3@mtharpe', 'no-overview@fthx']"
+
+    - k: /org/gnome/shell/extensions/auto-move-windows/application-list
       v: "['slack.desktop:1', 'alacritty.desktop:2', 'gcal.desktop:1', 'gmail.desktop:1', 'asana.desktop:1', 'slack.desktop:1', 'gkeep.desktop:1', 'gtasks.desktop:1']"
-    
-    - k: "/org/gnome/shell/extensions/expresso/restore-state"
+
+    - k: /org/gnome/shell/extensions/expresso/restore-state
       v: "true"
-    
-    - k: "/org/gnome/shell/extensions/expresso/show-notifications"
+
+    - k: /org/gnome/shell/extensions/expresso/show-notifications
       v: "false"
-    
-    - k: "/org/gnome/shell/extensions/expresso/user-enabled"
-      v: "true"  
-    
-    - k: "/org/gnome/shell/weather/automatic-location"
+
+    - k: /org/gnome/shell/extensions/expresso/user-enabled
       v: "true"
-    
-    - k: "/org/gnome/shell/weather/locations"
+
+    - k: /org/gnome/shell/weather/automatic-location
+      v: "true"
+
+    - k: /org/gnome/shell/weather/locations
       v: "[<(uint32 2, <('Indianapolis', 'KIND', true, [(0.69333204535474746, -1.5059040078213661)], [(0.69408911682438501, -1.5037415099715601)])>)>]"
-    
-    - k: "/org/gnome/shell/world-clocks/locations"
-      v: "[<(uint32 2, <('Los Angeles', 'KCQT', true, [(0.59370283970450188, -2.0644336110828618)], [(0.59432360095955872, -2.063741622941031)])>)>, <(uint32 2, <('Denver', 'KBKF', true, [(0.69307024596694822, -1.8283729951886007)], [(0.69357907925707463, -1.8323287315783685)])>)>, <(uint32 2, <('Chicago', 'KMDW', true, [(0.72927128935316143, -1.5316185371029443)], [(0.73042086791828009, -1.529781996944241)])>)>, <(uint32 2, <('New York', 'KNYC', true, [(0.71180344078725644, -1.2909618758762367)], [(0.71059804659265924, -1.2916478949920254)])>)>, <(uint32 2, <('Sydney', 'YSSY', true, [(-0.59253928105207498, 2.6386469349889961)], [(-0.59137572239964786, 2.6392287230418559)])>)>]"
-    
+
+    - k: /org/gnome/shell/world-clocks/locations
+      v: "[<(uint32 2, <('Los Angeles', 'KCQT', true, [(0.59370283970450188, -2.0644336110828618)], [(0.59432360095955872, -2.063741622941031)])>)>, <(uint32 2, <('Denver',
+        'KBKF', true, [(0.69307024596694822, -1.8283729951886007)], [(0.69357907925707463, -1.8323287315783685)])>)>, <(uint32 2, <('Chicago', 'KMDW', true, [(0.72927128935316143,
+        -1.5316185371029443)], [(0.73042086791828009, -1.529781996944241)])>)>, <(uint32 2, <('New York', 'KNYC', true, [(0.71180344078725644, -1.2909618758762367)],
+        [(0.71059804659265924, -1.2916478949920254)])>)>, <(uint32 2, <('Sydney', 'YSSY', true, [(-0.59253928105207498, 2.6386469349889961)], [(-0.59137572239964786,
+        2.6392287230418559)])>)>]"
+
 # - name: Setup Gnome Terminal
 #   shell: "{{ item }}"
 #   become_user: "{{ local_user }}"
@@ -130,19 +138,18 @@
 #     - "gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:{{ profile.stdout }}/ use-custom-command true"
 #     - "gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:{{ profile.stdout }}/ custom-command /usr/bin/tmux"
 
-- include_tasks: main_extension.yml
+- ansible.builtin.include_tasks: main_extension.yml
   vars:
     gnome_extension_ids:
-    - 906
-    - 4099
-    - 16
-    - 4158
-    - 4052
-    - 615
-    - 4135
-    - 2594
-    - 1401
-    - 2398
+      - 906
+      - 4099
+      - 16
+      - 4158
+      - 4052
+      - 615
+      - 4135
+      - 2594
+      - 1401
+      - 2398
 
-- include_tasks: remove_extension.yml
-  
+- ansible.builtin.include_tasks: remove_extension.yml

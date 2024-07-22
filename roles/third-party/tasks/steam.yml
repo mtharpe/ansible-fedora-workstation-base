@@ -1,5 +1,6 @@
+---
 - name: Install Steam
-  package:
+  ansible.builtin.package:
     name:
       - steam
     state: present

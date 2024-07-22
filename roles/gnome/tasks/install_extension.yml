@@ -1,45 +1,44 @@
 ---
-
 - name: Check if Gnome Shell extension is already installed - {{ gnome_extension_info.name }}
-  stat:
-    path: "/home/{{ local_user }}/.local/share/gnome-shell/extensions/{{ gnome_extension_info.uuid }}/metadata.json"
+  ansible.builtin.stat:
+    path: /home/{{ local_user }}/.local/share/gnome-shell/extensions/{{ gnome_extension_info.uuid }}/metadata.json
   register: r_gnome_extensions_check_existing
 
 - name: Create temporary download directory
-  tempfile:
+  ansible.builtin.tempfile:
     state: directory
-    suffix: ".gnome_extension_download"
+    suffix: .gnome_extension_download
   register: r_gnome_extension_download_dir
-  changed_when: no
+  changed_when: false
   when: r_gnome_extensions_check_existing.stat.exists == False
 
-- block:
+- when: r_gnome_extensions_check_existing.stat.exists == False
+  block:
     - name: Download Gnome Shell extension - {{ gnome_extension_info.name }}
-      get_url:
+      ansible.builtin.get_url:
         url: https://extensions.gnome.org{{ gnome_extension_info.download_url }}
         dest: "{{ r_gnome_extension_download_dir.path }}/{{ gnome_extension_info.uuid }}.zip"
       register: r_gnome_extension_download
 
     - name: Create install directory - {{ gnome_extension_info.name }}
-      file:
-        path: "/home/{{ local_user }}/.local/share/gnome-shell/extensions/{{ gnome_extension_info.uuid }}"
+      ansible.builtin.file:
+        path: /home/{{ local_user }}/.local/share/gnome-shell/extensions/{{ gnome_extension_info.uuid }}
         state: directory
         owner: "{{ local_user }}"
         group: "{{ local_user }}"
-        mode: 0775
+        mode: "0775"
 
     - name: Install Gnome Shell extension - {{ gnome_extension_info.name }}
-      unarchive:
+      ansible.builtin.unarchive:
         src: "{{ r_gnome_extension_download.dest }}"
-        dest: "/home/{{ local_user }}/.local/share/gnome-shell/extensions/{{ gnome_extension_info.uuid }}"
-        remote_src: yes
+        dest: /home/{{ local_user }}/.local/share/gnome-shell/extensions/{{ gnome_extension_info.uuid }}
+        remote_src: true
 
     - name: Enable Gnome Shell extension - {{ gnome_extension_info.name }}
-      command: gnome-shell-extension-tool --enable-extension {{ gnome_extension_info.uuid }}
+      ansible.builtin.command: gnome-shell-extension-tool --enable-extension {{ gnome_extension_info.uuid }}
   always:
     - name: Delete temporary download directory
-      file:
+      ansible.builtin.file:
         path: "{{ r_gnome_extension_download_dir.path }}"
         state: absent
-      changed_when: no
-  when: r_gnome_extensions_check_existing.stat.exists == False
+      changed_when: false

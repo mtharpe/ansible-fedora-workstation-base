@@ -1,8 +1,7 @@
 ---
-
 - name: Remove global garbage extensions
-  file:
-    path: "/usr/share/gnome-shell/extensions/{{ item }}"
+  ansible.builtin.file:
+    path: /usr/share/gnome-shell/extensions/{{ item }}
     state: absent
   with_items:
     - appindicatorsupport@rgcjonas.gmail.com

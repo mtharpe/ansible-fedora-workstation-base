@@ -1,25 +1,25 @@
 ---
 - name: Check for vscode repo
-  stat: 
+  ansible.builtin.stat:
     path: /etc/yum.repos.d/vscode.repo
   register: fedora_vscode_installed
 
 - name: Import Microsoft GPG key
-  rpm_key:
+  ansible.builtin.rpm_key:
     state: present
     key: https://packages.microsoft.com/keys/microsoft.asc
 
 - name: Enable vscode repo
-  yum_repository:
+  ansible.builtin.yum_repository:
     name: code
     description: Visual Studio Code
     file: vscode
-    baseurl: "https://packages.microsoft.com/yumrepos/vscode"
-    gpgkey: "https://packages.microsoft.com/keys/microsoft.asc"
-    gpgcheck: no
+    baseurl: https://packages.microsoft.com/yumrepos/vscode
+    gpgkey: https://packages.microsoft.com/keys/microsoft.asc
+    gpgcheck: false
   when: not fedora_vscode_installed.stat.exists
 
 - name: Install VSCode
-  package:
+  ansible.builtin.package:
     name: code
     state: present

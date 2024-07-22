@@ -1,34 +1,34 @@
 ---
 - name: Clone Auto-CPUFreq
-  git:
+  ansible.builtin.git:
     repo: https://github.com/AdnanHodzic/auto-cpufreq.git
     dest: /tmp/autocpu
-    version: "master"
+    version: master
 
-- name:  Install Auto-CPUFreq Files
-  package:
+- name: Install Auto-CPUFreq Files
+  ansible.builtin.package:
     name:
-      - python-devel 
+      - python-devel
       - dmidecode
 
 - name: Compile Auto-CPUFreq with PIP
-  shell:
+  ansible.builtin.shell:
     cmd: python3 -m pip install -r requirements.txt
     chdir: /tmp/autocpu
 
 - name: Compile Auto-CPUFreq with Python
-  shell:
+  ansible.builtin.shell:
     cmd: python3 setup.py install --record files.txt
     chdir: /tmp/autocpu
 
 - name: Create auto-cpufreq directory
-  file:
+  ansible.builtin.file:
     path: /usr/local/share/auto-cpufreq/
     state: directory
-    owner: 'root'
-    group: 'root'
-    mode: '0755'
+    owner: root
+    group: root
+    mode: "0755"
 
 - name: Copy File for Auto-CPUFreq
-  shell:
+  ansible.builtin.shell:
     cmd: cp -r /tmp/autocpu/scripts/ /usr/local/share/auto-cpufreq/
