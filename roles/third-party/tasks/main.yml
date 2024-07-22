@@ -1,55 +1,56 @@
+---
 - name: Setup Chrome
-  import_tasks: chrome.yml
+  ansible.builtin.import_tasks: chrome.yml
   when: install_chrome
 
 - name: Setup Slack
-  import_tasks: slack.yml
+  ansible.builtin.import_tasks: slack.yml
   when: install_slack
 
 - name: Setup Spotify
-  import_tasks: spotify.yml
+  ansible.builtin.import_tasks: spotify.yml
   when: install_spotify
 
 - name: Setup VSCode
-  import_tasks: vscode.yml
+  ansible.builtin.import_tasks: vscode.yml
   when: install_vscode
 
 - name: Setup Zoom Client
-  import_tasks: zoom.yml
+  ansible.builtin.import_tasks: zoom.yml
   when: install_zoom
 
 - name: Setup Lutris
-  import_tasks: lutris.yml
+  ansible.builtin.import_tasks: lutris.yml
   when: install_lutris
 
 - name: Setup OwnCloud
-  import_tasks: owncloud.yml
+  ansible.builtin.import_tasks: owncloud.yml
   when: install_owncloud
 
 - name: Setup Docker
-  import_tasks: docker.yml
+  ansible.builtin.import_tasks: docker.yml
   when: install_docker
 
 - name: Setup Google Cloud SDK
-  import_tasks: gcloud-sdk.yml
+  ansible.builtin.import_tasks: gcloud-sdk.yml
   when: install_gcloud
 
 - name: Setup Steam
-  import_tasks: steam.yml
+  ansible.builtin.import_tasks: steam.yml
   when: install_steam
 
 - name: Setup Auto-CPUFreq
-  import_tasks: auto-cpufreq.yml
+  ansible.builtin.import_tasks: auto-cpufreq.yml
   when: install_autocpu
 
 - name: Setup Chef
-  import_tasks: chef.yml
-  when: install_chef  
+  ansible.builtin.import_tasks: chef.yml
+  when: install_chef
 
 - name: Setup Alacritty
-  import_tasks: alacritty.yml
+  ansible.builtin.import_tasks: alacritty.yml
   when: install_alacritty
 
 - name: Setup Work Apps
-  import_tasks: work-apps.yml
+  ansible.builtin.import_tasks: work-apps.yml
   when: install_work_apps

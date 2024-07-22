@@ -1,41 +1,41 @@
 ---
 - name: Install RPM Fusion repo rpms
-  package:
-    name: "http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-{{ ansible_distribution_version }}.noarch.rpm"
-    disable_gpg_check: yes
+  ansible.builtin.package:
+    name: http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-{{ ansible_distribution_version }}.noarch.rpm
+    disable_gpg_check: true
     state: present
 
 - name: Install RPM Fusion Nonfree repo rpms
-  package:
-    name: "http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-{{ ansible_distribution_version }}.noarch.rpm"
-    disable_gpg_check: yes
+  ansible.builtin.package:
+    name: http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-{{ ansible_distribution_version }}.noarch.rpm
+    disable_gpg_check: true
     state: present
 
 - name: Enable Flathub
-  flatpak_remote:
+  community.general.flatpak_remote:
     name: flathub
     state: present
     flatpakrepo_url: https://flathub.org/repo/flathub.flatpakrepo
 
 - name: HashiCorp Signing Keys
-  rpm_key:
+  ansible.builtin.rpm_key:
     state: present
     key: "{{ item }}"
   become: true
   with_items:
-  - https://rpm.releases.hashicorp.com/gpg
+    - https://rpm.releases.hashicorp.com/gpg
 
 - name: Add HashiCorp Repo
-  yum_repository:
+  ansible.builtin.yum_repository:
     name: hashicorp
     description: HashiCorp Repo
     baseurl: https://rpm.releases.hashicorp.com/fedora/$releasever/$basearch/stable
-    gpgcheck: yes
+    gpgcheck: true
 
 - name: Add 1Password Repo
-  yum_repository:
+  ansible.builtin.yum_repository:
     name: 1password
     description: 1Password Repo
     baseurl: https://downloads.1password.com/linux/rpm/stable/$basearch
-    gpgcheck: yes
+    gpgcheck: true
     gpgkey: https://downloads.1password.com/linux/keys/1password.asc

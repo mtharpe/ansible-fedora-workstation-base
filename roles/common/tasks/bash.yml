@@ -1,41 +1,42 @@
+---
 - name: Template bashrc
-  copy:
+  ansible.builtin.copy:
     src: templates/bashrc
     dest: /home/{{ local_user }}/.bashrc
     owner: "{{ local_user }}"
     group: wheel
-    mode: '0644'
+    mode: "0644"
 
 - name: Template bash_profile
-  copy:
+  ansible.builtin.copy:
     src: templates/bash_profile
     dest: /home/{{ local_user }}/.bash_profile
     owner: "{{ local_user }}"
     group: wheel
-    mode: '0644'
+    mode: "0644"
 
 - name: Template bash_aliases
-  copy:
+  ansible.builtin.copy:
     src: templates/bash_aliases
     dest: /home/{{ local_user }}/.bash_aliases
     owner: "{{ local_user }}"
     group: wheel
-    mode: '0644'
+    mode: "0644"
 
 - name: Template tmux.conf
-  copy:
+  ansible.builtin.copy:
     src: templates/tmux.conf
     dest: /home/{{ local_user }}/.tmux.conf
     owner: "{{ local_user }}"
     group: "{{ local_user }}"
-    mode: '0644'
+    mode: "0644"
 
 - name: Install Tmux TPM
-  git:
+  ansible.builtin.git:
     repo: https://github.com/tmux-plugins/tpm
     dest: /home/{{ local_user }}/.tmux/plugins/tpm
-    version: "master"
+    version: master
 
 - name: Podman autocompleete
-  command: podman completion -f /etc/bash_completion.d/podman bash
+  ansible.builtin.command: podman completion -f /etc/bash_completion.d/podman bash
   become: true

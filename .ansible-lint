@@ -3,4 +3,3 @@ skip_list:
   - no-changed-when  # Commands should not change things if nothing needs doing
   - risky-shell-pipe  # Shells that use pipes should set the pipefail option
   - role-name
-

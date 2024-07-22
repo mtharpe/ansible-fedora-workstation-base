@@ -1,14 +1,12 @@
 ---
-
 - name: Check for Zoom
-  stat: 
+  ansible.builtin.stat:
     path: /usr/bin/zoom
   register: zoom_installed
 
 - name: Install Zoom RPM
-  package:
-    name: 'https://zoom.us/client/latest/zoom_x86_64.rpm'
-    disable_gpg_check: yes
+  ansible.builtin.package:
+    name: https://zoom.us/client/latest/zoom_x86_64.rpm
+    disable_gpg_check: true
     state: present
   when: not zoom_installed.stat.exists
-    
