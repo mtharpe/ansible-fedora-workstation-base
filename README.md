@@ -19,4 +19,3 @@ cd ansible-fedora-workstation-base
 ```
 
 For further customization, edit `vars/vars.yml` to fit your needs.
-
