@@ -1,6 +1,7 @@
+---
 - block:
     - name: Google Linux Signing Keys
-      rpm_key:
+      ansible.builtin.rpm_key:
         state: present
         key: "{{ item }}"
       become: true
@@ -10,20 +11,19 @@
         - https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 
     - name: Check for Google Chrome repo
-      stat: 
+      ansible.builtin.stat:
         path: /etc/yum.repos.d/google-chrome.repo
       register: chrome_installed
 
     - name: Install Google Chrome repo
-      package:
-        name: "https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm"
+      ansible.builtin.package:
+        name: https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm
         state: present
       when: not chrome_installed.stat.exists
 
     - name: Enable Google Chrome repo
-      command: dnf config-manager --set-enabled google-chrome
-
+      ansible.builtin.command: dnf config-manager --set-enabled google-chrome
 - name: Install Google Chrome
-  package:
+  ansible.builtin.package:
     name: google-chrome-stable
     state: present

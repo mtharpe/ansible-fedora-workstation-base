@@ -1,5 +1,6 @@
+---
 - name: Remove Old Docker Agents
-  package:
+  ansible.builtin.package:
     name:
       - docker
       - docker-client
@@ -14,12 +15,12 @@
     state: absent
 
 - name: Install Podman Docker
-  package:
+  ansible.builtin.package:
     name:
       - podman-docker
       - docker-compose
     state: present
 
 - name: Disable Docker-Podman Warnings
-  command: touch /etc/containers/nodocker
+  ansible.builtin.command: touch /etc/containers/nodocker
   become: true

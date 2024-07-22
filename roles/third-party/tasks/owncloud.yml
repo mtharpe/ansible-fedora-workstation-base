@@ -1,6 +1,6 @@
 ---
 - name: Owncloud Linux Signing Keys
-  rpm_key:
+  ansible.builtin.rpm_key:
     state: present
     key: "{{ item }}"
   become: true
@@ -8,22 +8,21 @@
     - https://download.owncloud.com/desktop/ownCloud/stable/latest/linux/Fedora_33/repodata/repomd.xml.key
 
 - name: Enable OwnCloud repo
-  command: dnf config-manager --add-repo https://download.owncloud.com/desktop/ownCloud/stable/latest/linux/Fedora_33/owncloud.repo
-
+  ansible.builtin.command: dnf config-manager --add-repo https://download.owncloud.com/desktop/ownCloud/stable/latest/linux/Fedora_33/owncloud.repo
 - name: Check for OwnCloud repo
-  stat: 
+  ansible.builtin.stat:
     path: /etc/yum.repos.d/owncloud.repo
   register: owncloud_installed
 
 - name: Install OwnCloud
-  package:
+  ansible.builtin.package:
     name: owncloud-client
     state: present
 
 - name: Template ownCloud Desktop
-  copy:
+  ansible.builtin.copy:
     src: templates/owncloud.desktop
     dest: /home/{{ local_user }}/.config/autostart/
     owner: "{{ local_user }}"
     group: wheel
-    mode: '0644'
+    mode: "0644"

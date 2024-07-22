@@ -1,14 +1,14 @@
 ---
 - name: Install group packages
-  package:
+  ansible.builtin.package:
     name:
-      - '@Development Tools'
-      - '@C Development Tools and Libraries'
-      - '@D Development Tools and Libraries'
-      - '@fedora-packager'
+      - "@Development Tools"
+      - "@C Development Tools and Libraries"
+      - "@D Development Tools and Libraries"
+      - "@fedora-packager"
     state: present
 - name: Install extra packages
-  package:
+  ansible.builtin.package:
     name:
       - direnv
       - nmon
@@ -87,7 +87,7 @@
       - util-linux
     state: present
 - name: Install extra fonts
-  package:
+  ansible.builtin.package:
     name:
       - adobe-source-code-pro-fonts
       - dejavu-sans-fonts
@@ -108,15 +108,15 @@
       - terminus-fonts
     state: present
 - name: Install RPMFusion Packages
-  package:
+  ansible.builtin.package:
     name:
       - ffmpeg
     state: present
 
 - name: Uninstall junk (Have to use command because DNF mod is broken in Ansible)
-  command: dnf erase -y firefox gnome-calendar gnome-contacts gnome-photos gnome-maps rhythmbox totem gnome-tour gnome-abrt gnome-logs
+  ansible.builtin.command: dnf erase -y firefox gnome-calendar gnome-contacts gnome-photos gnome-maps rhythmbox totem gnome-tour gnome-abrt gnome-logs
   become: true
 
 - name: Install Nativefier
-  command: npm install -g nativefier
+  ansible.builtin.command: npm install -g nativefier
   become: true
