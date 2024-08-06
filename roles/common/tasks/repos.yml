@@ -12,7 +12,7 @@
     state: present
 
 - name: Enable Flathub
-  community.general.flatpak_remote:
+  community.general.flatpak:
     name: flathub
     state: present
     flatpakrepo_url: https://flathub.org/repo/flathub.flatpakrepo
