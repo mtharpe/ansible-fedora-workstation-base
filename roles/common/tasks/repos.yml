@@ -11,12 +11,6 @@
     disable_gpg_check: true
     state: present
 
-- name: Enable Flathub
-  community.general.flatpak:
-    name: flathub
-    state: present
-    flatpakrepo_url: https://flathub.org/repo/flathub.flatpakrepo
-
 - name: HashiCorp Signing Keys
   ansible.builtin.rpm_key:
     state: present

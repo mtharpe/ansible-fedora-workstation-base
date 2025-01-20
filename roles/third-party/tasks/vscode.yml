@@ -1,5 +1,5 @@
 ---
-- name: Check for vscode repo
+- name: Check for VSCode Repo
   ansible.builtin.stat:
     path: /etc/yum.repos.d/vscode.repo
   register: fedora_vscode_installed
@@ -9,7 +9,7 @@
     state: present
     key: https://packages.microsoft.com/keys/microsoft.asc
 
-- name: Enable vscode repo
+- name: Add VSCode Repo
   ansible.builtin.yum_repository:
     name: code
     description: Visual Studio Code

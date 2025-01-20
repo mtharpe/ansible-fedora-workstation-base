@@ -50,7 +50,3 @@
 - name: Setup Alacritty
   ansible.builtin.import_tasks: alacritty.yml
   when: install_alacritty
-
-- name: Setup Work Apps
-  ansible.builtin.import_tasks: work-apps.yml
-  when: install_work_apps
