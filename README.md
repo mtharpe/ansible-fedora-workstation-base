@@ -3,7 +3,7 @@
 
 # Fedora Workstation Base
 
-This is an opinionated playbook to setup a Fedora 33+ workstation with everything you need to start developing on Fedora Linux.
+This is an opinionated playbook to setup a Fedora 41+ workstation with everything you need to start developing on Fedora Linux.
 
 ## Quick Setup
 
