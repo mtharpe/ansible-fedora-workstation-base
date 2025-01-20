@@ -24,6 +24,7 @@
       - golang
       - golang-godoc
       - golang-gotype
+      - gh
       - htop
       - iotop
       - jq
