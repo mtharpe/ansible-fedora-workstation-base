@@ -1,0 +1,29 @@
+[bell]
+animation = "EaseOutExpo"
+color = "#ffffff"
+duration = 250
+
+[font]
+size = 16
+
+[font.normal]
+family = "DejaVu Sans Mono"
+style = "Book"
+
+[font.offset]
+x = 0
+y = 1
+
+[scrolling]
+history = 0
+
+[terminal.shell]
+program = "/usr/bin/tmux"
+
+[window]
+decorations = "full"
+dynamic_padding = true
+startup_mode = "Maximized"
+title = "Termianl"
+
+[terminal]

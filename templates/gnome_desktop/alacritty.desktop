@@ -2,7 +2,7 @@
 Type=Application
 TryExec=alacritty
 Exec=alacritty
-Icon=org.gnome.Terminal
+Icon=org.gnome.Ptyxis
 Terminal=false
 Categories=System;TerminalEmulator;
 

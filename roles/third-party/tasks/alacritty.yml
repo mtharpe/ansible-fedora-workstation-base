@@ -8,9 +8,9 @@
     mode: "0755"
 
 - name: Template alacritty.yml
-  ansible.builtin.copy:
-    src: templates/alacritty.yml
-    dest: /home/{{ local_user }}/.config/alacritty/alacritty.yml
+  ansible.builtin.template:
+    src: templates/alacritty.toml
+    dest: /home/{{ local_user }}/.config/alacritty/alacritty.toml
     owner: "{{ local_user }}"
     group: wheel
     mode: "0644"
@@ -21,7 +21,7 @@
   register: alacritty_desktop
 
 - name: Template alacritty.desktop
-  ansible.builtin.copy:
+  ansible.builtin.template:
     src: templates/gnome_desktop/alacritty.desktop
     dest: /home/{{ local_user }}/.local/share/applications/alacritty.desktop
     owner: "{{ local_user }}"
@@ -41,10 +41,10 @@
 
 - name: Stat Gnome Terminal Desktop Icon
   ansible.builtin.stat:
-    path: /usr/share/applications/org.gnome.Terminal.desktop
+    path: /usr/share/applications/org.gnome.Ptyxis.desktop
   register: gnome_terminal_stat
 
 - name: Disable Gnome-Terminal Built-in icon
   become: true
-  ansible.builtin.command: mv /usr/share/applications/org.gnome.Terminal.desktop /usr/share/applications/org.gnome.Terminal.desktop.not
+  ansible.builtin.command: mv /usr/share/applications/org.gnome.Ptyxis.desktop /usr/share/applications/org.gnome.Terminal.desktop.not
   when: gnome_terminal_stat.stat.exists

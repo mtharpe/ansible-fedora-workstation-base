@@ -10,20 +10,40 @@
         - https://packages.cloud.google.com/yum/doc/yum-key.gpg
         - https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 
-    - name: Check for Google Chrome repo
+    - name: Check if Google Chrome repo exists
       ansible.builtin.stat:
         path: /etc/yum.repos.d/google-chrome.repo
-      register: chrome_installed
+      register: google_chrome_repo
 
     - name: Install Google Chrome repo
-      ansible.builtin.package:
+      ansible.builtin.dnf:
         name: https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm
         state: present
-      when: not chrome_installed.stat.exists
+      when: not google_chrome_repo.stat.exists
 
     - name: Enable Google Chrome repo
-      ansible.builtin.command: dnf config-manager --set-enabled google-chrome
-- name: Install Google Chrome
-  ansible.builtin.package:
-    name: google-chrome-stable
-    state: present
+      community.general.ini_file:
+        path: /etc/yum.repos.d/google-chrome.repo
+        section: google-chrome
+        option: enabled
+        value: 1
+        create: false
+
+    - name: Install Google Chrome
+      ansible.builtin.package:
+        name: google-chrome-stable
+        state: present
+
+    - name: Stat google-chrome.desktop
+      ansible.builtin.stat:
+        path: /home/{{ local_user }}/.local/share/applications/google-chrome.desktop
+      register: google_chrome_desktop
+
+    - name: Template google-chrome.desktop
+      ansible.builtin.copy:
+        src: templates/gnome_desktop/google-chrome.desktop
+        dest: /home/{{ local_user }}/.local/share/applications/google-chrome.desktop
+        owner: "{{ local_user }}"
+        group: wheel
+        mode: "0644"
+      when: not google_chrome_desktop.stat.exists

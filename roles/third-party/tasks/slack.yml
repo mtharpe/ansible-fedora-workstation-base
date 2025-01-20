@@ -1,6 +1,12 @@
 ---
+- name: Check if Slack is already installed
+  ansible.builtin.shell: rpm -q slack
+  register: slack_installed
+  ignore_errors: true
+
 - name: Install Slack
-  ansible.builtin.package:
-    name: https://downloads.slack-edge.com/releases/linux/4.28.182/prod/x64/slack-4.28.182-0.1.el8.x86_64.rpm
+  ansible.builtin.dnf:
+    name: https://downloads.slack-edge.com/desktop-releases/linux/x64/4.41.105/slack-4.41.105-0.1.el8.x86_64.rpm
     disable_gpg_check: true
     state: present
+  when: slack_installed.rc != 0

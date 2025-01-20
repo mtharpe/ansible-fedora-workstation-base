@@ -14,7 +14,6 @@
 - name: Setup Bash
   ansible.builtin.import_tasks: bash.yml
   when: install_bash
-
 - name: Setup Fish
   ansible.builtin.import_tasks: fish.yml
   when: install_fish
