@@ -1,15 +1,15 @@
 ---
 
 # User
-local_user:  
-local_user_email:  
+local_user: tharpem
+local_user_email: mtharpe@gmail.com
 local_user_passwordless_sudo: true
 
 # Services
-enable_fail2ban: true 
-enable_libvirtd: true
+enable_fail2ban: true
+enable_libvirtd: false
 enable_sshd: true
-enable_vagrant_nfs: true
+enable_vagrant_nfs: false
 
 # Extras
 install_packager: true
@@ -22,27 +22,14 @@ install_vscode: true
 install_zoom: true
 install_lutris: false
 install_steam: false
-install_owncloud: true
-install_docker: true
+install_owncloud: false
+install_docker: false
 install_gcloud: true
 install_chef: false
 install_autocpu: false
 install_alacritty: true
-install_bash: true
-install_fish: false
-install_work_apps: true
+install_bash: false
+install_fish: true
 
 #python3
 ansible_python_interpreter: /usr/bin/python3
-
-
-gnome_extension_ids:
-  - 4099
-  - 16
-  - 4158
-  - 4052
-  - 615
-  - 4135
-  - 1401
-  - 112
-  - 4412

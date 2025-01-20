@@ -1,6 +1,6 @@
 ---
 - name: Install group packages
-  ansible.builtin.package:
+  ansible.builtin.dnf:
     name:
       - "@Development Tools"
       - "@C Development Tools and Libraries"
@@ -8,44 +8,25 @@
       - "@fedora-packager"
     state: present
 - name: Install extra packages
-  ansible.builtin.package:
+  ansible.builtin.dnf:
     name:
       - direnv
-      - nmon
-      - awscli
       - fail2ban
-      - flatpak
-      - python3-psutil
-      - dnf-plugins-extras-common
-      - dnf-plugins-extras-kickstart
-      - dnf-plugins-extras-repoclosure
-      - dnf-plugins-extras-repograph
-      - dnf-plugins-extras-show-leaves
-      - dnf-plugins-extras-tracer
-      - acpi
       - ansible
       - ansible-lint
       - arpwatch
-      - asciidoc
-      - asciidoc-doc
-      - aspell
-      - aspell-en
       - autoconf
       - autofs
       - automake
       - cmake
       - firewalld
       - firewalld-filesystem
-      - flatpak-builder
-      - gnome-tweak-tool
       - golang
       - golang-godoc
       - golang-gotype
       - htop
       - iotop
       - jq
-      - kernel-devel
-      - letsencrypt
       - lshw
       - lsscsi
       - nfs-utils
@@ -53,41 +34,31 @@
       - nmap
       - nmon
       - npm
-      - snapd
       - speedtest-cli
       - sysstat
       - tmux
       - transmission
-      - vagrant
-      - vagrant-doc
-      - vagrant-libvirt
-      - vagrant-libvirt-doc
       - neovim
-      - VirtualBox
       - terraform
       - vault
       - consul
       - nomad
       - packer
+      - psutils
+      - python3-psutil
       - python3-termcolor
-      - ruby-devel
-      - deja-dup
-      - dconf-editor
-      - gnome-extensions-app
       - unzip
-      - gnome-abrt
       - alacritty
       - exa
-      - bat
-      - ripgrep
       - 1password
       - vlc
       - ffmpeg
-      - remmina
       - util-linux
+      - nextcloud-client
+      - gnome-extensions-app
     state: present
 - name: Install extra fonts
-  ansible.builtin.package:
+  ansible.builtin.dnf:
     name:
       - adobe-source-code-pro-fonts
       - dejavu-sans-fonts
@@ -107,16 +78,18 @@
       - overpass-fonts
       - terminus-fonts
     state: present
-- name: Install RPMFusion Packages
-  ansible.builtin.package:
+
+- name: Uninstall junk apps
+  ansible.builtin.dnf:
     name:
-      - ffmpeg
-    state: present
-
-- name: Uninstall junk (Have to use command because DNF mod is broken in Ansible)
-  ansible.builtin.command: dnf erase -y firefox gnome-calendar gnome-contacts gnome-photos gnome-maps rhythmbox totem gnome-tour gnome-abrt gnome-logs
-  become: true
-
-- name: Install Nativefier
-  ansible.builtin.command: npm install -g nativefier
-  become: true
+      - firefox
+      - gnome-calendar
+      - gnome-contacts
+      - gnome-maps
+      - rhythmbox
+      - totem
+      - gnome-tour
+      - gnome-abrt
+      - gnome-logs
+    allowerasing: true
+    state: absent

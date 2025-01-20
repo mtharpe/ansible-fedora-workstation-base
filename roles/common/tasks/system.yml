@@ -23,11 +23,3 @@
     regexp: ^%wheel
     line: "%wheel ALL=(ALL) NOPASSWD: ALL"
     validate: visudo -cf %s
-
-- name: Template GDM custom.conf
-  ansible.builtin.copy:
-    src: templates/gdm_custom.conf
-    dest: /etc/gdm/custom.conf
-    owner: root
-    group: root
-    mode: "0755"

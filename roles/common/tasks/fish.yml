@@ -1,24 +1,22 @@
 ---
-- name: Template bashrc
+- name: Install fish
+  ansible.builtin.dnf:
+    name: fish
+    state: present
+  become: true
+
+- name: Create fish config directory
+  ansible.builtin.file:
+    path: /home/{{ local_user }}/.config/fish
+    state: directory
+    owner: "{{ local_user }}"
+    group: wheel
+    mode: "0755"
+
+- name: Template fish config
   ansible.builtin.copy:
-    src: templates/fish.config
+    src: templates/config.fish
     dest: /home/{{ local_user }}/.config/fish/fish.config
-    owner: "{{ local_user }}"
-    group: wheel
-    mode: "0644"
-
-- name: Template bash_profile
-  ansible.builtin.copy:
-    src: templates/bash_profile
-    dest: /home/{{ local_user }}/.bash_profile
-    owner: "{{ local_user }}"
-    group: wheel
-    mode: "0644"
-
-- name: Template bash_aliases
-  ansible.builtin.copy:
-    src: templates/bash_aliases
-    dest: /home/{{ local_user }}/.bash_aliases
     owner: "{{ local_user }}"
     group: wheel
     mode: "0644"
@@ -36,3 +34,35 @@
     repo: https://github.com/tmux-plugins/tpm
     dest: /home/{{ local_user }}/.tmux/plugins/tpm
     version: master
+
+- name: Install Starship fish prompt
+  ansible.builtin.shell: curl -sS https://starship.rs/install.sh | sh -s -- --yes
+  args:
+    creates: /usr/local/bin/starship
+
+- name: Template starship config
+  ansible.builtin.copy:
+    src: templates/starship.toml
+    dest: /home/{{ local_user }}/.config/starship.toml
+    owner: "{{ local_user }}"
+    group: wheel
+    mode: "0644"
+
+- name: Copy fish aliases script
+  ansible.builtin.copy:
+    src: templates/fish_aliases.sh
+    dest: /home/{{ local_user }}/fish_aliases.sh
+    owner: "{{ local_user }}"
+    group: wheel
+    mode: "0755"
+
+- name: Execute fish aliases script
+  ansible.builtin.shell: /home/{{ local_user }}/fish_aliases.sh
+  become_user: "{{ local_user }}"
+  args:
+    executable: fish
+
+- name: Remove fish aliases script file
+  ansible.builtin.file:
+    path: /home/{{ local_user }}/fish_aliases.sh
+    state: absent

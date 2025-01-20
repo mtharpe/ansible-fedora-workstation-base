@@ -1,5 +1,5 @@
 ---
-- name: HashiCorp Signing Keys
+- name: Google Signing Keys
   ansible.builtin.rpm_key:
     state: present
     key: "{{ item }}"
@@ -7,6 +7,11 @@
   with_items:
     - https://packages.cloud.google.com/yum/doc/yum-key.gpg
     - https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+  register: gcloud_keys
+
+- name: Check if Google Cloud Repo exists
+  ansible.builtin.command: yum repolist all
+  register: yum_repolist
 
 - name: Add Google Cloud Repo
   ansible.builtin.yum_repository:
@@ -14,6 +19,7 @@
     description: Google Cloud Repo
     baseurl: https://packages.cloud.google.com/yum/repos/cloud-sdk-el7-x86_64
     gpgcheck: true
+  when: "'gcloud' not in yum_repolist.stdout"
 
 - name: Install Google Cloud SDK
   ansible.builtin.package:
@@ -21,3 +27,4 @@
       - google-cloud-sdk
       - kubectl
     state: present
+  when: gcloud_keys is changed
