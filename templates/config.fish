@@ -12,5 +12,6 @@ if status is-interactive
       command sudo $argv
     end
   end
+end
 
 starship init fish | source
