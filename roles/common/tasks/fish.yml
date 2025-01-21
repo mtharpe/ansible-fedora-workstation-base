@@ -16,7 +16,7 @@
 - name: Template fish config
   ansible.builtin.copy:
     src: templates/config.fish
-    dest: /home/{{ local_user }}/.config/fish/fish.config
+    dest: /home/{{ local_user }}/.config/fish/config.fish
     owner: "{{ local_user }}"
     group: wheel
     mode: "0644"
