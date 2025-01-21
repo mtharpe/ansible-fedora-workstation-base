@@ -51,9 +51,6 @@
     - k: /org/gnome/terminal/legacy/unified-menu
       v: "false"
 
-    - k: /org/gnome/shell/favorite-apps
-      v: "['google-chrome.desktop', 'slack.desktop', 'code.desktop', 'alacritty.desktop']"
-
     - k: /org/gnome/shell/overrides/dynamic-workspaces
       v: "false"
     
