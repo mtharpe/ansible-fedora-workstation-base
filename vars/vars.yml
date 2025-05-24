@@ -9,7 +9,6 @@ local_user_passwordless_sudo: true
 enable_fail2ban: true
 enable_libvirtd: false
 enable_sshd: false
-enable_vagrant_nfs: false
 
 # Extras
 install_packager: true
