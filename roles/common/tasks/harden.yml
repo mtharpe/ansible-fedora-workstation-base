@@ -7,7 +7,7 @@
     group: root
     mode: "0600"
   notify: Restart sshd
-  when: enable_sshd
+  when: enable_sshd | default(false)
 
 - name: Copy fail2ban jail.local
   ansible.builtin.template:
@@ -17,4 +17,4 @@
     group: root
     mode: "0644"
   notify: Restart fail2ban
-  when: enable_fail2ban
+  when: enable_fail2ban | default(false)
