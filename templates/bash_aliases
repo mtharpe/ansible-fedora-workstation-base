@@ -1,22 +1,13 @@
 # {{ ansible_managed }}
 
 ## Aliases ##              
-#alias ls='ls -h --color'
-alias ls='exa'
-alias tree='exa -T'
+alias ls='ls -h --color'
 alias c='clear'
 alias grub_update='grub2-mkconfig -o /boot/efi/EFI/fedora/grub.cfg'
 
 # VI/VIM/NEOVIM
 alias vi="nvim"                        
 alias vim="nvim"             
-
-# BAT replacement for cat
-alias cat="bat"
-
-# RG replacement for grep
-alias grep="rg -i"
-alias fgrep="rg -l -i "
 
 # SSH
 alias sum="shasum -a 256 ${1}"
