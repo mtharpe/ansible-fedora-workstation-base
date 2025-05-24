@@ -1,15 +1,9 @@
 ---
-- name: Install group packages
+# Install extra packages
+- name: Install base packages
   ansible.builtin.dnf:
     name:
-      - "@Development Tools"
-      - "@C Development Tools and Libraries"
-      - "@D Development Tools and Libraries"
-      - "@fedora-packager"
-    state: present
-- name: Install extra packages
-  ansible.builtin.dnf:
-    name:
+      - 1password
       - direnv
       - fail2ban
       - ansible
@@ -50,14 +44,13 @@
       - python3-termcolor
       - unzip
       - alacritty
-      - exa
-      - 1password
       - vlc
-      - ffmpeg
       - util-linux
       - nextcloud-client
       - gnome-extensions-app
     state: present
+
+# Install extra fonts
 - name: Install extra fonts
   ansible.builtin.dnf:
     name:
@@ -80,6 +73,7 @@
       - terminus-fonts
     state: present
 
+# Uninstall unwanted apps
 - name: Uninstall junk apps
   ansible.builtin.dnf:
     name:

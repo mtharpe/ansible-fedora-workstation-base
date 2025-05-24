@@ -14,7 +14,7 @@
     sysctl_set: true
     state: present
     reload: true
-  when: install_vscode
+  when: install_vscode | default(false)
 
 - name: Allow wheel group to sudo without a password
   ansible.builtin.lineinfile:

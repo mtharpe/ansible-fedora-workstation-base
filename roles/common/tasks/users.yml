@@ -3,14 +3,5 @@
   ansible.builtin.user:
     name: "{{ local_user }}"
     home: /home/{{ local_user }}
-    groups: [mock, wheel]
+    groups: [wheel]
     append: true
-
-- name: Allow wheel group to sudo without a password
-  ansible.builtin.lineinfile:
-    dest: /etc/sudoers
-    state: present
-    regexp: ^%wheel
-    line: "%wheel ALL=(ALL) NOPASSWD: ALL"
-    validate: visudo -cf %s
-  when: local_user_passwordless_sudo

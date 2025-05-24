@@ -4,6 +4,7 @@
     key: "{{ item.k }}"
     value: "{{ item.v }}"
     state: present
+  become: true
   become_user: "{{ local_user }}"
   loop:
     - k: /org/gnome/desktop/interface/clock-format
@@ -53,12 +54,12 @@
 
     - k: /org/gnome/shell/overrides/dynamic-workspaces
       v: "false"
-    
+
     - k: /org/gnome/mutter/dynamic-workspaces
       v: "false"
 
     - k: /org/gnome/desktop/wm/preferences/num-workspaces
-      v: "5"
+      v: 5
 
     - k: /org/gnome/shell/overrides/workspaces-only-on-primary
       v: "true"
