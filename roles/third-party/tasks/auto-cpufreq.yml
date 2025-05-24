@@ -5,19 +5,19 @@
     dest: /tmp/autocpu
     version: master
 
-- name: Install Auto-CPUFreq Files
+- name: Install Auto-CPUFreq dependencies
   ansible.builtin.package:
     name:
-      - python-devel
+      - python3-devel
       - dmidecode
+    state: present
 
-- name: Compile Auto-CPUFreq with PIP
-  ansible.builtin.shell:
-    cmd: python3 -m pip install -r requirements.txt
-    chdir: /tmp/autocpu
+- name: Install Python requirements for Auto-CPUFreq
+  ansible.builtin.pip:
+    requirements: /tmp/autocpu/requirements.txt
 
 - name: Compile Auto-CPUFreq with Python
-  ansible.builtin.shell:
+  ansible.builtin.command:
     cmd: python3 setup.py install --record files.txt
     chdir: /tmp/autocpu
 
@@ -28,7 +28,14 @@
     owner: root
     group: root
     mode: "0755"
+  become: true
 
-- name: Copy File for Auto-CPUFreq
-  ansible.builtin.shell:
-    cmd: cp -r /tmp/autocpu/scripts/ /usr/local/share/auto-cpufreq/
+- name: Copy scripts for Auto-CPUFreq
+  ansible.builtin.copy:
+    src: /tmp/autocpu/scripts/
+    dest: /usr/local/share/auto-cpufreq/
+    owner: root
+    group: root
+    mode: "0755"
+    remote_src: true
+  become: true

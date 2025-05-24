@@ -13,7 +13,7 @@
   ansible.builtin.import_tasks: harden.yml
 - name: Setup Bash
   ansible.builtin.import_tasks: bash.yml
-  when: install_bash
+  when: install_bash | default(false)
 - name: Setup Fish
   ansible.builtin.import_tasks: fish.yml
-  when: install_fish
+  when: install_fish | default(false)

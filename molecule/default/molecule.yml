@@ -1,0 +1,16 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: podman
+platforms:
+  - name: instance
+    image: custom-fedora-ansible        # <-- Ensures Podman knows the tag
+    privileged: true
+    command: /bin/bash -c "while true; do sleep 30; done"
+provisioner:
+  name: ansible
+  playbooks:
+    converge: converge.yml
+verifier:
+  name: ansible
