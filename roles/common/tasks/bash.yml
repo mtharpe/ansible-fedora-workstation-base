@@ -37,6 +37,7 @@
     dest: /home/{{ local_user }}/.tmux/plugins/tpm
     version: master
 
-- name: Podman autocompleete
-  ansible.builtin.command: podman completion -f /etc/bash_completion.d/podman bash
+- name: Podman autocomplete
+  ansible.builtin.command:
+    cmd: podman completion -f /etc/bash_completion.d/podman bash
   become: true

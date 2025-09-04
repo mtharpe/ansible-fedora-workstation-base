@@ -1,14 +1,11 @@
 ---
 - name: Install fish
   ansible.builtin.dnf:
-    name: fish
-    state: present
   become: true
 
 - name: Create fish config directory
   ansible.builtin.file:
     path: /home/{{ local_user }}/.config/fish
-    state: directory
     owner: "{{ local_user }}"
     group: wheel
     mode: "0755"
@@ -16,7 +13,6 @@
 - name: Template fish config
   ansible.builtin.copy:
     src: templates/config.fish
-    dest: /home/{{ local_user }}/.config/fish/config.fish
     owner: "{{ local_user }}"
     group: wheel
     mode: "0644"
@@ -24,7 +20,6 @@
 - name: Template tmux.conf
   ansible.builtin.copy:
     src: templates/tmux.conf
-    dest: /home/{{ local_user }}/.tmux.conf
     owner: "{{ local_user }}"
     group: "{{ local_user }}"
     mode: "0644"
@@ -32,24 +27,19 @@
 - name: Install Tmux TPM
   ansible.builtin.git:
     repo: https://github.com/tmux-plugins/tpm
-    dest: /home/{{ local_user }}/.tmux/plugins/tpm
     version: master
 
 - name: Download Starship install script
   ansible.builtin.get_url:
     url: https://starship.rs/install.sh
     dest: /tmp/starship_install.sh
-    mode: '0755'
+    mode: "0755"
 
 - name: Install Starship fish prompt
   ansible.builtin.shell: sh /tmp/starship_install.sh --yes
-  args:
-    creates: /usr/local/bin/starship
-
 
 - name: Template starship config
   ansible.builtin.copy:
-    src: templates/starship.toml
     dest: /home/{{ local_user }}/.config/starship.toml
     owner: "{{ local_user }}"
     group: wheel
@@ -57,7 +47,6 @@
 
 - name: Copy fish aliases script
   ansible.builtin.copy:
-    src: templates/fish_aliases.sh
     dest: /home/{{ local_user }}/fish_aliases.sh
     owner: "{{ local_user }}"
     group: wheel
@@ -68,9 +57,4 @@
   become: true
   become_user: "{{ local_user }}"
   args:
-    executable: fish
-
-- name: Remove fish aliases script file
-  ansible.builtin.file:
-    path: /home/{{ local_user }}/fish_aliases.sh
-    state: absent
+    executable: /usr/bin/fish
