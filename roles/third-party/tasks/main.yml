@@ -38,7 +38,7 @@
 - name: Setup Auto-CPUFreq
   ansible.builtin.import_tasks: auto-cpufreq.yml
   when: install_autocpu | default(false)
-  
+
 - name: Setup Chef
   ansible.builtin.import_tasks: chef.yml
   when: install_chef | default(false)
