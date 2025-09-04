@@ -7,14 +7,25 @@
     gpgcheck: true
     enabled: true
 
-- name: Enable RPM Fusion Free repository
+
+- name: Download RPM Fusion Free release RPM
+  ansible.builtin.get_url:
+    url: "https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-{{ ansible_facts['distribution_major_version'] }}.noarch.rpm"
+    dest: "/tmp/rpmfusion-free-release.rpm"
+
+- name: Download RPM Fusion Nonfree release RPM
+  ansible.builtin.get_url:
+    url: "https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-{{ ansible_facts['distribution_major_version'] }}.noarch.rpm"
+    dest: "/tmp/rpmfusion-nonfree-release.rpm"
+
+- name: Install RPM Fusion Free release RPM
   ansible.builtin.dnf:
-    name: "https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-{{ ansible_facts['distribution_major_version'] }}.noarch.rpm"
+    name: "/tmp/rpmfusion-free-release.rpm"
     state: present
 
-- name: Enable RPM Fusion Nonfree repository
+- name: Install RPM Fusion Nonfree release RPM
   ansible.builtin.dnf:
-    name: "https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-{{ ansible_facts['distribution_major_version'] }}.noarch.rpm"
+    name: "/tmp/rpmfusion-nonfree-release.rpm"
     state: present
 
 - name: Add 1Password repository
