@@ -12,11 +12,13 @@
   ansible.builtin.dnf:
     name: "/tmp/rpmfusion-free-release.rpm"
     state: present
+    disable_gpg_check: true
 
 - name: Install RPM Fusion Nonfree release RPM
   ansible.builtin.dnf:
     name: "/tmp/rpmfusion-nonfree-release.rpm"
     state: present
+    disable_gpg_check: true
 
 - name: Add 1Password repository
   become: true
