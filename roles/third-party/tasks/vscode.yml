@@ -3,11 +3,14 @@
   ansible.builtin.stat:
     path: /etc/yum.repos.d/vscode.repo
   register: fedora_vscode_installed
+  tags: [third_party, vscode]
 
 - name: Import Microsoft GPG key
   ansible.builtin.rpm_key:
     state: present
     key: https://packages.microsoft.com/keys/microsoft.asc
+  become: true
+  tags: [third_party, vscode]
 
 - name: Add VSCode Repo
   ansible.builtin.yum_repository:
@@ -18,8 +21,12 @@
     gpgkey: https://packages.microsoft.com/keys/microsoft.asc
     gpgcheck: false
   when: not fedora_vscode_installed.stat.exists
+  become: true
+  tags: [third_party, vscode]
 
 - name: Install VSCode
   ansible.builtin.package:
     name: code
     state: present
+  become: true
+  tags: [third_party, vscode]

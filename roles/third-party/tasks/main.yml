@@ -22,10 +22,6 @@
   ansible.builtin.import_tasks: lutris.yml
   when: install_lutris | default(false)
 
-- name: Setup OwnCloud
-  ansible.builtin.import_tasks: owncloud.yml
-  when: install_owncloud | default(false)
-
 - name: Setup Docker
   ansible.builtin.import_tasks: docker.yml
   when: install_docker | default(false)

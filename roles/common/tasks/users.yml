@@ -1,5 +1,5 @@
 ---
-- name: Setup {{ local_user }} user
+- name: Setup user {{ local_user }}
   ansible.builtin.user:
     name: "{{ local_user }}"
     home: /home/{{ local_user }}

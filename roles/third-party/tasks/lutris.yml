@@ -3,21 +3,29 @@
   ansible.builtin.stat:
     path: /usr/bin/wine
   register: wine_installed
+  tags: [third_party, lutris]
 
 - name: Check for Lutris
   ansible.builtin.stat:
     path: /usr/bin/lutris
   register: lutris_installed
+  tags: [third_party, lutris]
+
 - name: Install Wine
   ansible.builtin.package:
     name: wine
     state: present
   when: not wine_installed.stat.exists
+  become: true
+  tags: [third_party, lutris]
+
 - name: Install Lutris
   ansible.builtin.package:
     name: lutris
     state: present
   when: not lutris_installed.stat.exists
+  become: true
+  tags: [third_party, lutris]
 
 - name: Install Vulkan Loader
   ansible.builtin.package:
@@ -26,7 +34,10 @@
       - vulkan-loader.i686
     state: present
   when: not lutris_installed.stat.exists
-- name: Install Missing Libs for Lutris
+  become: true
+  tags: [third_party, lutris]
+
+- name: Install missing 32/64 bit libraries for Lutris
   ansible.builtin.package:
     name:
       - freetype
@@ -45,3 +56,5 @@
       - sqlite2.x86_64
     state: present
   when: not lutris_installed.stat.exists
+  become: true
+  tags: [third_party, lutris]
