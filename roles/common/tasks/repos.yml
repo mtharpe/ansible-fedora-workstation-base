@@ -1,3 +1,4 @@
+---
 - name: Add HashiCorp repository
   ansible.builtin.yum_repository:
     name: hashicorp
@@ -7,6 +8,17 @@
     gpgcheck: true
     enabled: true
 
+- name: Import RPM Fusion Free GPG key
+  become: true
+  ansible.builtin.rpm_key:
+    state: present
+    key: https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-key.asc
+
+- name: Import RPM Fusion Nonfree GPG key
+  become: true
+  ansible.builtin.rpm_key:
+    state: present
+    key: https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-key.asc
 
 - name: Download RPM Fusion Free release RPM
   ansible.builtin.get_url:
