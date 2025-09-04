@@ -5,16 +5,16 @@
     description: HashiCorp Official Linux Repository
     baseurl: https://rpm.releases.hashicorp.com/fedora/$releasever/$basearch/stable
     gpgkey: https://rpm.releases.hashicorp.com/gpg
-    gpgcheck: yes
-    enabled: yes
+    gpgcheck: true
+    enabled: true
 
 - name: Add RPM Fusion repository
   ansible.builtin.yum_repository:
     name: rpmfusion-free
     description: RPM Fusion for Fedora $releasever - Free
     baseurl: https://download1.rpmfusion.org/free/fedora/rpmfusion-free-$releasever-$basearch/
-    enabled: yes
-    gpgcheck: yes
+    enabled: true
+    gpgcheck: true
     gpgkey: https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-gpg-key-$(rpm -E %fedora).asc
 
 - name: Add RPM Fusion non-free repository
@@ -22,10 +22,9 @@
     name: rpmfusion-nonfree
     description: RPM Fusion for Fedora $releasever - Nonfree
     baseurl: https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-$releasever-$basearch/
-    enabled: yes
-    gpgcheck: yes
+    enabled: true
+    gpgcheck: true
     gpgkey: https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-gpg-key-$(rpm -E %fedora).asc
-
 
 - name: Add 1Password repository
   become: true
@@ -34,8 +33,8 @@
     description: 1Password Linux Repository
     baseurl: https://downloads.1password.com/linux/rpm/stable/$basearch
     gpgkey: https://downloads.1password.com/linux/keys/1password.asc
-    gpgcheck: yes
-    enabled: yes
+    gpgcheck: true
+    enabled: true
 
 - name: Refresh DNF metadata
   become: true

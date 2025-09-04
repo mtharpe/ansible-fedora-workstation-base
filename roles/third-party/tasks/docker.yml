@@ -1,5 +1,5 @@
 ---
-- name: Remove Old Docker Agents
+- name: Remove legacy Docker packages
   ansible.builtin.package:
     name:
       - docker
@@ -13,14 +13,24 @@
       - docker-engine-selinux
       - docker-engine
     state: absent
+  become: true
+  tags: [third_party, docker]
 
-- name: Install Podman Docker
+- name: Install Podman/Docker compatibility packages
   ansible.builtin.package:
     name:
       - podman-docker
       - docker-compose
     state: present
-
-- name: Disable Docker-Podman Warnings
-  ansible.builtin.command: touch /etc/containers/nodocker
   become: true
+  tags: [third_party, docker]
+
+- name: Disable Docker-Podman warnings (idempotent)
+  ansible.builtin.file:
+    path: /etc/containers/nodocker
+    state: touch
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+  tags: [third_party, docker]

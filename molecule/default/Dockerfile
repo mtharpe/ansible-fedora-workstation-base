@@ -1,4 +1,4 @@
-FROM registry.fedoraproject.org/fedora:latest
+FROM registry.fedoraproject.org/fedora:42
 
 # Install base tools
 RUN dnf install -y python3 ansible openssh-server

@@ -21,7 +21,6 @@ install_vscode: true
 install_zoom: false
 install_lutris: false
 install_steam: false
-install_owncloud: false
 install_docker: false
 install_gcloud: false
 install_chef: false
@@ -32,3 +31,6 @@ install_fish: false
 
 #python3
 ansible_python_interpreter: /usr/bin/python3
+
+# Fedora target version (used for pinning images / docs)
+fedora_version: 42
