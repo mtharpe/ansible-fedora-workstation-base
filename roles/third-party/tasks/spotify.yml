@@ -16,6 +16,6 @@
   ansible.builtin.package:
     name: spotify-client
     state: present
-  ignore_errors: true   # Repo occasionally lags new Fedora release; tolerate
+  failed_when: false   # Repo occasionally lags new Fedora release; tolerate
   become: true
   tags: [third_party, spotify]

@@ -14,6 +14,7 @@
 - name: Setup VSCode
   ansible.builtin.import_tasks: vscode.yml
   when: install_vscode | default(false)
+
 - name: Setup Zoom Client
   ansible.builtin.import_tasks: zoom.yml
   when: install_zoom | default(false)
@@ -37,6 +38,14 @@
 - name: Setup Auto-CPUFreq
   ansible.builtin.import_tasks: auto-cpufreq.yml
   when: install_autocpu | default(false)
+  
+- name: Setup Chef
+  ansible.builtin.import_tasks: chef.yml
+  when: install_chef | default(false)
+
+- name: Setup Alacritty
+  ansible.builtin.import_tasks: alacritty.yml
+  when: install_alacritty | default(false)
 
 - name: Setup Chef
   ansible.builtin.import_tasks: chef.yml

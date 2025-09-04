@@ -15,8 +15,8 @@
   register: gcloud_repo
   tags: [third_party, gcloud]
 
-- name: Add Google Cloud repo
-  ansible.builtin.dnf_repository:
+- name: Add Google Cloud SDK repository
+  ansible.builtin.yum_repository:
     name: google-cloud-sdk
     description: Google Cloud SDK
     baseurl: https://packages.cloud.google.com/yum/repos/cloud-sdk-el8-x86_64
