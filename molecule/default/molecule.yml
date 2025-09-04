@@ -5,7 +5,7 @@ driver:
   name: podman
 platforms:
   - name: instance
-    image: custom-fedora-ansible        # <-- Ensures Podman knows the tag
+    image: fedora:latest
     privileged: true
     command: /bin/bash -c "while true; do sleep 30; done"
 provisioner:
