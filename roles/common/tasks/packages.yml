@@ -57,6 +57,18 @@
     name: molecule
     state: present
 
+# Install molecule-podman driver for Molecule
+- name: Install molecule-podman driver via pip
+  ansible.builtin.pip:
+    name: molecule-podman
+    state: present
+
+# Install molecule-podman driver for Molecule
+- name: Install molecule-podman driver via pip
+  ansible.builtin.pip:
+    name: molecule-podman
+    state: present
+
 # Install podman only if docker is not requested
 - name: Install podman if docker is not enabled
   ansible.builtin.dnf:
