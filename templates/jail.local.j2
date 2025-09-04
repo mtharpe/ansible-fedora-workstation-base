@@ -2,9 +2,27 @@
 
 [DEFAULT]
 bantime = 3600
+findtime = 600
+maxretry = 3
+backend = systemd
+ignoreip = 127.0.0.1/8 ::1
 sender = fail2ban@{{ ansible_nodename }}
 destemail = {{ local_user_email }}
 action = %(action_mwl)s
 
 [sshd]
 enabled = true
+port = ssh
+filter = sshd
+logpath = /var/log/secure
+maxretry = 3
+bantime = 3600
+findtime = 600
+
+[recidive]
+enabled = true
+logpath = /var/log/fail2ban.log
+bantime = 86400
+findtime = 86400
+maxretry = 5
+action = %(action_mwl)s
