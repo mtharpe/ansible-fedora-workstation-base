@@ -35,10 +35,17 @@
     dest: /home/{{ local_user }}/.tmux/plugins/tpm
     version: master
 
+- name: Download Starship install script
+  ansible.builtin.get_url:
+    url: https://starship.rs/install.sh
+    dest: /tmp/starship_install.sh
+    mode: '0755'
+
 - name: Install Starship fish prompt
-  ansible.builtin.shell: curl -sS https://starship.rs/install.sh | sh -s -- --yes
+  ansible.builtin.shell: sh /tmp/starship_install.sh --yes
   args:
     creates: /usr/local/bin/starship
+
 
 - name: Template starship config
   ansible.builtin.copy:
@@ -58,6 +65,7 @@
 
 - name: Execute fish aliases script
   ansible.builtin.shell: /home/{{ local_user }}/fish_aliases.sh
+  become: true
   become_user: "{{ local_user }}"
   args:
     executable: fish

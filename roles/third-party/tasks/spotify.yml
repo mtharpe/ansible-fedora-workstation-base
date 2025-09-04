@@ -2,14 +2,20 @@
 - name: Check for fedora-spotify repo
   ansible.builtin.stat:
     path: /etc/yum.repos.d/fedora-spotify.repo
-  register: fedora_spotify_installe
+  register: fedora_spotify_installed
+  tags: [third_party, spotify]
 
 - name: Install fedora-spotify repo
   ansible.builtin.command: dnf config-manager --add-repo=https://negativo17.org/repos/fedora-spotify.repo
   when: not fedora_spotify_installed.stat.exists
+  changed_when: true
+  become: true
+  tags: [third_party, spotify]
 
-- name: Install Spotify
+- name: Install Spotify client
   ansible.builtin.package:
     name: spotify-client
     state: present
-  ignore_errors: true
+  ignore_errors: true   # Repo occasionally lags new Fedora release; tolerate
+  become: true
+  tags: [third_party, spotify]

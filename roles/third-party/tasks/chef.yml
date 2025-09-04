@@ -1,19 +1,23 @@
 ---
-- name: Check for Chef
+- name: Check for Chef Workstation
   ansible.builtin.stat:
     path: /opt/chef-workstation/bin/chef
   register: chef_installed
+  tags: [third_party, chef]
 
-- name: Install Chef-Workstation
+- name: Install Chef Workstation
   ansible.builtin.package:
     name: https://packages.chef.io/files/stable/chef-workstation/22.1.745/el/8/chef-workstation-22.1.745-1.el8.x86_64.rpm
     disable_gpg_check: true
-    state: installed
+    state: present
   retries: 3
   when: not chef_installed.stat.exists
+  become: true
+  tags: [third_party, chef]
 
-- name: Install Test-Kitchen Gems
+- name: Install Test-Kitchen gems
   ansible.builtin.command: chef gem install kitchen-vagrant kitchen-ansible
   environment:
     CHEF_LICENSE: accept
-  become: "{{ local_user}}"
+  become: true
+  tags: [third_party, chef]

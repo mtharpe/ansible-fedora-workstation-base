@@ -1,30 +1,37 @@
 ---
-- name: Google Signing Keys
+- name: Import Google Cloud signing keys
   ansible.builtin.rpm_key:
     state: present
     key: "{{ item }}"
-  become: true
-  with_items:
+  loop:
     - https://packages.cloud.google.com/yum/doc/yum-key.gpg
     - https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
-  register: gcloud_keys
+  become: true
+  tags: [third_party, gcloud]
 
-- name: Check if Google Cloud Repo exists
-  ansible.builtin.command: yum repolist all
-  register: yum_repolist
+- name: Check if Google Cloud repo file exists
+  ansible.builtin.stat:
+    path: /etc/yum.repos.d/google-cloud-sdk.repo
+  register: gcloud_repo
+  tags: [third_party, gcloud]
 
-- name: Add Google Cloud Repo
-  ansible.builtin.yum_repository:
-    name: gcloud
-    description: Google Cloud Repo
-    baseurl: https://packages.cloud.google.com/yum/repos/cloud-sdk-el7-x86_64
+- name: Add Google Cloud repo
+  ansible.builtin.dnf_repository:
+    name: google-cloud-sdk
+    description: Google Cloud SDK
+    baseurl: https://packages.cloud.google.com/yum/repos/cloud-sdk-el8-x86_64
     gpgcheck: true
-  when: "'gcloud' not in yum_repolist.stdout"
+    repo_gpgcheck: false
+    enabled: true
+  when: not gcloud_repo.stat.exists
+  become: true
+  tags: [third_party, gcloud]
 
-- name: Install Google Cloud SDK
-  ansible.builtin.package:
+- name: Install Google Cloud SDK packages
+  ansible.builtin.dnf:
     name:
       - google-cloud-sdk
       - kubectl
     state: present
-  when: gcloud_keys is changed
+  become: true
+  tags: [third_party, gcloud]
