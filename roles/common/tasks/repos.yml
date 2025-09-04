@@ -8,28 +8,6 @@
     gpgcheck: true
     enabled: true
 
-- name: Import RPM Fusion Free GPG key
-  become: true
-  ansible.builtin.rpm_key:
-    state: present
-    key: https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-key.asc
-
-- name: Import RPM Fusion Nonfree GPG key
-  become: true
-  ansible.builtin.rpm_key:
-    state: present
-    key: https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-key.asc
-
-- name: Download RPM Fusion Free release RPM
-  ansible.builtin.get_url:
-    url: "https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-{{ ansible_facts['distribution_major_version'] }}.noarch.rpm"
-    dest: "/tmp/rpmfusion-free-release.rpm"
-
-- name: Download RPM Fusion Nonfree release RPM
-  ansible.builtin.get_url:
-    url: "https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-{{ ansible_facts['distribution_major_version'] }}.noarch.rpm"
-    dest: "/tmp/rpmfusion-nonfree-release.rpm"
-
 - name: Install RPM Fusion Free release RPM
   ansible.builtin.dnf:
     name: "/tmp/rpmfusion-free-release.rpm"
