@@ -1,3 +1,9 @@
+- name: Install Steam
+  ansible.builtin.package:
+    name: steam
+    state: present
+  become: true
+  tags: [third_party, steam]
 ---
 - name: Install Steam
   ansible.builtin.package:

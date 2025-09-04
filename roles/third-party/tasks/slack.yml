@@ -1,16 +1,27 @@
 ---
-- name: Check if Slack is already installed
-  ansible.builtin.command: rpm -q slack
-  register: slack_installed
-  changed_when: false
-  failed_when: false
+- name: Get latest Slack RPM URL
+  ansible.builtin.uri:
+    url: https://slack.com/downloads/instructions/linux
+    return_content: true
+  register: slack_download_page
   tags: [third_party, slack]
 
-- name: Install Slack (remote RPM)
+- name: Extract Slack RPM URL
+  ansible.builtin.set_fact:
+    slack_latest_rpm_url: "{{ slack_download_page.content | regex_search('https://downloads.slack-edge.com/desktop-releases/linux/x64/[^\\\\\"]+\\\\.rpm') }}"
+  tags: [third_party, slack]
+
+- name: Download latest Slack RPM
+  ansible.builtin.get_url:
+    url: "{{ slack_latest_rpm_url }}"
+    dest: /tmp/slack-latest.rpm
+    mode: '0644'
+  tags: [third_party, slack]
+
+- name: Install Slack (latest RPM)
   ansible.builtin.dnf:
-    name: "{{ slack_rpm_url | default('https://downloads.slack-edge.com/desktop-releases/linux/x64/4.41.105/slack-4.41.105-0.1.el8.x86_64.rpm') }}"
+    name: /tmp/slack-latest.rpm
     disable_gpg_check: true
     state: present
-  when: slack_installed.rc != 0
   become: true
   tags: [third_party, slack]
