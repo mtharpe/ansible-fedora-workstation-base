@@ -1,5 +1,5 @@
 - name: Add HashiCorp repository
-  community.general.dnf_repository:
+  community.dnf.dnf_repository:
     name: hashicorp
     description: HashiCorp Official Linux Repository
     baseurl: https://rpm.releases.hashicorp.com/fedora/$releasever/$basearch/stable
@@ -8,7 +8,7 @@
     enabled: true
 
 - name: Add RPM Fusion repository
-  community.general.dnf_repository:
+  community.dnf.dnf_repository:
     name: rpmfusion-free
     description: RPM Fusion for Fedora $releasever - Free
     baseurl: https://download1.rpmfusion.org/free/fedora/rpmfusion-free-$releasever-$basearch/
@@ -17,7 +17,7 @@
     gpgkey: https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-gpg-key-$(rpm -E %fedora).asc
 
 - name: Add RPM Fusion non-free repository
-  community.general.dnf_repository:
+  community.dnf.dnf_repository:
     name: rpmfusion-nonfree
     description: RPM Fusion for Fedora $releasever - Nonfree
     baseurl: https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-$releasever-$basearch/
@@ -27,7 +27,7 @@
 
 - name: Add 1Password repository
   become: true
-  community.general.dnf_repository:
+  community.dnf.dnf_repository:
     name: 1password
     description: 1Password Linux Repository
     baseurl: https://downloads.1password.com/linux/rpm/stable/$basearch
