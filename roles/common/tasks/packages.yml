@@ -50,6 +50,13 @@
       - gnome-extensions-app
     state: present
 
+# Install podman only if docker is not requested
+- name: Install podman if docker is not enabled
+  ansible.builtin.dnf:
+    name: podman
+    state: present
+  when: not install_docker | default(false)
+
 # Install extra fonts
 - name: Install extra fonts
   ansible.builtin.dnf:
