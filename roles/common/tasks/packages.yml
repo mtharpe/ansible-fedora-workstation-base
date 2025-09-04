@@ -41,6 +41,7 @@
       - packer
       - psutils
       - python3-psutil
+      - python3-pip
       - python3-termcolor
       - unzip
       - alacritty
