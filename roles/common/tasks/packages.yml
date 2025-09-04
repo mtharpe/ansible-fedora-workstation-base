@@ -50,6 +50,12 @@
       - gnome-extensions-app
     state: present
 
+# Install molecule for testing
+- name: Install molecule via pip
+  ansible.builtin.pip:
+    name: molecule
+    state: present
+
 # Install podman only if docker is not requested
 - name: Install podman if docker is not enabled
   ansible.builtin.dnf:
