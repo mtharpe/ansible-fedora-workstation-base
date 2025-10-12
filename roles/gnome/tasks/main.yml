@@ -6,6 +6,7 @@
     state: present
   become: true
   become_user: "{{ local_user }}"
+  when: ansible_facts['virtualization_type'] is not defined or ansible_facts['virtualization_type'] != 'container'
   loop:
     - k: /org/gnome/desktop/interface/clock-format
       v: "'12h'"

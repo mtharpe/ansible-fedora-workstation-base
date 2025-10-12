@@ -1,5 +1,6 @@
 ---
 - name: Add HashiCorp repository
+  become: true
   ansible.builtin.yum_repository:
     name: hashicorp
     description: HashiCorp Official Linux Repository
@@ -9,16 +10,36 @@
     enabled: true
 
 - name: Install RPM Fusion Free release RPM
+  ansible.builtin.get_url:
+    url: "https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-{{ ansible_facts.distribution_major_version }}.noarch.rpm"
+    dest: /tmp/rpmfusion-free-release.rpm
+    mode: '0644'
+  become: true
+  when: ansible_facts['virtualization_type'] is not defined or ansible_facts['virtualization_type'] != 'container'
+
+- name: Install RPM Fusion Free release RPM
+  become: true
   ansible.builtin.dnf:
     name: "/tmp/rpmfusion-free-release.rpm"
     state: present
     disable_gpg_check: true
+  when: ansible_facts['virtualization_type'] is not defined or ansible_facts['virtualization_type'] != 'container'
 
 - name: Install RPM Fusion Nonfree release RPM
+  ansible.builtin.get_url:
+    url: "https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-{{ ansible_facts.distribution_major_version }}.noarch.rpm"
+    dest: /tmp/rpmfusion-nonfree-release.rpm
+    mode: '0644'
+  become: true
+  when: ansible_facts['virtualization_type'] is not defined or ansible_facts['virtualization_type'] != 'container'
+
+- name: Install RPM Fusion Nonfree release RPM
+  become: true
   ansible.builtin.dnf:
     name: "/tmp/rpmfusion-nonfree-release.rpm"
     state: present
     disable_gpg_check: true
+  when: ansible_facts['virtualization_type'] is not defined or ansible_facts['virtualization_type'] != 'container'
 
 - name: Add 1Password repository
   become: true
@@ -29,7 +50,11 @@
     gpgkey: https://downloads.1password.com/linux/keys/1password.asc
     gpgcheck: true
     enabled: true
+    state: present
+  changed_when: false
 
 - name: Refresh DNF metadata
   become: true
-  ansible.builtin.command: dnf makecache
+  ansible.builtin.dnf:
+    update_cache: true
+  changed_when: false

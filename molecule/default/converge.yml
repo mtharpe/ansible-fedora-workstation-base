@@ -9,7 +9,29 @@
       ansible.builtin.user:
         name: "{{ local_user }}"
         state: present
+    - name: Install DBus helper packages required for dconf (dbus-run-session)
+      ansible.builtin.dnf:
+        name:
+          - dbus-x11
+        state: present
+      become: true
+
+    - name: Install GNOME desktop group (for molecule test instance)
+      ansible.builtin.dnf:
+        name: "@workstation-product-environment"
+        state: present
+      become: true
+      when: ansible_facts['virtualization_type'] is not defined or ansible_facts['virtualization_type'] != 'container'
+
+    - name: Ensure gdm is enabled and running (for molecule test instance)
+      ansible.builtin.systemd:
+        name: gdm
+        enabled: true
+        state: started
+      become: true
+      when: ansible_facts['virtualization_type'] is not defined or ansible_facts['virtualization_type'] != 'container'
   roles:
     - role: roles/common
-    - role: roles/gnome
     - role: roles/third-party
+    - role: roles/gnome
+      when: ansible_facts['virtualization_type'] is not defined or ansible_facts['virtualization_type'] != 'container'
