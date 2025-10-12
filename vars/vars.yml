@@ -2,12 +2,11 @@
 
 # User
 local_user: tharpem
-local_user_email: mtharpe@gmail.com
+local_user_email: mtharpe@noemail.not
 local_user_passwordless_sudo: true
 
 # Services
 enable_fail2ban: true
-enable_libvirtd: false
 enable_sshd: false
 
 # Extras
