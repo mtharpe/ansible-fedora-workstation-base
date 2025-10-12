@@ -2,7 +2,7 @@
 
 # User
 local_user: tharpem
-local_user_email: mtharpe@gmail.com
+local_user_email: mtharpe@noemail.not
 local_user_passwordless_sudo: true
 
 # Services
