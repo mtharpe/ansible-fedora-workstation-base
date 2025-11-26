@@ -14,10 +14,10 @@ install_packager: true
 
 # Third party
 install_chrome: true
-install_slack: false
+install_slack: true
 install_spotify: false
 install_vscode: true
-install_zoom: false
+install_zoom: true
 install_lutris: false
 install_steam: false
 install_docker: false
@@ -25,8 +25,11 @@ install_gcloud: false
 install_chef: false
 install_autocpu: false
 install_alacritty: true
-install_bash: true
-install_fish: false
+install_bash: false
+install_fish: true
+install_starship: false
+install_nerd_font: true
+install_eza: true
 
 #python3
 ansible_python_interpreter: /usr/bin/python3

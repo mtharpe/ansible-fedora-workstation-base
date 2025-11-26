@@ -23,6 +23,9 @@
     - k: /org/gnome/desktop/interface/gtk-theme
       v: "'Adwaita-dark'"
 
+    - k: /org/gnome/desktop/interface/color-scheme
+      v: "'prefer-dark'"
+
     - k: /org/gnome/desktop/interface/icon-theme
       v: "'Adwaita'"
 
