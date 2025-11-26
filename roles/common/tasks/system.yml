@@ -23,3 +23,59 @@
     regexp: ^%wheel
     line: "%wheel ALL=(ALL) NOPASSWD: ALL"
     validate: visudo -cf %s
+
+# Firewalld: install and configure a sensible desktop firewall
+- name: Ensure firewalld is installed
+  ansible.builtin.dnf:
+    name: firewalld
+    state: present
+  become: true
+
+- name: Ensure firewalld is enabled and running
+  ansible.builtin.service:
+    name: firewalld
+    enabled: true
+    state: started
+  become: true
+
+- name: Get current default firewalld zone
+  ansible.builtin.command:
+    cmd: firewall-cmd --get-default-zone
+  register: fw_default
+  changed_when: false
+  failed_when: false
+  become: true
+
+- name: Set runtime default zone if different
+  ansible.builtin.command:
+    cmd: firewall-cmd --set-default-zone={{ firewalld_default_zone | default('public') }}
+  when: fw_default.stdout is defined and fw_default.stdout != (firewalld_default_zone | default('public'))
+  become: true
+
+- name: Set permanent default zone if different
+  ansible.builtin.command:
+    cmd: firewall-cmd --permanent --set-default-zone={{ firewalld_default_zone | default('public') }}
+  when: fw_default.stdout is defined and fw_default.stdout != (firewalld_default_zone | default('public'))
+  become: true
+
+- name: Ensure common desktop services are allowed (permanent)
+  ansible.builtin.shell: >-
+    firewall-cmd --permanent --zone={{ firewalld_default_zone | default('public') }} --add-service={{ item }}
+  loop: "{{ firewalld_allowed_services | default(['ssh','mdns','dhcpv6-client']) }}"
+  args:
+    warn: false
+  become: true
+
+- name: Ensure configured ports are allowed (permanent)
+  ansible.builtin.shell: >-
+    firewall-cmd --permanent --zone={{ firewalld_default_zone | default('public') }} --add-port={{ item }}
+  loop: "{{ firewalld_allowed_ports | default([]) }}"
+  args:
+    warn: false
+  when: firewalld_allowed_ports is defined and firewalld_allowed_ports | length > 0
+  become: true
+
+- name: Reload firewalld to apply permanent changes
+  ansible.builtin.command:
+    cmd: firewall-cmd --reload
+  become: true
