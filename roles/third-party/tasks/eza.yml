@@ -1,0 +1,58 @@
+---
+- name: Install eza via DNF on older Fedora
+  ansible.builtin.dnf:
+    name: eza
+    state: present
+  become: true
+  when: (ansible_facts['distribution'] | default('')) == 'Fedora' and (ansible_facts['distribution_major_version'] | int) < 42
+
+- name: Download prebuilt eza tarball
+  ansible.builtin.get_url:
+    url: "https://github.com/eza-community/eza/releases/latest/download/eza_x86_64-unknown-linux-gnu.tar.gz"
+    dest: /tmp/eza.tar.gz
+    mode: '0644'
+    force: yes
+  tags: [third_party, eza]
+  when: not ((ansible_facts['distribution'] | default('')) == 'Fedora' and (ansible_facts['distribution_major_version'] | int) < 42)
+
+- name: Check for existing extracted eza binary
+  ansible.builtin.stat:
+    path: /tmp/eza_unpack/eza
+  register: eza_unpack_stat
+  when: not ((ansible_facts['distribution'] | default('')) == 'Fedora' and (ansible_facts['distribution_major_version'] | int) < 42)
+
+- name: Ensure eza_unpack directory exists
+  ansible.builtin.file:
+    path: /tmp/eza_unpack
+    state: directory
+    mode: '0755'
+    owner: root
+    group: root
+  become: true
+  when: not ((ansible_facts['distribution'] | default('')) == 'Fedora' and (ansible_facts['distribution_major_version'] | int) < 42)
+
+- name: Extract eza tarball
+  ansible.builtin.unarchive:
+    src: /tmp/eza.tar.gz
+    dest: /tmp/eza_unpack
+    remote_src: yes
+  when: not (eza_unpack_stat.stat.exists | default(false))
+
+- name: Move eza binary to /usr/local/bin
+  ansible.builtin.copy:
+    src: /tmp/eza_unpack/eza
+    dest: /usr/local/bin/eza
+    remote_src: yes
+    owner: root
+    group: root
+    mode: '0755'
+  become: true
+  when: not ((ansible_facts['distribution'] | default('')) == 'Fedora' and (ansible_facts['distribution_major_version'] | int) < 42)
+
+- name: Create symlink exa -> eza if exa not present
+  ansible.builtin.file:
+    src: /usr/local/bin/eza
+    dest: /usr/local/bin/exa
+    state: link
+  become: true
+  when: not ((ansible_facts['distribution'] | default('')) == 'Fedora' and (ansible_facts['distribution_major_version'] | int) < 42)

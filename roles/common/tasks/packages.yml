@@ -20,6 +20,7 @@
       - golang-gotype
       - gh
       - htop
+      - fastfetch
       - iotop
       - jq
       - lshw
@@ -63,12 +64,6 @@
     name: molecule-podman
     state: present
 
-# Install molecule-podman driver for Molecule
-- name: Install molecule-podman driver via pip
-  ansible.builtin.pip:
-    name: molecule-podman
-    state: present
-
 # Install podman only if docker is not requested
 - name: Install podman if docker is not enabled
   ansible.builtin.dnf:
@@ -93,11 +88,43 @@
       - liberation-mono-fonts
       - liberation-sans-fonts
       - liberation-serif-fonts
-      - mozilla-fira-mono-fonts
       - msimonson-anonymouspro-fonts
       - overpass-fonts
       - terminus-fonts
     state: present
+
+# Optionally install a Nerd Font (FiraCode) for icons (starship, prompts)
+- name: Download FiraCode Nerd Font zip
+  ansible.builtin.get_url:
+    url: "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraCode.zip"
+    dest: /tmp/FiraCode.zip
+    mode: '0644'
+    force: yes
+  when: install_nerd_font | default(false)
+
+- name: Create nerd fonts directory
+  ansible.builtin.file:
+    path: /usr/local/share/fonts/nerdfonts
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  become: true
+  when: install_nerd_font | default(false)
+
+- name: Unarchive FiraCode Nerd Font
+  ansible.builtin.unarchive:
+    src: /tmp/FiraCode.zip
+    dest: /usr/local/share/fonts/nerdfonts
+    remote_src: yes
+  become: true
+  when: install_nerd_font | default(false)
+
+- name: Refresh font cache
+  ansible.builtin.command:
+    cmd: fc-cache -f -v
+  become: true
+  when: install_nerd_font | default(false)
 
 # Uninstall unwanted apps
 - name: Uninstall junk apps

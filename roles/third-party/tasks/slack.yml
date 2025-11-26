@@ -1,21 +1,26 @@
 ---
-- name: Get latest Slack RPM URL
-  ansible.builtin.uri:
-    url: https://slack.com/downloads/instructions/linux
-    return_content: true
-  register: slack_download_page
+- name: Download Slack RPM via curl
+  ansible.builtin.shell: |
+    curl -fSL -A "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" \
+      "https://downloads.slack-edge.com/desktop-releases/linux/x64/4.46.101/slack-4.46.101-0.1.el8.x86_64.rpm" -o /tmp/slack-latest.rpm
+  args:
+    executable: /bin/bash
   tags: [third_party, slack]
 
-- name: Extract Slack RPM URL
-  ansible.builtin.set_fact:
-    slack_latest_rpm_url: "{{ slack_download_page.content | regex_search('https://downloads.slack-edge.com/desktop-releases/linux/x64/[^\\\\\"]+\\\\.rpm') }}"
+- name: Verify downloaded file is an RPM
+  ansible.builtin.command:
+    cmd: file -b /tmp/slack-latest.rpm
+  register: slack_rpm_file
+  changed_when: false
+  failed_when: "'RPM' not in slack_rpm_file.stdout"
+  vars:
+    ansible_shell_executable: /bin/bash
   tags: [third_party, slack]
 
-- name: Download latest Slack RPM
-  ansible.builtin.get_url:
-    url: "{{ slack_latest_rpm_url }}"
-    dest: /tmp/slack-latest.rpm
-    mode: '0644'
+- name: Show downloaded file type when verification failed
+  ansible.builtin.debug:
+    msg: "Downloaded file /tmp/slack-latest.rpm type: {{ slack_rpm_file.stdout }}"
+  when: "'RPM' not in slack_rpm_file.stdout"
   tags: [third_party, slack]
 
 - name: Install Slack (latest RPM)
