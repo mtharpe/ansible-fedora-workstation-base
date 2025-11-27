@@ -30,7 +30,7 @@ white = "0xdcdcdc"
 yellow = "0xffd24a"
 
 [colors.primary]
-background = "0x2e3436"
+background = "#1a1a1a"
 foreground = "0xdcdcdc"
 
 [font]
