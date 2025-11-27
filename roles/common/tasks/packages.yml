@@ -94,13 +94,23 @@
     state: present
 
 # Optionally install a Nerd Font (FiraCode) for icons (starship, prompts)
+- name: Check if FiraCode Nerd Font is already installed
+  ansible.builtin.command:
+    cmd: fc-list | grep -i "Fira Code"
+  register: firacode_fonts
+  failed_when: false
+  changed_when: false
+  when: install_nerd_font | default(false)
+
 - name: Download FiraCode Nerd Font zip
   ansible.builtin.get_url:
     url: "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraCode.zip"
     dest: /tmp/FiraCode.zip
     mode: '0644'
     force: yes
-  when: install_nerd_font | default(false)
+  when:
+    - install_nerd_font | default(false)
+    - firacode_fonts.rc != 0
 
 - name: Create nerd fonts directory
   ansible.builtin.file:
