@@ -54,24 +54,20 @@
 
 - name: Set permanent default zone if different
   ansible.builtin.command:
-    cmd: firewall-cmd --permanent --set-default-zone={{ firewalld_default_zone | default('public') }}
+    cmd: firewall-cmd --set-default-zone={{ firewalld_default_zone | default('public') }}
   when: fw_default.stdout is defined and fw_default.stdout != (firewalld_default_zone | default('public'))
   become: true
 
 - name: Ensure common desktop services are allowed (permanent)
-  ansible.builtin.shell: >-
-    firewall-cmd --permanent --zone={{ firewalld_default_zone | default('public') }} --add-service={{ item }}
+  ansible.builtin.shell:
+    cmd: "firewall-cmd --permanent --zone={{ firewalld_default_zone | default('public') }} --add-service={{ item }}"
   loop: "{{ firewalld_allowed_services | default(['ssh','mdns','dhcpv6-client']) }}"
-  args:
-    warn: false
   become: true
 
 - name: Ensure configured ports are allowed (permanent)
-  ansible.builtin.shell: >-
-    firewall-cmd --permanent --zone={{ firewalld_default_zone | default('public') }} --add-port={{ item }}
+  ansible.builtin.shell:
+    cmd: "firewall-cmd --permanent --zone={{ firewalld_default_zone | default('public') }} --add-port={{ item }}"
   loop: "{{ firewalld_allowed_ports | default([]) }}"
-  args:
-    warn: false
   when: firewalld_allowed_ports is defined and firewalld_allowed_ports | length > 0
   become: true
 
