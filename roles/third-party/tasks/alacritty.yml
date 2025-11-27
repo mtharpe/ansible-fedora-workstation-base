@@ -48,3 +48,12 @@
   become: true
   ansible.builtin.command: mv /usr/share/applications/org.gnome.Ptyxis.desktop /usr/share/applications/org.gnome.Terminal.desktop.not
   when: gnome_terminal_stat.stat.exists
+
+- name: Setup cron to remove Alacritty.desktop every 30 minutes
+  become: true
+  ansible.builtin.cron:
+    name: "Remove Alacritty.desktop"
+    minute: "*/30"
+    job: "rm -f /usr/share/applications/Alacritty.desktop"
+    user: root
+    state: present

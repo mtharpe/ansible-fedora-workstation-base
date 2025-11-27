@@ -110,6 +110,12 @@
   args:
     executable: /usr/bin/fish
 
+- name: Remove fish aliases script
+  ansible.builtin.file:
+    path: /home/{{ local_user }}/fish_aliases.sh
+    state: absent
+  become: true
+
 - name: Install Fisher (Fish plugin manager)
   ansible.builtin.shell:
     cmd: >-
