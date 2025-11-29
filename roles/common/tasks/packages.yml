@@ -57,18 +57,18 @@
   ansible.builtin.command:
     cmd: dnf swap 'ffmpeg-free' 'ffmpeg' --allowerasing -y
   become: true
-  register: ffmpeg_swap_result
-  changed_when: ffmpeg_swap_result.rc == 0
-  failed_when: ffmpeg_swap_result.rc not in [0]
+  register: common_ffmpeg_swap_result
+  changed_when: common_ffmpeg_swap_result.rc == 0
+  failed_when: common_ffmpeg_swap_result.rc not in [0]
 
 # Upgrade multimedia group with specific options
 - name: Upgrade @multimedia without weak deps and exclude PackageKit-gstreamer-plugin
   ansible.builtin.command:
     cmd: dnf upgrade @multimedia --setopt=install_weak_deps=False --exclude=PackageKit-gstreamer-plugin -y
   become: true
-  register: multimedia_upgrade_result
-  changed_when: multimedia_upgrade_result.rc == 0
-  failed_when: multimedia_upgrade_result.rc not in [0]
+  register: common_multimedia_upgrade_result
+  changed_when: common_multimedia_upgrade_result.rc == 0
+  failed_when: common_multimedia_upgrade_result.rc not in [0]
 
 # Install ffmpeg libraries and VA-API utilities
 - name: Install ffmpeg-libs and VA-API packages
@@ -95,9 +95,9 @@
   ansible.builtin.command:
     cmd: dnf config-manager setopt fedora-cisco-openh264.enabled=1
   become: true
-  register: h264_repo_enable
-  changed_when: h264_repo_enable.rc == 0
-  failed_when: h264_repo_enable.rc not in [0]
+  register: common_h264_repo_enable
+  changed_when: common_h264_repo_enable.rc == 0
+  failed_when: common_h264_repo_enable.rc not in [0]
 
 # Install molecule for testing
 - name: Install molecule via pip
@@ -144,7 +144,7 @@
 - name: Check if FiraCode Nerd Font is already installed
   ansible.builtin.command:
     cmd: fc-list | grep -i "Fira Code"
-  register: firacode_fonts
+  register: common_firacode_fonts
   failed_when: false
   changed_when: false
   when: install_nerd_font | default(false)
@@ -154,10 +154,10 @@
     url: "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraCode.zip"
     dest: /tmp/FiraCode.zip
     mode: '0644'
-    force: yes
+    force: true
   when:
     - install_nerd_font | default(false)
-    - firacode_fonts.rc != 0
+    - common_firacode_fonts.rc != 0
 
 - name: Create nerd fonts directory
   ansible.builtin.file:
@@ -173,7 +173,7 @@
   ansible.builtin.unarchive:
     src: /tmp/FiraCode.zip
     dest: /usr/local/share/fonts/nerdfonts
-    remote_src: yes
+    remote_src: true
   become: true
   when: install_nerd_font | default(false)
 
