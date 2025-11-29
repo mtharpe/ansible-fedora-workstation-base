@@ -75,3 +75,32 @@
   ansible.builtin.command:
     cmd: firewall-cmd --reload
   become: true
+
+# Configure git user settings
+- name: Ensure .gitconfig exists in user home directory
+  ansible.builtin.file:
+    path: "/home/{{ local_user }}/.gitconfig"
+    state: touch
+    owner: "{{ local_user }}"
+    group: "{{ local_user }}"
+    mode: '0644'
+    modification_time: preserve
+    access_time: preserve
+  become: true
+
+- name: Configure git user.name
+  community.general.git_config:
+    scope: global
+    name: user.name
+    value: "Michael Tharpe"
+  become: true
+  become_user: "{{ local_user }}"
+
+- name: Configure git user.email
+  community.general.git_config:
+    scope: global
+    name: user.email
+    value: "mtharpe@users.noreply.github.com"
+  become: true
+  become_user: "{{ local_user }}"
+

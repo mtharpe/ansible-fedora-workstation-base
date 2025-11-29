@@ -9,7 +9,8 @@
   ansible.builtin.lineinfile:
     path: /etc/shells
     line: /usr/bin/fish
-    create: yes
+    create: true
+    mode: '0644'
     state: present
   become: true
 
@@ -116,7 +117,7 @@
     state: absent
   become: true
 
-- name: Install Fisher (Fish plugin manager)
+- name: Install Fisher (Fish plugin manager)  # noqa: command-instead-of-module
   ansible.builtin.shell:
     cmd: >-
       curl -sL https://git.io/fisher | source &&
@@ -143,7 +144,7 @@
             set --universal pure_symbol_git_dirty '*'
             set --universal pure_symbol_git_stash '≡'
             set --universal pure_symbol_git_unpulled_commits '⇣'
-            set --universal pure_symbol_git_unpushed_commits '⇡'        
+            set --universal pure_symbol_git_unpushed_commits '⇡'
           end
         end
         # ---------------------------
