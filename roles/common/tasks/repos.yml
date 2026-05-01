@@ -1,4 +1,22 @@
 ---
+# dnf speed tuning — set BEFORE any repo install so the bigger downloads
+# benefit. max_parallel_downloads default is 3; bumping to 20 is dramatically
+# faster on a fast link. keepcache lets repeat runs skip re-download.
+# fastestmirror is a no-op on dnf5 (default behavior) but harmless on dnf4.
+- name: Optimize dnf for parallel downloads + cache
+  community.general.ini_file:
+    path: /etc/dnf/dnf.conf
+    section: main
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    no_extra_spaces: true
+    mode: '0644'
+  loop:
+    - { option: max_parallel_downloads, value: '20' }
+    - { option: keepcache, value: 'True' }
+    - { option: fastestmirror, value: 'True' }
+  become: true
+
 - name: Add HashiCorp repository
   become: true
   ansible.builtin.yum_repository:
