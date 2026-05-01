@@ -14,10 +14,3 @@
   when: not chef_installed.stat.exists
   become: true
   tags: [third_party, chef]
-
-- name: Install Test-Kitchen gems
-  ansible.builtin.command: chef gem install kitchen-vagrant kitchen-ansible
-  environment:
-    CHEF_LICENSE: accept
-  become: true
-  tags: [third_party, chef]

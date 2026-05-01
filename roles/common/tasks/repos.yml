@@ -15,7 +15,7 @@
     dest: /tmp/rpmfusion-free-release.rpm
     mode: '0644'
   become: true
-  when: ansible_facts['virtualization_type'] is not defined or ansible_facts['virtualization_type'] != 'container'
+  when: not is_container | default(false)
 
 - name: Install RPM Fusion Free release RPM
   become: true
@@ -23,7 +23,7 @@
     name: "/tmp/rpmfusion-free-release.rpm"
     state: present
     disable_gpg_check: true
-  when: ansible_facts['virtualization_type'] is not defined or ansible_facts['virtualization_type'] != 'container'
+  when: not is_container | default(false)
 
 - name: Install RPM Fusion Nonfree release RPM
   ansible.builtin.get_url:
@@ -31,7 +31,7 @@
     dest: /tmp/rpmfusion-nonfree-release.rpm
     mode: '0644'
   become: true
-  when: ansible_facts['virtualization_type'] is not defined or ansible_facts['virtualization_type'] != 'container'
+  when: not is_container | default(false)
 
 - name: Install RPM Fusion Nonfree release RPM
   become: true
@@ -39,7 +39,7 @@
     name: "/tmp/rpmfusion-nonfree-release.rpm"
     state: present
     disable_gpg_check: true
-  when: ansible_facts['virtualization_type'] is not defined or ansible_facts['virtualization_type'] != 'container'
+  when: not is_container | default(false)
 
 - name: Add 1Password repository
   become: true

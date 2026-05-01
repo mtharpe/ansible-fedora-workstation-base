@@ -2,84 +2,114 @@
 
 # Fedora Workstation Base
 
-Ansible playbook and role collection to automate the setup of a Fedora 42+ workstation for development and daily use.
+Ansible playbook and role collection that automates the setup of a **Fedora 43+** GNOME workstation for development and daily use.
 
-## What this repository contains
+## What this does
 
-- An Ansible-based set of roles and playbooks to configure a Fedora workstation.
-- Role layout:
-  - `roles/common` — core packages, users, system-level settings, shells (bash/fish) and services.
-  - `roles/gnome` — GNOME-specific settings (dconf, desktop tweaks). These tasks are skipped when running inside containers.
-  - `roles/third-party` — installers for third-party applications (Chrome, VS Code, Slack, etc.).
-- Templates and dotfiles under `templates/`.
-- Variables in `vars/vars.yml` to toggle features and customize packages.
+Configures a Fedora workstation with:
 
-> Note: The repository previously included a `molecule/libvirt` scenario for VM testing. That scenario has been removed; the maintained Molecule scenario is `molecule/default` (podman).
+- **Common packages** — developer tooling, fonts, multimedia codecs, system utilities (`roles/common`)
+- **Third-party apps** — Chrome, VS Code, Slack, Zoom, Docker, etc., gated by feature flags (`roles/third-party`)
+- **GNOME settings** — sensible dconf defaults, dark theme, workspace layout (`roles/gnome`)
+- **Shell setup** — bash or fish with TPM, Starship, FiraCode Nerd Font (toggle in `vars/vars.yml`)
+- **Hardening** — sshd config, fail2ban, firewalld desktop firewall (opt-in)
+
+## Requirements
+
+- Fedora 43 or newer
+- A user account with sudo access
+- Internet access for package installs
 
 ## Quick start
 
 1. Clone the repository:
 
+   ```sh
+   git clone https://github.com/mtharpe/ansible-fedora-workstation-base.git
+   cd ansible-fedora-workstation-base
+   ```
+
+2. Edit `vars/vars.yml` to set your `local_user` and toggle features:
+
+   ```yaml
+   local_user: yourusername
+   install_chrome: true
+   install_vscode: true
+   install_fish: true
+   ```
+
+3. Run the bootstrap script (installs Ansible if missing, applies the playbook):
+
+   ```sh
+   ./run.sh
+   ```
+
+   Or invoke ansible directly:
+
+   ```sh
+   sudo dnf install -y ansible
+   ansible-playbook --extra-vars "local_user=$USER" setup_workstation.yml
+   ```
+
+## Feature flags
+
+All toggles live in `vars/vars.yml`. The most useful ones:
+
+| Flag | Default | What it controls |
+|------|---------|------------------|
+| `install_chrome` | `true` | Google Chrome browser |
+| `install_vscode` | `true` | Visual Studio Code |
+| `install_slack` | `true` | Slack desktop client |
+| `install_zoom` | `true` | Zoom client |
+| `install_docker` | `false` | docker-compose stack (otherwise podman is the default) |
+| `install_gcloud` | `false` | Google Cloud SDK + kubectl |
+| `install_fish` | `true` | Fish shell + Pure prompt + Fisher |
+| `install_bash` | `false` | Bash dotfiles |
+| `install_nerd_font` | `true` | FiraCode Nerd Font for prompts/icons |
+| `install_eza` | `true` | `eza` (modern `ls` replacement) |
+| `enable_sshd` | `false` | Enable and harden sshd |
+| `enable_fail2ban` | `true` | Enable fail2ban with desktop-friendly defaults |
+
+## Testing with Molecule
+
+Two Molecule scenarios converge the playbook against a containerized Fedora 43. The role detects `is_container` from `ansible_facts['virtualization_type']` and skips the `gnome` role plus any task that would try to start systemd services (sshd, fail2ban, docker) or hit netfilter (firewalld), so container runs stay fast and don't fail on operations that aren't possible in an unprivileged container.
+
 ```sh
-git clone https://github.com/mtharpe/ansible-fedora-workstation-base.git
-cd ansible-fedora-workstation-base
+make test-podman          # full create/converge/idempotence/verify on podman
+make test-docker          # same on docker
+make syntax-podman        # parse-only check
+make idempotence-podman   # converge twice, expect zero changes the second time
 ```
 
-2. Review and adjust variables in `vars/vars.yml`:
+## Linting and CI
 
-- Set `local_user` and feature flags (install_bash, install_fish, install_gnome, etc.).
+CircleCI runs four checks on every push (see `.circleci/config.yml`):
 
-3. Run the automated setup for your workstation (interactive script wrapper):
+- `ansible-lint` — playbook & role linting
+- `yamllint` — YAML quality
+- `ansible-playbook --syntax-check` — playbook parses
+- `shellcheck` — shell scripts
 
-```sh
-./run.sh
-```
-
-The `run.sh` script calls Ansible with the inventory and variables appropriate for a local Fedora workstation. Inspect it before running.
-
-## Running tests with Molecule (podman)
-
-This repository includes a Molecule scenario for container-based testing using the podman driver. The default scenario is found at `molecule/default`.
-
-To run the full Molecule test (create/converge/idempotence/verify/destroy):
+Run them locally:
 
 ```sh
-cd molecule/default
-molecule test
+ansible-lint .
+yamllint .
+shellcheck run.sh
+ansible-playbook --syntax-check setup_workstation.yml
 ```
-
-If you only want to create and converge a single scenario:
-
-```sh
-molecule create -s default
-molecule converge -s default
-```
-
-GNOME-related tasks are guarded and will be skipped when the test instance is a container (so the podman scenario stays fast and reliable).
 
 ## Customization
 
-- Add/remove packages in `roles/common/tasks/packages.yml`.
-- Tweak system settings in `roles/common/tasks/system.yml` and `roles/common/tasks/harden.yml`.
-- Drop your own templates and dotfiles into `templates/` and update the roles to deploy them.
+- Add/remove packages: `roles/common/tasks/packages.yml`
+- System tweaks: `roles/common/tasks/system.yml` and `roles/common/tasks/harden.yml`
+- Drop dotfiles into `templates/` and reference them from a role task
 
-## Linting and best practices
+## Related
 
-You can lint Ansible roles with `ansible-lint`:
-
-```sh
-ansible-lint roles/common/tasks/*.yml
-```
-
-## Cleaning up artifacts
-
-During prior testing, large QCOW2 images and temporary files may have been created on hosts used for VM testing. Those artifacts are not required for normal use and may be removed. Example locations that were used during earlier development (if present):
-
-- `/home/<user>/.cache/molecule_images/`
-- `/home/<user>/.local/molecule/libvirt/vms/`
-- `/var/lib/libvirt/images/`
-
-Remove them only if you are sure you don't need the images anymore.
+- [`ansible-fedora-workstation-base`](https://github.com/mtharpe/ansible-fedora-workstation-base) — Fedora 43+ (this repo)
+- [`ansible-ubuntu-workstation-base`](https://github.com/mtharpe/ansible-ubuntu-workstation-base) — Ubuntu 24.04+
+- [`ansible-manjaro-workstation-base`](https://github.com/mtharpe/ansible-manjaro-workstation-base) — Manjaro/Arch
 
 ## License
 

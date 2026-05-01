@@ -40,4 +40,6 @@
 - name: Podman autocomplete
   ansible.builtin.command:
     cmd: podman completion -f /etc/bash_completion.d/podman bash
+  args:
+    creates: /etc/bash_completion.d/podman
   become: true

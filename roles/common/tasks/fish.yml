@@ -72,7 +72,9 @@
   when: install_starfish | default(false)
 
 - name: Install Starship fish prompt
-  ansible.builtin.shell: sh /tmp/starship_install.sh --yes
+  ansible.builtin.shell:
+    cmd: sh /tmp/starship_install.sh --yes
+    creates: /usr/local/bin/starship
   when: install_starfish | default(false)
 
 - name: Template starship config

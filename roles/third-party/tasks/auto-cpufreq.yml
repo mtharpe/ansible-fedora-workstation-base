@@ -25,8 +25,8 @@
   ansible.builtin.command:
     cmd: python3 setup.py install --record files.txt
     chdir: /tmp/autocpu
+    creates: /usr/local/bin/auto-cpufreq
   become: true
-  changed_when: true
   tags: [third_party, autocpu]
 
 - name: Ensure auto-cpufreq directory exists

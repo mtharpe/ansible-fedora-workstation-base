@@ -54,7 +54,6 @@ alias gssh="gcloud beta compute ssh "
 alias ansible_lint='ansible-lint -x 301 -x 305 -x 503 -x 106'
 
 # Chef
-alias dokken="KITCHEN_LOCAL_YAML=kitchen.dokken.yml kitchen"
 alias chef_gen_cb='chef generate cookbook $1 -C "${USER}" -m "${USER}@noemail.not" -l apachev2'
 
 # Podman

@@ -25,12 +25,23 @@
   become: true
   tags: [third_party, docker]
 
-- name: Disable Docker-Podman warnings (idempotent)
+- name: Ensure /etc/containers exists
   ansible.builtin.file:
-    path: /etc/containers/nodocker
-    state: touch
+    path: /etc/containers
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  become: true
+  tags: [third_party, docker]
+
+- name: Disable Docker-Podman warnings (idempotent)
+  ansible.builtin.copy:
+    dest: /etc/containers/nodocker
+    content: ''
     owner: root
     group: root
     mode: '0644'
+    force: false
   become: true
   tags: [third_party, docker]
