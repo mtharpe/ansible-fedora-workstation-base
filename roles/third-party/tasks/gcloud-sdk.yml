@@ -1,4 +1,20 @@
 ---
+- name: Probe Google Cloud SDK yum repo
+  ansible.builtin.uri:
+    url: https://packages.cloud.google.com/yum/repos/cloud-sdk-el8-x86_64/repodata/repomd.xml
+    method: HEAD
+    status_code: [200, 301, 302]
+  register: gcloud_probe
+  failed_when: false
+  changed_when: false
+  tags: [third_party, gcloud]
+
+- name: Note unreachable Google Cloud SDK repo
+  ansible.builtin.debug:
+    msg: "Google Cloud SDK yum repo unreachable — skipping."
+  when: gcloud_probe.status | default(0) != 200
+  tags: [third_party, gcloud]
+
 - name: Import Google Cloud signing keys
   ansible.builtin.rpm_key:
     state: present
@@ -7,12 +23,14 @@
     - https://packages.cloud.google.com/yum/doc/yum-key.gpg
     - https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
   become: true
+  when: gcloud_probe.status | default(0) == 200
   tags: [third_party, gcloud]
 
 - name: Check if Google Cloud repo file exists
   ansible.builtin.stat:
     path: /etc/yum.repos.d/google-cloud-sdk.repo
   register: gcloud_repo
+  when: gcloud_probe.status | default(0) == 200
   tags: [third_party, gcloud]
 
 - name: Add Google Cloud SDK repository
@@ -23,7 +41,9 @@
     gpgcheck: true
     repo_gpgcheck: false
     enabled: true
-  when: not gcloud_repo.stat.exists
+  when:
+    - gcloud_probe.status | default(0) == 200
+    - not (gcloud_repo.stat.exists | default(false))
   become: true
   tags: [third_party, gcloud]
 
@@ -34,4 +54,5 @@
       - kubectl
     state: present
   become: true
+  when: gcloud_probe.status | default(0) == 200
   tags: [third_party, gcloud]

@@ -3,7 +3,6 @@
 - name: Install base packages
   ansible.builtin.dnf:
     name:
-      - 1password
       - direnv
       - fail2ban
       - ansible
@@ -35,11 +34,6 @@
       - tmux
       - transmission
       - neovim
-      - terraform
-      - vault
-      - consul
-      - nomad
-      - packer
       - psutils
       - python3-psutil
       - python3-pip
@@ -52,10 +46,33 @@
       - gnome-extensions-app
     state: present
 
-# Multimedia / codecs — only meaningful on a real desktop. RPM Fusion is also
-# gated on `not is_container` in repos.yml, so these would fail in containers.
+# HashiCorp packages — only attempted when the upstream rpm repo published
+# artifacts for the running Fedora release (probed in repos.yml).
+- name: Install HashiCorp packages
+  ansible.builtin.dnf:
+    name:
+      - terraform
+      - vault
+      - consul
+      - nomad
+      - packer
+    state: present
+  when: common_hashicorp_repo_available | default(false)
+
+# 1Password — only attempted when the upstream rpm repo is reachable.
+- name: Install 1Password
+  ansible.builtin.dnf:
+    name: 1password
+    state: present
+  when: common_onepassword_repo_available | default(false)
+
+# Multimedia / codecs — only meaningful on a real desktop and only when
+# RPM Fusion (free + nonfree) is available for the running Fedora release.
 - name: Configure multimedia codecs
-  when: not is_container | default(false)
+  when:
+    - not is_container | default(false)
+    - common_rpmfusion_free_available | default(false)
+    - common_rpmfusion_nonfree_available | default(false)
   block:
     # Swap ffmpeg-free with full ffmpeg (only when ffmpeg-free is still installed)
     - name: Check whether ffmpeg-free is installed

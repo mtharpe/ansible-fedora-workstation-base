@@ -1,8 +1,25 @@
 ---
+- name: Probe VSCode yum repo
+  ansible.builtin.uri:
+    url: https://packages.microsoft.com/yumrepos/vscode/repodata/repomd.xml
+    method: HEAD
+    status_code: [200, 301, 302]
+  register: vscode_probe
+  failed_when: false
+  changed_when: false
+  tags: [third_party, vscode]
+
+- name: Note unreachable VSCode repo
+  ansible.builtin.debug:
+    msg: "VSCode yum repo unreachable — skipping."
+  when: vscode_probe.status | default(0) != 200
+  tags: [third_party, vscode]
+
 - name: Check for VSCode Repo
   ansible.builtin.stat:
     path: /etc/yum.repos.d/vscode.repo
   register: fedora_vscode_installed
+  when: vscode_probe.status | default(0) == 200
   tags: [third_party, vscode]
 
 - name: Import Microsoft GPG key
@@ -10,6 +27,7 @@
     state: present
     key: https://packages.microsoft.com/keys/microsoft.asc
   become: true
+  when: vscode_probe.status | default(0) == 200
   tags: [third_party, vscode]
 
 - name: Add VSCode Repo
@@ -20,7 +38,9 @@
     baseurl: https://packages.microsoft.com/yumrepos/vscode
     gpgkey: https://packages.microsoft.com/keys/microsoft.asc
     gpgcheck: false
-  when: not fedora_vscode_installed.stat.exists
+  when:
+    - vscode_probe.status | default(0) == 200
+    - not (fedora_vscode_installed.stat.exists | default(false))
   become: true
   tags: [third_party, vscode]
 
@@ -29,4 +49,5 @@
     name: code
     state: present
   become: true
+  when: vscode_probe.status | default(0) == 200
   tags: [third_party, vscode]

@@ -17,6 +17,23 @@
     - { option: fastestmirror, value: 'True' }
   become: true
 
+# Probe each third-party repo for the running Fedora release. If a repo has
+# not yet published artifacts for this version we skip it (and any packages
+# it provides) instead of failing the whole run.
+- name: Probe HashiCorp repo for current Fedora release
+  ansible.builtin.uri:
+    url: "https://rpm.releases.hashicorp.com/fedora/{{ ansible_facts['distribution_major_version'] }}/{{ ansible_facts['architecture'] }}/stable/repodata/repomd.xml"
+    method: HEAD
+    status_code: [200, 301, 302]
+  register: common_hashicorp_probe
+  failed_when: false
+  changed_when: false
+
+- name: Note unsupported HashiCorp release
+  ansible.builtin.debug:
+    msg: "HashiCorp repo has no pocket for Fedora {{ ansible_facts['distribution_major_version'] }} — skipping."
+  when: common_hashicorp_probe.status | default(0) != 200
+
 - name: Add HashiCorp repository
   become: true
   ansible.builtin.yum_repository:
@@ -26,14 +43,34 @@
     gpgkey: https://rpm.releases.hashicorp.com/gpg
     gpgcheck: true
     enabled: true
+  when: common_hashicorp_probe.status | default(0) == 200
+
+- name: Probe RPM Fusion Free release for current Fedora
+  ansible.builtin.uri:
+    url: "https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-{{ ansible_facts['distribution_major_version'] }}.noarch.rpm"
+    method: HEAD
+    status_code: [200, 301, 302]
+  register: common_rpmfusion_free_probe
+  failed_when: false
+  changed_when: false
+  when: not is_container | default(false)
+
+- name: Note unsupported RPM Fusion Free release
+  ansible.builtin.debug:
+    msg: "RPM Fusion Free has no release RPM for Fedora {{ ansible_facts['distribution_major_version'] }} — skipping."
+  when:
+    - not is_container | default(false)
+    - common_rpmfusion_free_probe.status | default(0) != 200
 
 - name: Install RPM Fusion Free release RPM
   ansible.builtin.get_url:
-    url: "https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-{{ ansible_facts.distribution_major_version }}.noarch.rpm"
+    url: "https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-{{ ansible_facts['distribution_major_version'] }}.noarch.rpm"
     dest: /tmp/rpmfusion-free-release.rpm
     mode: '0644'
   become: true
-  when: not is_container | default(false)
+  when:
+    - not is_container | default(false)
+    - common_rpmfusion_free_probe.status | default(0) == 200
 
 - name: Install RPM Fusion Free release RPM
   become: true
@@ -41,15 +78,36 @@
     name: "/tmp/rpmfusion-free-release.rpm"
     state: present
     disable_gpg_check: true
+  when:
+    - not is_container | default(false)
+    - common_rpmfusion_free_probe.status | default(0) == 200
+
+- name: Probe RPM Fusion Nonfree release for current Fedora
+  ansible.builtin.uri:
+    url: "https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-{{ ansible_facts['distribution_major_version'] }}.noarch.rpm"
+    method: HEAD
+    status_code: [200, 301, 302]
+  register: common_rpmfusion_nonfree_probe
+  failed_when: false
+  changed_when: false
   when: not is_container | default(false)
+
+- name: Note unsupported RPM Fusion Nonfree release
+  ansible.builtin.debug:
+    msg: "RPM Fusion Nonfree has no release RPM for Fedora {{ ansible_facts['distribution_major_version'] }} — skipping."
+  when:
+    - not is_container | default(false)
+    - common_rpmfusion_nonfree_probe.status | default(0) != 200
 
 - name: Install RPM Fusion Nonfree release RPM
   ansible.builtin.get_url:
-    url: "https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-{{ ansible_facts.distribution_major_version }}.noarch.rpm"
+    url: "https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-{{ ansible_facts['distribution_major_version'] }}.noarch.rpm"
     dest: /tmp/rpmfusion-nonfree-release.rpm
     mode: '0644'
   become: true
-  when: not is_container | default(false)
+  when:
+    - not is_container | default(false)
+    - common_rpmfusion_nonfree_probe.status | default(0) == 200
 
 - name: Install RPM Fusion Nonfree release RPM
   become: true
@@ -57,7 +115,23 @@
     name: "/tmp/rpmfusion-nonfree-release.rpm"
     state: present
     disable_gpg_check: true
-  when: not is_container | default(false)
+  when:
+    - not is_container | default(false)
+    - common_rpmfusion_nonfree_probe.status | default(0) == 200
+
+- name: Probe 1Password rpm repo
+  ansible.builtin.uri:
+    url: "https://downloads.1password.com/linux/rpm/stable/{{ ansible_facts['architecture'] }}/repodata/repomd.xml"
+    method: HEAD
+    status_code: [200, 301, 302]
+  register: common_onepassword_probe
+  failed_when: false
+  changed_when: false
+
+- name: Note unreachable 1Password repo
+  ansible.builtin.debug:
+    msg: "1Password rpm repo unreachable — skipping."
+  when: common_onepassword_probe.status | default(0) != 200
 
 - name: Add 1Password repository
   become: true
@@ -70,6 +144,14 @@
     enabled: true
     state: present
   changed_when: false
+  when: common_onepassword_probe.status | default(0) == 200
+
+- name: Record external repo availability
+  ansible.builtin.set_fact:
+    common_hashicorp_repo_available: "{{ common_hashicorp_probe.status | default(0) == 200 }}"
+    common_rpmfusion_free_available: "{{ common_rpmfusion_free_probe.status | default(0) == 200 }}"
+    common_rpmfusion_nonfree_available: "{{ common_rpmfusion_nonfree_probe.status | default(0) == 200 }}"
+    common_onepassword_repo_available: "{{ common_onepassword_probe.status | default(0) == 200 }}"
 
 - name: Refresh DNF metadata
   become: true

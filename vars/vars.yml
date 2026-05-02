@@ -36,3 +36,7 @@ ansible_python_interpreter: /usr/bin/python3
 
 # Fedora target version (used for pinning images / docs)
 fedora_version: 43
+
+# Header stamped into rendered config files via `{{ ansible_managed }}`.
+# Replaces the deprecated DEFAULT_MANAGED_STR setting in ansible.cfg.
+ansible_managed: "Ansible managed — do not edit by hand"

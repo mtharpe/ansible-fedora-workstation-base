@@ -47,14 +47,6 @@
   ansible.builtin.import_tasks: alacritty.yml
   when: install_alacritty | default(false)
 
-- name: Setup Chef
-  ansible.builtin.import_tasks: chef.yml
-  when: install_chef | default(false)
-
-- name: Setup Alacritty
-  ansible.builtin.import_tasks: alacritty.yml
-  when: install_alacritty | default(false)
-
 - name: Setup eza
   ansible.builtin.import_tasks: eza.yml
   when: install_eza | default(false)

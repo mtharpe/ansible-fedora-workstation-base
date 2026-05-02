@@ -1,13 +1,32 @@
 ---
+- name: Probe fedora-spotify repo
+  ansible.builtin.uri:
+    url: https://negativo17.org/repos/fedora-spotify.repo
+    method: HEAD
+    status_code: [200, 301, 302]
+  register: spotify_probe
+  failed_when: false
+  changed_when: false
+  tags: [third_party, spotify]
+
+- name: Note unreachable Spotify repo
+  ansible.builtin.debug:
+    msg: "fedora-spotify repo unreachable — skipping."
+  when: spotify_probe.status | default(0) != 200
+  tags: [third_party, spotify]
+
 - name: Check for fedora-spotify repo
   ansible.builtin.stat:
     path: /etc/yum.repos.d/fedora-spotify.repo
   register: fedora_spotify_installed
+  when: spotify_probe.status | default(0) == 200
   tags: [third_party, spotify]
 
 - name: Install fedora-spotify repo
   ansible.builtin.command: dnf config-manager --add-repo=https://negativo17.org/repos/fedora-spotify.repo
-  when: not fedora_spotify_installed.stat.exists
+  when:
+    - spotify_probe.status | default(0) == 200
+    - not (fedora_spotify_installed.stat.exists | default(false))
   changed_when: true
   become: true
   tags: [third_party, spotify]
@@ -18,4 +37,5 @@
     state: present
   failed_when: false   # Repo occasionally lags new Fedora release; tolerate
   become: true
+  when: spotify_probe.status | default(0) == 200
   tags: [third_party, spotify]

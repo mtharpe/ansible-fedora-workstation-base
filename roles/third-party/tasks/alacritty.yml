@@ -38,6 +38,7 @@
   become: true
   ansible.builtin.command: mv /usr/share/applications/Alacritty.desktop /usr/share/applications/Alacritty.desktop.not
   when: alacritty_stat.stat.exists
+  changed_when: false
 
 - name: Stat Gnome Terminal Desktop Icon
   ansible.builtin.stat:
@@ -48,6 +49,7 @@
   become: true
   ansible.builtin.command: mv /usr/share/applications/org.gnome.Ptyxis.desktop /usr/share/applications/org.gnome.Terminal.desktop.not
   when: gnome_terminal_stat.stat.exists
+  changed_when: false
 
 - name: Setup cron to remove Alacritty.desktop every 30 minutes
   become: true

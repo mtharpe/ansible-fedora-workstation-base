@@ -5,12 +5,39 @@
   register: chef_installed
   tags: [third_party, chef]
 
+- name: Set Chef Workstation RPM URL
+  ansible.builtin.set_fact:
+    chef_rpm_url: "https://packages.chef.io/files/stable/chef-workstation/22.1.745/el/8/chef-workstation-22.1.745-1.el8.x86_64.rpm"
+  when: not chef_installed.stat.exists
+  tags: [third_party, chef]
+
+- name: Probe Chef Workstation RPM
+  ansible.builtin.uri:
+    url: "{{ chef_rpm_url }}"
+    method: HEAD
+    status_code: [200, 301, 302]
+  register: chef_probe
+  failed_when: false
+  changed_when: false
+  when: not chef_installed.stat.exists
+  tags: [third_party, chef]
+
+- name: Note unreachable Chef Workstation RPM
+  ansible.builtin.debug:
+    msg: "Chef Workstation RPM unreachable — skipping."
+  when:
+    - not chef_installed.stat.exists
+    - chef_probe.status | default(0) != 200
+  tags: [third_party, chef]
+
 - name: Install Chef Workstation
   ansible.builtin.package:
-    name: https://packages.chef.io/files/stable/chef-workstation/22.1.745/el/8/chef-workstation-22.1.745-1.el8.x86_64.rpm
+    name: "{{ chef_rpm_url }}"
     disable_gpg_check: true
     state: present
   retries: 3
-  when: not chef_installed.stat.exists
+  when:
+    - not chef_installed.stat.exists
+    - chef_probe.status | default(0) == 200
   become: true
   tags: [third_party, chef]
