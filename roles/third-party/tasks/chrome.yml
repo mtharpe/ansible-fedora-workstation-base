@@ -83,3 +83,32 @@
     mode: "0644"
   when: chrome_probe.status | default(0) == 200
   tags: [third_party, chrome]
+
+# Chrome enterprise policy: aggressive Memory Saver auto-discards
+# inactive tabs to keep memory usage in check. Read on next Chrome launch.
+- name: Ensure Chrome managed policies directory exists
+  ansible.builtin.file:
+    path: /etc/opt/chrome/policies/managed
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  become: true
+  when: chrome_probe.status | default(0) == 200
+  tags: [third_party, chrome]
+
+- name: Deploy Chrome Memory Saver policy
+  ansible.builtin.copy:
+    dest: /etc/opt/chrome/policies/managed/memory-saver.json
+    owner: root
+    group: root
+    mode: '0644'
+    content: |
+      {
+        "HighEfficiencyModeEnabled": true,
+        "MemorySaverModeEnabled": true,
+        "MemorySaverModeSavingsType": 2
+      }
+  become: true
+  when: chrome_probe.status | default(0) == 200
+  tags: [third_party, chrome]
