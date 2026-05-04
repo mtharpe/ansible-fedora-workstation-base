@@ -1,4 +1,12 @@
 ---
+- name: Check if Zoom is already installed
+  ansible.builtin.command:
+    cmd: rpm -q zoom
+  register: zoom_installed
+  failed_when: false
+  changed_when: false
+  tags: [third_party, zoom]
+
 - name: Probe Zoom RPM
   ansible.builtin.uri:
     url: https://zoom.us/client/latest/zoom_x86_64.rpm
@@ -7,12 +15,15 @@
   register: zoom_probe
   failed_when: false
   changed_when: false
+  when: zoom_installed.rc != 0
   tags: [third_party, zoom]
 
 - name: Note unreachable Zoom RPM
   ansible.builtin.debug:
     msg: "Zoom RPM unreachable — skipping."
-  when: zoom_probe.status | default(0) != 200
+  when:
+    - zoom_installed.rc != 0
+    - zoom_probe.status | default(0) != 200
   tags: [third_party, zoom]
 
 - name: Install Zoom RPM
@@ -21,5 +32,7 @@
     disable_gpg_check: true
     state: present
   become: true
-  when: zoom_probe.status | default(0) == 200
+  when:
+    - zoom_installed.rc != 0
+    - zoom_probe.status | default(0) == 200
   tags: [third_party, zoom]
