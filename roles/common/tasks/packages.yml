@@ -247,6 +247,14 @@
   ansible.builtin.dnf:
     name:
       - firefox
+      - thunderbird
+      - libreoffice-core
+      - libreoffice-writer
+      - libreoffice-calc
+      - libreoffice-impress
+      - libreoffice-draw
+      - libreoffice-base
+      - libreoffice-math
       - gnome-calendar
       - gnome-contacts
       - gnome-maps
