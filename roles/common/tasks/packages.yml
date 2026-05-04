@@ -19,7 +19,6 @@
       - golang-gotype
       - gh
       - htop
-      - fastfetch
       - iotop
       - jq
       - lshw
