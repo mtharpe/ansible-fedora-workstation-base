@@ -64,18 +64,28 @@
   become: true
   become_user: "{{ local_user }}"
 
+- name: Check for existing Starship binary
+  ansible.builtin.stat:
+    path: /usr/local/bin/starship
+  register: starship_bin_stat
+  when: install_starfish | default(false)
+
 - name: Download Starship install script
   ansible.builtin.get_url:
     url: https://starship.rs/install.sh
     dest: /tmp/starship_install.sh
     mode: "0755"
-  when: install_starfish | default(false)
+  when:
+    - install_starfish | default(false)
+    - not (starship_bin_stat.stat.exists | default(false))
 
 - name: Install Starship fish prompt
   ansible.builtin.shell:
     cmd: sh /tmp/starship_install.sh --yes
     creates: /usr/local/bin/starship
-  when: install_starfish | default(false)
+  when:
+    - install_starfish | default(false)
+    - not (starship_bin_stat.stat.exists | default(false))
 
 - name: Template starship config
   ansible.builtin.copy:

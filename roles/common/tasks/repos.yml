@@ -62,7 +62,15 @@
     - not is_container | default(false)
     - common_rpmfusion_free_probe.status | default(0) != 200
 
-- name: Install RPM Fusion Free release RPM
+- name: Check if RPM Fusion Free release is already installed
+  ansible.builtin.command:
+    cmd: rpm -q rpmfusion-free-release
+  register: common_rpmfusion_free_installed
+  failed_when: false
+  changed_when: false
+  when: not is_container | default(false)
+
+- name: Download RPM Fusion Free release RPM
   ansible.builtin.get_url:
     url: "https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-{{ ansible_facts['distribution_major_version'] }}.noarch.rpm"
     dest: /tmp/rpmfusion-free-release.rpm
@@ -71,6 +79,7 @@
   when:
     - not is_container | default(false)
     - common_rpmfusion_free_probe.status | default(0) == 200
+    - common_rpmfusion_free_installed.rc | default(1) != 0
 
 - name: Install RPM Fusion Free release RPM
   become: true
@@ -81,6 +90,7 @@
   when:
     - not is_container | default(false)
     - common_rpmfusion_free_probe.status | default(0) == 200
+    - common_rpmfusion_free_installed.rc | default(1) != 0
 
 - name: Probe RPM Fusion Nonfree release for current Fedora
   ansible.builtin.uri:
@@ -99,7 +109,15 @@
     - not is_container | default(false)
     - common_rpmfusion_nonfree_probe.status | default(0) != 200
 
-- name: Install RPM Fusion Nonfree release RPM
+- name: Check if RPM Fusion Nonfree release is already installed
+  ansible.builtin.command:
+    cmd: rpm -q rpmfusion-nonfree-release
+  register: common_rpmfusion_nonfree_installed
+  failed_when: false
+  changed_when: false
+  when: not is_container | default(false)
+
+- name: Download RPM Fusion Nonfree release RPM
   ansible.builtin.get_url:
     url: "https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-{{ ansible_facts['distribution_major_version'] }}.noarch.rpm"
     dest: /tmp/rpmfusion-nonfree-release.rpm
@@ -108,6 +126,7 @@
   when:
     - not is_container | default(false)
     - common_rpmfusion_nonfree_probe.status | default(0) == 200
+    - common_rpmfusion_nonfree_installed.rc | default(1) != 0
 
 - name: Install RPM Fusion Nonfree release RPM
   become: true
@@ -118,6 +137,7 @@
   when:
     - not is_container | default(false)
     - common_rpmfusion_nonfree_probe.status | default(0) == 200
+    - common_rpmfusion_nonfree_installed.rc | default(1) != 0
 
 - name: Probe 1Password rpm repo
   ansible.builtin.uri:

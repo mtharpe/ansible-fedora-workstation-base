@@ -1,25 +1,40 @@
 ---
+- name: Determine if eza is available via DNF (older Fedora)
+  ansible.builtin.set_fact:
+    eza_dnf_available: "{{ (ansible_facts['distribution'] | default('')) == 'Fedora' and
+      (ansible_facts['distribution_major_version'] | int) < 42 }}"
+  tags: [third_party, eza]
+
 - name: Install eza via DNF on older Fedora
   ansible.builtin.dnf:
     name: eza
     state: present
   become: true
-  when: (ansible_facts['distribution'] | default('')) == 'Fedora' and (ansible_facts['distribution_major_version'] | int) < 42
+  when: eza_dnf_available
+  tags: [third_party, eza]
+
+- name: Check for /usr/local/bin/eza
+  ansible.builtin.stat:
+    path: /usr/local/bin/eza
+  register: eza_bin_stat
+  when: not eza_dnf_available
+  tags: [third_party, eza]
 
 - name: Download prebuilt eza tarball
   ansible.builtin.get_url:
     url: "https://github.com/eza-community/eza/releases/latest/download/eza_x86_64-unknown-linux-gnu.tar.gz"
     dest: /tmp/eza.tar.gz
     mode: '0644'
-    force: true
+  when:
+    - not eza_dnf_available
+    - not (eza_bin_stat.stat.exists | default(false))
   tags: [third_party, eza]
-  when: not ((ansible_facts['distribution'] | default('')) == 'Fedora' and (ansible_facts['distribution_major_version'] | int) < 42)
 
 - name: Check for existing extracted eza binary
   ansible.builtin.stat:
     path: /tmp/eza_unpack/eza
   register: eza_unpack_stat
-  when: not ((ansible_facts['distribution'] | default('')) == 'Fedora' and (ansible_facts['distribution_major_version'] | int) < 42)
+  when: not eza_dnf_available
 
 - name: Ensure eza_unpack directory exists
   ansible.builtin.file:
@@ -29,14 +44,19 @@
     owner: root
     group: root
   become: true
-  when: not ((ansible_facts['distribution'] | default('')) == 'Fedora' and (ansible_facts['distribution_major_version'] | int) < 42)
+  when:
+    - not eza_dnf_available
+    - not (eza_bin_stat.stat.exists | default(false))
 
 - name: Extract eza tarball
   ansible.builtin.unarchive:
     src: /tmp/eza.tar.gz
     dest: /tmp/eza_unpack
     remote_src: true
-  when: not (eza_unpack_stat.stat.exists | default(false))
+  when:
+    - not eza_dnf_available
+    - not (eza_bin_stat.stat.exists | default(false))
+    - not (eza_unpack_stat.stat.exists | default(false))
 
 - name: Move eza binary to /usr/local/bin
   ansible.builtin.copy:
@@ -47,7 +67,9 @@
     group: root
     mode: '0755'
   become: true
-  when: not ((ansible_facts['distribution'] | default('')) == 'Fedora' and (ansible_facts['distribution_major_version'] | int) < 42)
+  when:
+    - not eza_dnf_available
+    - not (eza_bin_stat.stat.exists | default(false))
 
 - name: Create symlink exa -> eza if exa not present
   ansible.builtin.file:
@@ -55,4 +77,4 @@
     dest: /usr/local/bin/exa
     state: link
   become: true
-  when: not ((ansible_facts['distribution'] | default('')) == 'Fedora' and (ansible_facts['distribution_major_version'] | int) < 42)
+  when: not eza_dnf_available
