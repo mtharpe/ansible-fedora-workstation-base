@@ -1,7 +1,13 @@
 ---
-- name: Install Steam
+# Steam comes from RPM Fusion non-free; mangohud is the FPS/VRAM/CPU overlay
+# used by both Steam (`mangohud %command%` in launch options) and Lutris
+# (toggled per-game in the Lutris config).
+- name: Install Steam and MangoHud overlay
   ansible.builtin.package:
-    name: steam
+    name:
+      - steam
+      - mangohud
     state: present
   become: true
+  failed_when: false
   tags: [third_party, steam]

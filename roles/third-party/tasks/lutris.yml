@@ -32,6 +32,8 @@
     name:
       - vulkan-loader
       - vulkan-loader.i686
+      - vulkan-tools
+      - glx-utils
     state: present
   when: not lutris_installed.stat.exists
   become: true
@@ -57,4 +59,41 @@
     state: present
   when: not lutris_installed.stat.exists
   become: true
+  tags: [third_party, lutris]
+
+# Lutris's installer scripts shell out to these for archive extraction, MIDI
+# soundfonts, MIME sniffing, and the optional certutil-based Battle.net cert
+# import. Fedora's `python` already points at python3, so no python-is-python3
+# equivalent is needed here.
+- name: Install Lutris runtime helpers (extractors, soundfont, MIME, certutil)
+  ansible.builtin.package:
+    name:
+      - cabextract
+      - fluid-soundfont-gs
+      - nss-tools
+      - p7zip
+      - p7zip-plugins
+      - python3-lxml
+      - python3-magic
+    state: present
+  become: true
+  tags: [third_party, lutris]
+
+# Battle.net's launcher and most Windows games shipped through Lutris are
+# 32-bit; Wine needs the matching .i686 copies of these libs or installs fail
+# at runtime. This is the i686 set we identified working with Battle.net.
+- name: Install 32-bit (i686) Wine/Battle.net runtime libraries
+  ansible.builtin.package:
+    name:
+      - alsa-lib.i686
+      - dbus-libs.i686
+      - libcurl.i686
+      - libxml2.i686
+      - mesa-libGL.i686
+      - nss.i686
+      - SDL2.i686
+      - sqlite-libs.i686
+    state: present
+  become: true
+  failed_when: false
   tags: [third_party, lutris]
