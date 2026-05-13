@@ -111,6 +111,11 @@
         {'location': <(uint32 2, <('Denver', 'KDEN', true, [(0.69356499048035111, -1.8325180844752899)], [(0.69356499048035111, -1.8325180844752899)])>)>},
         {'location': <(uint32 2, <('Los Angeles', 'KLAX', true, [(0.59441327990644397, -2.0636403894159987)], [(0.59441327990644397, -2.0636403894159987)])>)>}]"
 
+- name: Propagate dark mode to legacy toolkits (GTK2, Qt, GTK3 outside session)
+  ansible.builtin.import_tasks: dark-mode.yml
+  when: not is_container | default(false)
+  tags: [gnome, dark-mode]
+
 - name: Install and enable GNOME Shell extensions
   ansible.builtin.import_tasks: extensions.yml
   when: not is_container | default(false)
