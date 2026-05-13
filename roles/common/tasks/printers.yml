@@ -1,0 +1,57 @@
+---
+# Bring up a full CUPS print stack: server + filters, system-config-printer
+# for the GTK admin UI, HPLIP for HP USB devices, and the kitchen-sink
+# driver bundle (gutenprint + foomatic PPDs). Fedora has no equivalent of
+# Debian's `printer-driver-all` metapackage, so list the components
+# individually. cups-browsed picks up mDNS/IPP-Everywhere printers on the
+# LAN automatically; ipp-usb handles driverless USB.
+- name: Install CUPS and print drivers
+  ansible.builtin.dnf:
+    name:
+      - cups
+      - cups-pdf
+      - cups-filters
+      - cups-browsed
+      - system-config-printer
+      - hplip
+      - gutenprint-cups
+      - foomatic-db-ppds
+      - ipp-usb
+    state: present
+  become: true
+  tags: [common, printers]
+
+- name: Add {{ local_user }} to lpadmin (manage printers without sudo)
+  ansible.builtin.user:
+    name: "{{ local_user }}"
+    groups: [lpadmin]
+    append: true
+  become: true
+  tags: [common, printers]
+
+- name: Enable and start CUPS services
+  ansible.builtin.service:
+    name: "{{ item }}"
+    state: started
+    enabled: true
+  loop:
+    - cups
+    - cups-browsed
+  become: true
+  when: not is_container | default(false)
+  tags: [common, printers]
+
+# Fedora uses firewalld; without the ipp service opened, mDNS/CUPS browsing
+# and network sharing of locally-attached printers won't work. Kept in this
+# file (rather than system.yml's service loop) so toggling install_printers
+# off removes the rule cohesively with the rest of the print stack.
+- name: Allow IPP through firewalld for network printer discovery/sharing
+  ansible.posix.firewalld:
+    zone: "{{ firewalld_default_zone | default('public') }}"
+    service: ipp
+    permanent: true
+    immediate: true
+    state: enabled
+  become: true
+  when: not is_container | default(false)
+  tags: [common, printers]
