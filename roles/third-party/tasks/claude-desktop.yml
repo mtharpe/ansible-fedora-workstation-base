@@ -1,0 +1,64 @@
+---
+# Claude Desktop has no official Linux build. This uses the community
+# aaddrick/claude-desktop-debian project, which repackages the official app
+# and serves GPG-signed RPMs from a DNF repo for Fedora/RHEL (Rocky included),
+# so updates flow through `dnf upgrade` like any other package.
+#
+# Cowork runs inside the app. Its default — and only currently tested —
+# isolation backend is bubblewrap (a user-namespace sandbox; no VM required).
+# Fedora and Rocky permit unprivileged user namespaces out of the box, so no
+# AppArmor workaround is needed (unlike Ubuntu 24.04). Without bubblewrap,
+# cowork falls back to running Claude Code directly on the host with no
+# sandbox. The KVM/QEMU backend is opt-in and its rootfs is upstream-untested,
+# so it is intentionally not provisioned here. Run `claude-desktop --doctor`
+# to see which cowork backend is active.
+- name: Probe Claude Desktop RPM repo
+  ansible.builtin.uri:
+    url: https://pkg.claude-desktop-debian.dev/rpm/claude-desktop.repo
+    method: HEAD
+    status_code: [200, 301, 302]
+  register: claude_desktop_probe
+  failed_when: false
+  changed_when: false
+  tags: [third_party, claude-desktop]
+
+- name: Note unreachable Claude Desktop repo
+  ansible.builtin.debug:
+    msg: "Claude Desktop RPM repo unreachable — skipping."
+  when: claude_desktop_probe.status | default(0) != 200
+  tags: [third_party, claude-desktop]
+
+- name: Import Claude Desktop signing key
+  ansible.builtin.rpm_key:
+    state: present
+    key: https://pkg.claude-desktop-debian.dev/KEY.gpg
+  become: true
+  when: claude_desktop_probe.status | default(0) == 200
+  tags: [third_party, claude-desktop]
+
+- name: Add Claude Desktop DNF repository
+  ansible.builtin.get_url:
+    url: https://pkg.claude-desktop-debian.dev/rpm/claude-desktop.repo
+    dest: /etc/yum.repos.d/claude-desktop.repo
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+  when: claude_desktop_probe.status | default(0) == 200
+  tags: [third_party, claude-desktop]
+
+- name: Install Claude Desktop
+  ansible.builtin.dnf:
+    name: claude-desktop
+    state: present
+  become: true
+  when: claude_desktop_probe.status | default(0) == 200
+  tags: [third_party, claude-desktop]
+
+- name: Install bubblewrap for the cowork sandbox backend
+  ansible.builtin.dnf:
+    name: bubblewrap
+    state: present
+  become: true
+  when: claude_desktop_probe.status | default(0) == 200
+  tags: [third_party, claude-desktop, cowork]
