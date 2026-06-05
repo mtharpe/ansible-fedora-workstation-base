@@ -2,6 +2,14 @@
 set -euo pipefail
 
 if ! command -v pipx >/dev/null 2>&1; then
+  # On RHEL-family distros (Rocky, etc.) pipx ships only in EPEL, which the
+  # playbook enables later — too late for this bootstrap. Enable it here first.
+  # Fedora carries pipx in its base repos, so this block is skipped there.
+  . /etc/os-release
+  if [ "${ID:-}" != "fedora" ] && printf '%s' "${ID:-} ${ID_LIKE:-}" | grep -qiE 'rhel|centos|rocky|almalinux'; then
+    sudo dnf install -y epel-release
+    sudo dnf config-manager --set-enabled crb
+  fi
   sudo dnf install -y pipx
 fi
 
