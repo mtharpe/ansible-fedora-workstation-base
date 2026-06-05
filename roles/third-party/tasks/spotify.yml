@@ -1,4 +1,11 @@
 ---
+# negativo17's Spotify repo only publishes Fedora packages; Rocky/EL users
+# should install Spotify via Flatpak instead.
+- name: Skip Spotify on non-Fedora distributions
+  ansible.builtin.debug:
+    msg: "Spotify via negativo17 is Fedora-only. Install via Flatpak on Rocky Linux."
+  when: ansible_facts['distribution'] != 'Fedora'
+
 - name: Probe fedora-spotify repo
   ansible.builtin.uri:
     url: https://negativo17.org/repos/fedora-spotify.repo
@@ -7,24 +14,30 @@
   register: spotify_probe
   failed_when: false
   changed_when: false
+  when: ansible_facts['distribution'] == 'Fedora'
   tags: [third_party, spotify]
 
 - name: Note unreachable Spotify repo
   ansible.builtin.debug:
     msg: "fedora-spotify repo unreachable — skipping."
-  when: spotify_probe.status | default(0) != 200
+  when:
+    - ansible_facts['distribution'] == 'Fedora'
+    - spotify_probe.status | default(0) != 200
   tags: [third_party, spotify]
 
 - name: Check for fedora-spotify repo
   ansible.builtin.stat:
     path: /etc/yum.repos.d/fedora-spotify.repo
   register: fedora_spotify_installed
-  when: spotify_probe.status | default(0) == 200
+  when:
+    - ansible_facts['distribution'] == 'Fedora'
+    - spotify_probe.status | default(0) == 200
   tags: [third_party, spotify]
 
 - name: Install fedora-spotify repo
   ansible.builtin.command: dnf config-manager --add-repo=https://negativo17.org/repos/fedora-spotify.repo
   when:
+    - ansible_facts['distribution'] == 'Fedora'
     - spotify_probe.status | default(0) == 200
     - not (fedora_spotify_installed.stat.exists | default(false))
   changed_when: true
@@ -37,5 +50,7 @@
     state: present
   failed_when: false   # Repo occasionally lags new Fedora release; tolerate
   become: true
-  when: spotify_probe.status | default(0) == 200
+  when:
+    - ansible_facts['distribution'] == 'Fedora'
+    - spotify_probe.status | default(0) == 200
   tags: [third_party, spotify]

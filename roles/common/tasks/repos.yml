@@ -1,4 +1,33 @@
 ---
+# Determine per-distro repo path components so the same tasks work on both
+# Fedora and Rocky Linux (RHEL-based). Rocky uses 'RHEL'/'el' prefixes on
+# HashiCorp and RPM Fusion mirrors respectively.
+- name: Set distribution repo parameters
+  ansible.builtin.set_fact:
+    distro_is_fedora: "{{ ansible_facts['distribution'] == 'Fedora' }}"
+    distro_is_rocky: "{{ ansible_facts['distribution'] == 'Rocky' }}"
+    hashicorp_distro_path: "{{ 'RHEL' if ansible_facts['distribution'] == 'Rocky' else 'fedora' }}"
+    rpmfusion_distro_path: "{{ 'el' if ansible_facts['distribution'] == 'Rocky' else 'fedora' }}"
+
+# Rocky Linux ships a minimal base; EPEL provides the extra packages that
+# Fedora includes by default (e.g. htop, iotop, tmux, nmon, speedtest-cli).
+# CRB (CodeReady Builder) is required by some EPEL packages for build tools.
+- name: Enable EPEL on Rocky Linux
+  ansible.builtin.dnf:
+    name: epel-release
+    state: present
+  become: true
+  when: distro_is_rocky
+
+- name: Enable CRB repository on Rocky Linux
+  ansible.builtin.command:
+    cmd: dnf config-manager --set-enabled crb
+  become: true
+  when: distro_is_rocky
+  register: crb_result
+  changed_when: false
+  failed_when: crb_result.rc != 0
+
 # dnf speed tuning — set BEFORE any repo install so the bigger downloads
 # benefit. max_parallel_downloads default is 3; bumping to 20 is dramatically
 # faster on a fast link. keepcache lets repeat runs skip re-download.
@@ -20,9 +49,9 @@
 # Probe each third-party repo for the running Fedora release. If a repo has
 # not yet published artifacts for this version we skip it (and any packages
 # it provides) instead of failing the whole run.
-- name: Probe HashiCorp repo for current Fedora release
+- name: Probe HashiCorp repo for current release
   ansible.builtin.uri:
-    url: "https://rpm.releases.hashicorp.com/fedora/{{ ansible_facts['distribution_major_version'] }}/{{ ansible_facts['architecture'] }}/stable/repodata/repomd.xml"
+    url: "https://rpm.releases.hashicorp.com/{{ hashicorp_distro_path }}/{{ ansible_facts['distribution_major_version'] }}/{{ ansible_facts['architecture'] }}/stable/repodata/repomd.xml"
     method: HEAD
     status_code: [200, 301, 302]
   register: common_hashicorp_probe
@@ -31,7 +60,7 @@
 
 - name: Note unsupported HashiCorp release
   ansible.builtin.debug:
-    msg: "HashiCorp repo has no pocket for Fedora {{ ansible_facts['distribution_major_version'] }} — skipping."
+    msg: "HashiCorp repo has no pocket for {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_major_version'] }} — skipping."
   when: common_hashicorp_probe.status | default(0) != 200
 
 - name: Add HashiCorp repository
@@ -39,15 +68,15 @@
   ansible.builtin.yum_repository:
     name: hashicorp
     description: HashiCorp Official Linux Repository
-    baseurl: https://rpm.releases.hashicorp.com/fedora/$releasever/$basearch/stable
+    baseurl: "https://rpm.releases.hashicorp.com/{{ hashicorp_distro_path }}/$releasever/$basearch/stable"
     gpgkey: https://rpm.releases.hashicorp.com/gpg
     gpgcheck: true
     enabled: true
   when: common_hashicorp_probe.status | default(0) == 200
 
-- name: Probe RPM Fusion Free release for current Fedora
+- name: Probe RPM Fusion Free release for current release
   ansible.builtin.uri:
-    url: "https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-{{ ansible_facts['distribution_major_version'] }}.noarch.rpm"
+    url: "https://mirrors.rpmfusion.org/free/{{ rpmfusion_distro_path }}/rpmfusion-free-release-{{ ansible_facts['distribution_major_version'] }}.noarch.rpm"
     method: HEAD
     status_code: [200, 301, 302]
   register: common_rpmfusion_free_probe
@@ -57,7 +86,7 @@
 
 - name: Note unsupported RPM Fusion Free release
   ansible.builtin.debug:
-    msg: "RPM Fusion Free has no release RPM for Fedora {{ ansible_facts['distribution_major_version'] }} — skipping."
+    msg: "RPM Fusion Free has no release RPM for {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_major_version'] }} — skipping."
   when:
     - not is_container | default(false)
     - common_rpmfusion_free_probe.status | default(0) != 200
@@ -72,7 +101,7 @@
 
 - name: Download RPM Fusion Free release RPM
   ansible.builtin.get_url:
-    url: "https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-{{ ansible_facts['distribution_major_version'] }}.noarch.rpm"
+    url: "https://mirrors.rpmfusion.org/free/{{ rpmfusion_distro_path }}/rpmfusion-free-release-{{ ansible_facts['distribution_major_version'] }}.noarch.rpm"
     dest: /tmp/rpmfusion-free-release.rpm
     mode: '0644'
   become: true
@@ -92,9 +121,9 @@
     - common_rpmfusion_free_probe.status | default(0) == 200
     - common_rpmfusion_free_installed.rc | default(1) != 0
 
-- name: Probe RPM Fusion Nonfree release for current Fedora
+- name: Probe RPM Fusion Nonfree release for current release
   ansible.builtin.uri:
-    url: "https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-{{ ansible_facts['distribution_major_version'] }}.noarch.rpm"
+    url: "https://mirrors.rpmfusion.org/nonfree/{{ rpmfusion_distro_path }}/rpmfusion-nonfree-release-{{ ansible_facts['distribution_major_version'] }}.noarch.rpm"
     method: HEAD
     status_code: [200, 301, 302]
   register: common_rpmfusion_nonfree_probe
@@ -104,7 +133,7 @@
 
 - name: Note unsupported RPM Fusion Nonfree release
   ansible.builtin.debug:
-    msg: "RPM Fusion Nonfree has no release RPM for Fedora {{ ansible_facts['distribution_major_version'] }} — skipping."
+    msg: "RPM Fusion Nonfree has no release RPM for {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_major_version'] }} — skipping."
   when:
     - not is_container | default(false)
     - common_rpmfusion_nonfree_probe.status | default(0) != 200
@@ -119,7 +148,7 @@
 
 - name: Download RPM Fusion Nonfree release RPM
   ansible.builtin.get_url:
-    url: "https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-{{ ansible_facts['distribution_major_version'] }}.noarch.rpm"
+    url: "https://mirrors.rpmfusion.org/nonfree/{{ rpmfusion_distro_path }}/rpmfusion-nonfree-release-{{ ansible_facts['distribution_major_version'] }}.noarch.rpm"
     dest: /tmp/rpmfusion-nonfree-release.rpm
     mode: '0644'
   become: true

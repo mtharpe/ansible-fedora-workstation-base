@@ -52,11 +52,16 @@ gnome_extensions:
   - power-profile-switcher@fthx
   - auto-select-headset@krocg
 
+# Local hand-written GNOME extensions to install (source trees under
+# roles/gnome/files/local-extensions/<uuid>/). Leave empty if none.
+gnome_local_extensions: []
+
 # python3
 ansible_python_interpreter: /usr/bin/python3
 
-# Fedora target version (used for pinning images / docs)
+# Target version (used for pinning images / docs)
 fedora_version: 43
+rocky_version: 9
 
 # Header stamped into rendered config files via `{{ ansible_managed }}`.
 # Replaces the deprecated DEFAULT_MANAGED_STR setting in ansible.cfg.
