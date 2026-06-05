@@ -15,8 +15,6 @@
       - firewalld
       - firewalld-filesystem
       - golang
-      - golang-godoc
-      - golang-gotype
       - gh
       - htop
       - iotop
@@ -38,12 +36,22 @@
       - python3-pip
       - python3-termcolor
       - unzip
-      - alacritty
       - vlc
       - util-linux
-      - nextcloud-client
       - gnome-extensions-app
     state: present
+
+# These packages are exclusive to Fedora's repos; they don't exist in EPEL
+# or RPM Fusion for EL, so they're skipped on Rocky Linux.
+- name: Install Fedora-only base packages
+  ansible.builtin.dnf:
+    name:
+      - golang-godoc
+      - golang-gotype
+      - nextcloud-client
+      - alacritty
+    state: present
+  when: ansible_facts['distribution'] == 'Fedora'
 
 # HashiCorp packages — only attempted when the upstream rpm repo published
 # artifacts for the running Fedora release (probed in repos.yml).
@@ -116,7 +124,7 @@
         state: present
       become: true
 
-    # Enable fedora-cisco-openh264 repository (idempotent via ini_file)
+    # Enable fedora-cisco-openh264 repository (Fedora-only; absent on Rocky/EL)
     - name: Enable fedora-cisco-openh264 repository
       community.general.ini_file:
         path: /etc/yum.repos.d/fedora-cisco-openh264.repo
@@ -125,6 +133,7 @@
         value: '1'
         mode: '0644'
       become: true
+      when: ansible_facts['distribution'] == 'Fedora'
       failed_when: false   # repo file may be absent on minimal images
 
 # Install molecule via pipx so it gets its own ansible-core in an isolated

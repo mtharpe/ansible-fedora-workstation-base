@@ -79,10 +79,9 @@
   when: not is_container | default(false)
   failed_when: false
 
-# Fedora-specific: NetworkManager-wait-online lengthens boot for any
-# network it can't reach immediately, which is rarely useful on a
-# laptop that may be offline at boot.
-- name: Disable Fedora services that hurt interactive performance
+# NetworkManager-wait-online lengthens boot for any network it can't reach
+# immediately, which is rarely useful on a laptop that may be offline at boot.
+- name: Disable services that hurt interactive boot performance
   ansible.builtin.systemd:
     name: "{{ item }}"
     enabled: false

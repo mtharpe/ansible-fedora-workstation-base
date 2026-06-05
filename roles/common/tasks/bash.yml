@@ -43,3 +43,4 @@
   args:
     creates: /etc/bash_completion.d/podman
   become: true
+  failed_when: false
