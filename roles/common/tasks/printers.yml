@@ -21,10 +21,15 @@
   become: true
   tags: [common, printers]
 
-- name: Add {{ local_user }} to lpadmin (manage printers without sudo)
+# Debian/Ubuntu ship an `lpadmin` group and make it CUPS's SystemGroup; Fedora
+# does not have `lpadmin` at all. On Fedora the CUPS SystemGroup defaults to
+# "sys root" (see /etc/cups/cups-files.conf), so membership in `sys` grants
+# printer administration without root — the Fedora equivalent of `lpadmin`.
+# (cf. Arch/Manjaro, which uses `lp` for the same purpose.)
+- name: Add {{ local_user }} to the CUPS admin group (manage printers without root)
   ansible.builtin.user:
     name: "{{ local_user }}"
-    groups: [lpadmin]
+    groups: [sys]
     append: true
   become: true
   tags: [common, printers]
