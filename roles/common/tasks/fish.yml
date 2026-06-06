@@ -68,7 +68,7 @@
   ansible.builtin.stat:
     path: /usr/local/bin/starship
   register: starship_bin_stat
-  when: install_starfish | default(false)
+  when: install_starship | default(false)
 
 - name: Download Starship install script
   ansible.builtin.get_url:
@@ -76,7 +76,7 @@
     dest: /tmp/starship_install.sh
     mode: "0755"
   when:
-    - install_starfish | default(false)
+    - install_starship | default(false)
     - not (starship_bin_stat.stat.exists | default(false))
 
 - name: Install Starship fish prompt
@@ -84,7 +84,7 @@
     cmd: sh /tmp/starship_install.sh --yes
     creates: /usr/local/bin/starship
   when:
-    - install_starfish | default(false)
+    - install_starship | default(false)
     - not (starship_bin_stat.stat.exists | default(false))
 
 - name: Template starship config
@@ -95,7 +95,7 @@
     group: wheel
     mode: "0644"
   become: true
-  when: install_starfish | default(false)
+  when: install_starship | default(false)
 
 - name: Create user .config directory
   ansible.builtin.file:
@@ -105,7 +105,7 @@
     mode: "0755"
     state: directory
   become: true
-  when: install_starfish | default(false)
+  when: install_starship | default(false)
 
 - name: Copy fish aliases script
   ansible.builtin.copy:
