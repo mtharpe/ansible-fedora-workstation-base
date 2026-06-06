@@ -13,17 +13,48 @@
 # Unlike Ubuntu noble, Fedora packages qgnomeplatform-qt6, so both Qt5 and
 # Qt6 apps can route through the gsettings-aware platform theme — no
 # QT_STYLE_OVERRIDE workaround needed.
-- name: Install legacy-toolkit dark-mode integration packages
+# Availability of these theming packages varies by Fedora release. The GTK2
+# Adwaita theme (gnome-themes-extra / adwaita-gtk2-theme) and the Adwaita Qt
+# style (adwaita-qt5 / adwaita-qt6) were orphaned and dropped after Fedora 43
+# (see Changes/NoCustomQtThemingForWorkstation); qgnomeplatform-qt{5,6} — the
+# gsettings-aware Qt platform theme that actually propagates GNOME dark mode —
+# is still shipped. So probe what the running release provides and install only
+# that, instead of hard-failing the whole play on a package that no longer
+# exists. The ~/.gtkrc-2.0 / settings.ini steps below stay harmless either way:
+# if the GTK2 theme isn't installed, GTK2 apps simply fall back.
+- name: Probe which legacy-toolkit dark-mode packages this release ships
+  ansible.builtin.command: "dnf -q repoquery --qf '%{name}' {{ item }}"  # noqa: command-instead-of-module
+  loop:
+    - gnome-themes-extra
+    - adwaita-gtk2-theme
+    - qgnomeplatform-qt5
+    - qgnomeplatform-qt6
+    - adwaita-qt5
+    - adwaita-qt6
+  become: true
+  register: darkmode_pkg_probe
+  changed_when: false
+  failed_when: false
+  tags: [gnome, dark-mode]
+
+- name: Partition dark-mode packages into available vs missing
+  ansible.builtin.set_fact:
+    darkmode_pkgs_available: "{{ darkmode_pkg_probe.results | selectattr('stdout', 'truthy') | map(attribute='item') | list }}"
+    darkmode_pkgs_missing: "{{ darkmode_pkg_probe.results | rejectattr('stdout', 'truthy') | map(attribute='item') | list }}"
+  tags: [gnome, dark-mode]
+
+- name: Note legacy-toolkit dark-mode packages not shipped by this release
+  ansible.builtin.debug:
+    msg: "Skipping theming packages not in this Fedora release's repos: {{ darkmode_pkgs_missing | join(', ') }}"
+  when: darkmode_pkgs_missing | length > 0
+  tags: [gnome, dark-mode]
+
+- name: Install available legacy-toolkit dark-mode integration packages
   ansible.builtin.dnf:
-    name:
-      - gnome-themes-extra
-      - adwaita-gtk2-theme
-      - qgnomeplatform-qt5
-      - qgnomeplatform-qt6
-      - adwaita-qt5
-      - adwaita-qt6
+    name: "{{ darkmode_pkgs_available }}"
     state: present
   become: true
+  when: darkmode_pkgs_available | length > 0
   tags: [gnome, dark-mode]
 
 - name: Ensure GTK config directories exist
