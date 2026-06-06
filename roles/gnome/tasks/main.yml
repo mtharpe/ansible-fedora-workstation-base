@@ -127,3 +127,10 @@
     - not is_container | default(false)
     - gnome_local_extensions | default([]) | length > 0
   tags: [gnome, extensions, local-extensions]
+
+- name: Reproduce custom keyboard shortcuts and screenshot helpers
+  ansible.builtin.import_tasks: keybindings.yml
+  when:
+    - not is_container | default(false)
+    - gnome_custom_keybindings | default([]) | length > 0
+  tags: [gnome, keybindings]
