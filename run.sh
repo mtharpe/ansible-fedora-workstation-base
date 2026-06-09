@@ -5,6 +5,7 @@ if ! command -v pipx >/dev/null 2>&1; then
   # On RHEL-family distros (Rocky, etc.) pipx ships only in EPEL, which the
   # playbook enables later — too late for this bootstrap. Enable it here first.
   # Fedora carries pipx in its base repos, so this block is skipped there.
+  # shellcheck disable=SC1091  # /etc/os-release is provided by the OS at runtime
   . /etc/os-release
   if [ "${ID:-}" != "fedora" ] && printf '%s' "${ID:-} ${ID_LIKE:-}" | grep -qiE 'rhel|centos|rocky|almalinux'; then
     sudo dnf install -y epel-release
