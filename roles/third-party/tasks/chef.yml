@@ -7,7 +7,7 @@
 
 - name: Set Chef Workstation RPM URL
   ansible.builtin.set_fact:
-    chef_rpm_url: "https://packages.chef.io/files/stable/chef-workstation/22.1.745/el/8/chef-workstation-22.1.745-1.el8.x86_64.rpm"
+    chef_rpm_url: "https://packages.chef.io/files/stable/chef-workstation/25.14.1/el/8/chef-workstation-25.14.1-1.el8.x86_64.rpm"
   when: not chef_installed.stat.exists
   tags: [third_party, chef]
 
