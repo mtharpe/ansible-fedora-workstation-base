@@ -30,8 +30,10 @@
     - k: /org/gnome/desktop/interface/enable-hot-corners
       v: "false"
 
-    - k: /org/gnome/desktop/interface/gtk-theme
-      v: "'Adwaita-dark'"
+    # NOTE: /org/gnome/desktop/interface/gtk-theme is deliberately NOT set here.
+    # It is pinned and locked in the system dconf database by dark-mode.yml,
+    # because GNOME Tweaks rewrites the user-db copy behind our back. A locked
+    # key is non-writable, so listing it here would fail this task outright.
 
     - k: /org/gnome/desktop/interface/color-scheme
       v: "'prefer-dark'"

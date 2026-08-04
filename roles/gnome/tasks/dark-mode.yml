@@ -24,7 +24,7 @@
 # reaching for a plugin that would have worked. That silent downgrade is why Qt
 # apps went light. "gtk3" selects libqgtk3.so, which is still shipped for both
 # Qt5 and Qt6 and lifts its palette straight out of the active GTK3 theme, so
-# Adwaita-dark propagates and GNOME's light/dark toggle keeps working.
+# dark Adwaita propagates and GNOME's light/dark toggle keeps working.
 #
 # The probe below stays because release-to-release availability is exactly what
 # bit us: install what this Fedora actually ships and note the rest, rather than
@@ -58,6 +58,55 @@
   when: gnome_darkmode_pkgs_available | length > 0
   tags: [gnome, dark-mode]
 
+# GNOME Tweaks' "Legacy Applications" row is a combo built from
+# {Adwaita, HighContrast, HighContrastInverse} plus every on-disk theme with a
+# gtk-3.0/gtk.css. When gtk-theme holds a value that isn't in that set, the combo
+# has nothing to preselect, settles on an arbitrary member (Python set order, so
+# it varies per launch — frequently High Contrast) and its "changed" handler
+# writes that back to dconf *and* forces gtk-application-prefer-dark-theme=0 into
+# ~/.config/gtk-3.0/settings.ini, which is what breaks dark mode for legacy apps.
+#
+# Naming the theme correctly is necessary but not sufficient: anything that
+# touches that combo can still clobber the key. Pinning gtk-theme in the system
+# database and locking it makes the key non-writable, so the Tweaks write is
+# refused and the value cannot drift again.
+- name: Pin the legacy (GTK3) application theme in the system dconf database
+  ansible.builtin.copy:
+    dest: /etc/dconf/db/local.d/00-legacy-app-theme
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      # {{ ansible_managed }}
+      [org/gnome/desktop/interface]
+      gtk-theme='Adwaita'
+  become: true
+  notify: Update dconf database
+  tags: [gnome, dark-mode]
+
+- name: Ensure the dconf lock directory exists
+  ansible.builtin.file:
+    path: /etc/dconf/db/local.d/locks
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  become: true
+  tags: [gnome, dark-mode]
+
+- name: Lock the legacy application theme against GNOME Tweaks and the a11y toggle
+  ansible.builtin.copy:
+    dest: /etc/dconf/db/local.d/locks/00-legacy-app-theme
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      # {{ ansible_managed }}
+      /org/gnome/desktop/interface/gtk-theme
+  become: true
+  notify: Update dconf database
+  tags: [gnome, dark-mode]
+
 - name: Ensure GTK and environment.d config directories exist
   ansible.builtin.file:
     path: "/home/{{ local_user }}/{{ item }}"
@@ -89,6 +138,11 @@
 # gtk-theme-name matters beyond GTK3 itself: with QT_QPA_PLATFORMTHEME=gtk3,
 # libqgtk3 reads this same theme to build the Qt palette, so Qt apps started
 # outside the session inherit dark from here too.
+#
+# Adwaita, not Adwaita-dark: the latter came from gnome-themes-extra, which this
+# release no longer ships, and naming a theme that isn't on disk makes GTK3 fall
+# back to light. Adwaita is compiled into GTK3 and carries both variants, so
+# gtk-application-prefer-dark-theme below is what selects dark.
 - name: Configure GTK3 dark theme (~/.config/gtk-3.0/settings.ini)
   ansible.builtin.copy:
     dest: "/home/{{ local_user }}/.config/gtk-3.0/settings.ini"
@@ -99,7 +153,7 @@
       # {{ ansible_managed }}
       [Settings]
       gtk-application-prefer-dark-theme = 1
-      gtk-theme-name = Adwaita-dark
+      gtk-theme-name = Adwaita
       gtk-icon-theme-name = Adwaita
       gtk-cursor-theme-name = Adwaita
   become: true
@@ -118,7 +172,7 @@
       # {{ ansible_managed }}
       [Settings]
       gtk-application-prefer-dark-theme = 1
-      gtk-theme-name = Adwaita-dark
+      gtk-theme-name = Adwaita
       gtk-icon-theme-name = Adwaita
       gtk-cursor-theme-name = Adwaita
   become: true

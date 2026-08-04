@@ -10,3 +10,10 @@
   ansible.builtin.service:
     name: fail2ban
     state: restarted
+
+# Compiles /etc/dconf/db/*.d into the binary databases the profile in
+# /etc/dconf/profile/user reads. Edits under local.d have no effect until this
+# runs, locks included.
+- name: Update dconf database
+  ansible.builtin.command: /usr/bin/dconf update  # noqa: command-instead-of-module
+  changed_when: true
