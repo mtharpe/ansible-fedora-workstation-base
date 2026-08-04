@@ -58,3 +58,28 @@
     force: false
   become: true
   tags: [third_party, claude]
+
+# The seed above is force:false, so a machine that already has a settings.json
+# would never pick this up. Merge the single key instead of rewriting the file,
+# so hand-tuned settings survive. Claude Code otherwise raises a desktop
+# notification when it wants attention, which is unwanted from a terminal app.
+- name: Read existing Claude Code settings
+  ansible.builtin.slurp:
+    src: "/home/{{ local_user }}/.claude/settings.json"
+  register: thirdparty_claude_settings
+  failed_when: false
+  changed_when: false
+  tags: [third_party, claude]
+
+- name: Disable Claude Code desktop notifications
+  ansible.builtin.copy:
+    content: >-
+      {{ (thirdparty_claude_settings.content | b64decode | from_json)
+         | combine({'preferredNotifChannel': claude_notif_channel}) | to_nice_json }}
+    dest: "/home/{{ local_user }}/.claude/settings.json"
+    owner: "{{ local_user }}"
+    group: "{{ local_user }}"
+    mode: '0644'
+  become: true
+  when: thirdparty_claude_settings.content is defined
+  tags: [third_party, claude]

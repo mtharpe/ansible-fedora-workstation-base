@@ -81,6 +81,20 @@ colloid_extra_icons:
   - google-keep.svg
   - google-tasks.svg
 
+# Claude Code notification channel. "notifications_disabled" stops it raising
+# desktop notifications; "terminal_bell" or "auto" re-enable them.
+claude_notif_channel: notifications_disabled
+
+# Desktop notifications from terminal apps are blocked via GNOME's per-app
+# notification settings. Values are munged desktop IDs: Alacritty.desktop ->
+# alacritty, org.gnome.Ptyxis.desktop -> org-gnome-ptyxis.
+gnome_notification_blocked_apps:
+  - alacritty
+  - org-gnome-ptyxis
+  - org-gnome-terminal
+  - org-gnome-console
+  - kgx
+
 # GNOME Shell extensions to install + enable. UUIDs must match
 # extensions.gnome.org. Edit if any UUID needs to change.
 gnome_extensions:

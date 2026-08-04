@@ -122,6 +122,24 @@
         {'location': <(uint32 2, <('Denver', 'KDEN', true, [(0.69356499048035111, -1.8325180844752899)], [(0.69356499048035111, -1.8325180844752899)])>)>},
         {'location': <(uint32 2, <('Los Angeles', 'KLAX', true, [(0.59441327990644397, -2.0636403894159987)], [(0.59441327990644397, -2.0636403894159987)])>)>}]"
 
+# Belt-and-braces alongside the per-app setting in claude.yml: this blocks any
+# notification GNOME attributes to a terminal, whatever raised it. Keyed by the
+# munged desktop ID (Alacritty.desktop -> alacritty), which is how GNOME maps a
+# notification's desktop-entry hint onto these settings — so it only catches
+# senders that set that hint.
+- name: Block desktop notifications from terminal applications
+  community.general.dconf:
+    key: "/org/gnome/desktop/notifications/application/{{ item }}/enable"
+    value: "false"
+    state: present
+  become: true
+  become_user: "{{ local_user }}"
+  loop: "{{ gnome_notification_blocked_apps }}"
+  when:
+    - not is_container | default(false)
+    - gnome_notification_blocked_apps | default([]) | length > 0
+  tags: [gnome, notifications]
+
 - name: Propagate dark mode to legacy toolkits (GTK2, Qt, GTK3 outside session)
   ansible.builtin.import_tasks: dark-mode.yml
   when: not is_container | default(false)

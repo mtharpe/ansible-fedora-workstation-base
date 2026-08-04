@@ -16,6 +16,10 @@
   from `linux-google-apps` (`install_google_apps`)
 - Install `podman-docker` alongside Podman when `install_docker` is off, and
   create `/etc/containers/nodocker` to silence its per-invocation emulation notice
+- Stop terminal applications raising desktop notifications: set Claude Code's
+  `preferredNotifChannel` to `notifications_disabled` (merged into an existing
+  `settings.json` rather than rewriting it), and block GNOME notifications for
+  the terminal desktop IDs via `gnome_notification_blocked_apps`
 - Add an `install_twingate` toggle for the Twingate zero-trust client. Upstream
   publishes no GPG key for its RPM repo, so it is added with `gpgcheck` disabled,
   matching Twingate's own installer
