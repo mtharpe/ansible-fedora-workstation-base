@@ -27,6 +27,11 @@ install_slack: true
 install_spotify: false
 install_vscode: true
 install_zoom: true
+# Twingate zero-trust client. Upstream publishes no GPG key for its RPM repo,
+# so the repo is added with gpgcheck disabled (matching Twingate's own installer).
+# After install, run `twingate setup` once to join a network.
+install_twingate: true
+twingate_repo_baseurl: "https://packages.twingate.com/rpm/"
 install_lutris: false
 install_steam: false
 install_docker: false
@@ -42,6 +47,53 @@ install_eza: true
 install_claude: true
 install_claude_desktop: true
 install_kubectl: true
+
+# Standalone Google web apps (Gmail, Calendar, Tasks, Keep), built from
+# https://github.com/mtharpe/linux-google-apps and installed under ~/.local.
+# First run downloads the Electron runtime and packages four apps, so it is slow;
+# later runs skip the build unless the checkout moved or an app is missing.
+install_google_apps: true
+google_apps_repo: https://github.com/mtharpe/linux-google-apps.git
+google_apps_version: main
+google_apps_src: "/home/{{ local_user }}/.local/src/linux-google-apps"
+google_apps_prefix: "/home/{{ local_user }}/.local"
+# Filesystem slugs build-linux.sh derives from the names in its services.conf.
+# Used only to detect whether a rebuild is needed.
+google_apps_slugs:
+  - gmail
+  - google-calendar
+  - google-tasks
+  - google-keep
+
+# Colloid icon theme (https://github.com/vinceliuice/Colloid-icon-theme).
+# Installed per-user into ~/.local/share/icons and selected via gnome_icon_theme.
+# Set install_colloid_icons: false to stay on Adwaita.
+install_colloid_icons: true
+gnome_icon_theme: Colloid-Dark
+colloid_icon_repo: https://github.com/vinceliuice/Colloid-icon-theme.git
+colloid_icon_version: main
+colloid_icon_src: "/home/{{ local_user }}/.local/src/Colloid-icon-theme"
+colloid_icon_dest: "/home/{{ local_user }}/.local/share/icons"
+# Extra install.sh flags, e.g. "-t purple -s nord -b". Empty = default blue.
+colloid_icon_install_args: ""
+# Icons Colloid does not ship upstream; sourced from roles/gnome/files/colloid-icons/.
+colloid_extra_icons:
+  - google-keep.svg
+  - google-tasks.svg
+
+# Claude Code notification channel. "notifications_disabled" stops it raising
+# desktop notifications; "terminal_bell" or "auto" re-enable them.
+claude_notif_channel: notifications_disabled
+
+# Desktop notifications from terminal apps are blocked via GNOME's per-app
+# notification settings. Values are munged desktop IDs: Alacritty.desktop ->
+# alacritty, org.gnome.Ptyxis.desktop -> org-gnome-ptyxis.
+gnome_notification_blocked_apps:
+  - alacritty
+  - org-gnome-ptyxis
+  - org-gnome-terminal
+  - org-gnome-console
+  - kgx
 
 # GNOME Shell extensions to install + enable. UUIDs must match
 # extensions.gnome.org. Edit if any UUID needs to change.

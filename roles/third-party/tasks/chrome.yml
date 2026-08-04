@@ -68,7 +68,7 @@
     path: /home/{{ local_user }}/.local/share/applications
     state: directory
     owner: "{{ local_user }}"
-    group: wheel
+    group: "{{ local_user }}"
     mode: "0755"
   become: true
   when: chrome_probe.status | default(0) == 200
@@ -79,9 +79,57 @@
     src: templates/gnome_desktop/google-chrome.desktop
     dest: /home/{{ local_user }}/.local/share/applications/google-chrome.desktop
     owner: "{{ local_user }}"
-    group: wheel
+    group: "{{ local_user }}"
     mode: "0644"
   when: chrome_probe.status | default(0) == 200
+  tags: [third_party, chrome]
+
+# The RPM ships TWO launchers — google-chrome.desktop and com.google.Chrome.desktop
+# — and both declare StartupWMClass=google-chrome. The override above only shadows
+# the first, so the class stays double-claimed and GNOME Shell is free to bind a
+# Chrome window to the com.google.Chrome entry instead of the pinned one, which
+# surfaces as a duplicate dock icon. Shadow the reverse-DNS twin with a Hidden
+# entry (Hidden=true means "deleted" per the desktop-entry spec, so GAppInfo drops
+# it from the StartupWMClass index entirely) leaving exactly one claimant.
+# Same failure mode the Alacritty override guards against in alacritty.yml.
+- name: Hide the duplicate com.google.Chrome launcher from GNOME Shell
+  ansible.builtin.copy:
+    dest: /home/{{ local_user }}/.local/share/applications/com.google.Chrome.desktop
+    owner: "{{ local_user }}"
+    group: "{{ local_user }}"
+    mode: "0644"
+    content: |
+      [Desktop Entry]
+      Type=Application
+      NoDisplay=true
+      Hidden=true
+  when: chrome_probe.status | default(0) == 200
+  tags: [third_party, chrome]
+
+# A favorite pinned to the reverse-DNS ID would now point at a hidden entry.
+- name: Read GNOME dock favorites for Chrome fixup
+  community.general.dconf:
+    key: /org/gnome/shell/favorite-apps
+    state: read
+  register: chrome_favorites
+  become: true
+  become_user: "{{ local_user }}"
+  when:
+    - chrome_probe.status | default(0) == 200
+    - not is_container | default(false)
+  tags: [third_party, chrome]
+
+- name: Repoint GNOME dock favorites at google-chrome.desktop
+  community.general.dconf:
+    key: /org/gnome/shell/favorite-apps
+    value: "{{ chrome_favorites.value | regex_replace(\"'com\\.google\\.Chrome\\.desktop'\", \"'google-chrome.desktop'\") }}"
+    state: present
+  become: true
+  become_user: "{{ local_user }}"
+  when:
+    - chrome_probe.status | default(0) == 200
+    - not is_container | default(false)
+    - chrome_favorites.value | default('', true) is search('com\.google\.Chrome\.desktop')
   tags: [third_party, chrome]
 
 # Chrome enterprise policy: aggressive Memory Saver auto-discards

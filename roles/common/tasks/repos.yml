@@ -4,10 +4,10 @@
 # HashiCorp and RPM Fusion mirrors respectively.
 - name: Set distribution repo parameters
   ansible.builtin.set_fact:
-    distro_is_fedora: "{{ ansible_facts['distribution'] == 'Fedora' }}"
-    distro_is_rocky: "{{ ansible_facts['distribution'] == 'Rocky' }}"
-    hashicorp_distro_path: "{{ 'RHEL' if ansible_facts['distribution'] == 'Rocky' else 'fedora' }}"
-    rpmfusion_distro_path: "{{ 'el' if ansible_facts['distribution'] == 'Rocky' else 'fedora' }}"
+    common_distro_is_fedora: "{{ ansible_facts['distribution'] == 'Fedora' }}"
+    common_distro_is_rocky: "{{ ansible_facts['distribution'] == 'Rocky' }}"
+    common_hashicorp_distro_path: "{{ 'RHEL' if ansible_facts['distribution'] == 'Rocky' else 'fedora' }}"
+    common_rpmfusion_distro_path: "{{ 'el' if ansible_facts['distribution'] == 'Rocky' else 'fedora' }}"
 
 # Rocky Linux ships a minimal base; EPEL provides the extra packages that
 # Fedora includes by default (e.g. htop, iotop, tmux, nmon, speedtest-cli).
@@ -17,16 +17,16 @@
     name: epel-release
     state: present
   become: true
-  when: distro_is_rocky
+  when: common_distro_is_rocky
 
 - name: Enable CRB repository on Rocky Linux
   ansible.builtin.command:
     cmd: dnf config-manager --set-enabled crb
   become: true
-  when: distro_is_rocky
-  register: crb_result
+  when: common_distro_is_rocky
+  register: common_crb_result
   changed_when: false
-  failed_when: crb_result.rc != 0
+  failed_when: common_crb_result.rc != 0
 
 # dnf speed tuning — set BEFORE any repo install so the bigger downloads
 # benefit. max_parallel_downloads default is 3; bumping to 20 is dramatically
@@ -51,7 +51,7 @@
 # it provides) instead of failing the whole run.
 - name: Probe HashiCorp repo for current release
   ansible.builtin.uri:
-    url: "https://rpm.releases.hashicorp.com/{{ hashicorp_distro_path }}/{{ ansible_facts['distribution_major_version'] }}/{{ ansible_facts['architecture'] }}/stable/repodata/repomd.xml"
+    url: "https://rpm.releases.hashicorp.com/{{ common_hashicorp_distro_path }}/{{ ansible_facts['distribution_major_version'] }}/{{ ansible_facts['architecture'] }}/stable/repodata/repomd.xml"
     method: HEAD
     status_code: [200, 301, 302]
   register: common_hashicorp_probe
@@ -68,7 +68,7 @@
   ansible.builtin.yum_repository:
     name: hashicorp
     description: HashiCorp Official Linux Repository
-    baseurl: "https://rpm.releases.hashicorp.com/{{ hashicorp_distro_path }}/$releasever/$basearch/stable"
+    baseurl: "https://rpm.releases.hashicorp.com/{{ common_hashicorp_distro_path }}/$releasever/$basearch/stable"
     gpgkey: https://rpm.releases.hashicorp.com/gpg
     gpgcheck: true
     enabled: true
@@ -76,7 +76,7 @@
 
 - name: Probe RPM Fusion Free release for current release
   ansible.builtin.uri:
-    url: "https://mirrors.rpmfusion.org/free/{{ rpmfusion_distro_path }}/rpmfusion-free-release-{{ ansible_facts['distribution_major_version'] }}.noarch.rpm"
+    url: "https://mirrors.rpmfusion.org/free/{{ common_rpmfusion_distro_path }}/rpmfusion-free-release-{{ ansible_facts['distribution_major_version'] }}.noarch.rpm"
     method: HEAD
     status_code: [200, 301, 302]
   register: common_rpmfusion_free_probe
@@ -91,7 +91,10 @@
     - not is_container | default(false)
     - common_rpmfusion_free_probe.status | default(0) != 200
 
-- name: Check if RPM Fusion Free release is already installed
+# rpm -q is a targeted presence check. The modules this rule suggests
+# (yum / rpm_key) cannot answer "is this package installed?", and
+# package_facts would read the entire RPM database to learn one bit.
+- name: Check if RPM Fusion Free release is already installed  # noqa: command-instead-of-module
   ansible.builtin.command:
     cmd: rpm -q rpmfusion-free-release
   register: common_rpmfusion_free_installed
@@ -101,7 +104,7 @@
 
 - name: Download RPM Fusion Free release RPM
   ansible.builtin.get_url:
-    url: "https://mirrors.rpmfusion.org/free/{{ rpmfusion_distro_path }}/rpmfusion-free-release-{{ ansible_facts['distribution_major_version'] }}.noarch.rpm"
+    url: "https://mirrors.rpmfusion.org/free/{{ common_rpmfusion_distro_path }}/rpmfusion-free-release-{{ ansible_facts['distribution_major_version'] }}.noarch.rpm"
     dest: /tmp/rpmfusion-free-release.rpm
     mode: '0644'
   become: true
@@ -123,7 +126,7 @@
 
 - name: Probe RPM Fusion Nonfree release for current release
   ansible.builtin.uri:
-    url: "https://mirrors.rpmfusion.org/nonfree/{{ rpmfusion_distro_path }}/rpmfusion-nonfree-release-{{ ansible_facts['distribution_major_version'] }}.noarch.rpm"
+    url: "https://mirrors.rpmfusion.org/nonfree/{{ common_rpmfusion_distro_path }}/rpmfusion-nonfree-release-{{ ansible_facts['distribution_major_version'] }}.noarch.rpm"
     method: HEAD
     status_code: [200, 301, 302]
   register: common_rpmfusion_nonfree_probe
@@ -138,7 +141,10 @@
     - not is_container | default(false)
     - common_rpmfusion_nonfree_probe.status | default(0) != 200
 
-- name: Check if RPM Fusion Nonfree release is already installed
+# rpm -q is a targeted presence check. The modules this rule suggests
+# (yum / rpm_key) cannot answer "is this package installed?", and
+# package_facts would read the entire RPM database to learn one bit.
+- name: Check if RPM Fusion Nonfree release is already installed  # noqa: command-instead-of-module
   ansible.builtin.command:
     cmd: rpm -q rpmfusion-nonfree-release
   register: common_rpmfusion_nonfree_installed
@@ -148,7 +154,7 @@
 
 - name: Download RPM Fusion Nonfree release RPM
   ansible.builtin.get_url:
-    url: "https://mirrors.rpmfusion.org/nonfree/{{ rpmfusion_distro_path }}/rpmfusion-nonfree-release-{{ ansible_facts['distribution_major_version'] }}.noarch.rpm"
+    url: "https://mirrors.rpmfusion.org/nonfree/{{ common_rpmfusion_distro_path }}/rpmfusion-nonfree-release-{{ ansible_facts['distribution_major_version'] }}.noarch.rpm"
     dest: /tmp/rpmfusion-nonfree-release.rpm
     mode: '0644'
   become: true

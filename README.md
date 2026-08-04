@@ -10,7 +10,10 @@ Configures a Fedora workstation with:
 
 - **Common packages** — developer tooling, fonts, multimedia codecs, system utilities (`roles/common`)
 - **Third-party apps** — Chrome, VS Code, Slack, Zoom, Docker, etc., gated by feature flags (`roles/third-party`)
+- **Google web apps** — standalone Gmail / Calendar / Tasks / Keep windows built from [`linux-google-apps`](https://github.com/mtharpe/linux-google-apps), each packaged with its own Wayland `app_id` so the dock treats them as four separate applications (`install_google_apps` in `vars/vars.yml`) (`roles/third-party/tasks/google-apps.yml`). The first run downloads the Electron runtime and packages four apps, so it is slow; later runs skip the build unless the checkout moved or an app is missing.
+- **Containers** — Podman with the `podman-docker` CLI shim when `install_docker` is off, including the `/etc/containers/nodocker` marker that silences the emulation notice
 - **GNOME settings** — sensible dconf defaults, system-wide dark mode that also reaches legacy GTK2 and Qt apps, workspace layout, and custom keyboard shortcuts incl. screenshot-to-clipboard helpers (`gnome_custom_keybindings` in `vars/vars.yml`) (`roles/gnome`)
+- **Icon theme** — the [Colloid](https://github.com/vinceliuice/Colloid-icon-theme) icon theme installed per-user and selected via dconf, plus hand-drawn Google Keep / Tasks icons that upstream does not ship (`install_colloid_icons`, `gnome_icon_theme` in `vars/vars.yml`) (`roles/gnome/tasks/icon-theme.yml`)
 - **Printing** — CUPS with broad driver coverage (Gutenprint/foomatic/HPLIP), the system-config-printer GUI, and automatic mDNS/IPP network printer discovery with the firewalld `ipp` service opened (`roles/common/tasks/printers.yml`)
 - **Shell setup** — bash or fish with TPM, Starship, FiraCode Nerd Font (toggle in `vars/vars.yml`)
 - **Hardening** — fail2ban with progressive bans (on by default), firewalld desktop firewall, optional sshd hardening

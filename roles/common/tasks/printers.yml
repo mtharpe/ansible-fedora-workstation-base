@@ -26,7 +26,7 @@
 # "sys root" (see /etc/cups/cups-files.conf), so membership in `sys` grants
 # printer administration without root — the Fedora equivalent of `lpadmin`.
 # (cf. Arch/Manjaro, which uses `lp` for the same purpose.)
-- name: Add {{ local_user }} to the CUPS admin group (manage printers without root)
+- name: Grant printer administration (no root needed) to {{ local_user }}
   ansible.builtin.user:
     name: "{{ local_user }}"
     groups: [sys]

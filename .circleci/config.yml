@@ -18,7 +18,13 @@ jobs:
           name: Install Ansible tooling
           command: |
             python -m pip install --upgrade pip
-            python -m pip install ansible ansible-lint
+            # Pinned deliberately. Unpinned, this job silently adopts whatever
+            # ansible-lint released most recently, so a new rule (or an existing
+            # rule widened) turns every PR red without anything in the repo
+            # changing — which is exactly how this job started failing on commits
+            # that had passed days earlier. Bump this on purpose, with the
+            # resulting violations fixed in the same PR.
+            python -m pip install ansible 'ansible-lint==26.6.0'
       - run:
           name: ansible-lint
           command: ansible-lint .

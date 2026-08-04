@@ -1,5 +1,8 @@
 ---
-- name: Check if Slack is already installed
+# rpm -q is a targeted presence check. The modules this rule suggests
+# (yum / rpm_key) cannot answer "is this package installed?", and
+# package_facts would read the entire RPM database to learn one bit.
+- name: Check if Slack is already installed  # noqa: command-instead-of-module
   ansible.builtin.command:
     cmd: rpm -q slack
   register: slack_installed
@@ -26,16 +29,19 @@
     - slack_probe.status | default(0) != 200
   tags: [third_party, slack]
 
-- name: Download Slack RPM via curl
-  ansible.builtin.shell: |
-    curl -fSL -A "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" \
-      "https://downloads.slack-edge.com/desktop-releases/linux/x64/4.46.101/slack-4.46.101-0.1.el8.x86_64.rpm" -o /tmp/slack-latest.rpm
-  args:
-    executable: /bin/bash
+# The browser User-Agent is required — slack-edge.com serves a redirect/error to
+# default agents rather than the RPM. get_url carries it via headers, so this no
+# longer needs to shell out to curl.
+- name: Download Slack RPM
+  ansible.builtin.get_url:
+    url: "https://downloads.slack-edge.com/desktop-releases/linux/x64/4.46.101/slack-4.46.101-0.1.el8.x86_64.rpm"
+    dest: /tmp/slack-latest.rpm
+    mode: "0644"
+    headers:
+      User-Agent: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
   when:
     - slack_installed.rc != 0
     - slack_probe.status | default(0) == 200
-  changed_when: true
   tags: [third_party, slack]
 
 - name: Verify downloaded file is an RPM
@@ -69,4 +75,35 @@
   when:
     - slack_installed.rc != 0
     - slack_probe.status | default(0) == 200
+  tags: [third_party, slack]
+
+- name: Re-check Slack after install
+  ansible.builtin.stat:
+    path: /usr/bin/slack
+  register: slack_present
+  tags: [third_party, slack]
+
+- name: Ensure user applications directory exists
+  ansible.builtin.file:
+    path: /home/{{ local_user }}/.local/share/applications
+    state: directory
+    owner: "{{ local_user }}"
+    group: "{{ local_user }}"
+    mode: "0755"
+  become: true
+  when: slack_present.stat.exists
+  tags: [third_party, slack]
+
+# Shadows /usr/share/applications/slack.desktop (exact desktop-ID match, so it
+# overrides rather than adding a second entry) purely to swap the hardcoded
+# absolute Icon= path for a themeable icon name. StartupWMClass is preserved so
+# window-to-launcher matching keeps working and the dock shows one tile.
+- name: Deploy user slack.desktop with a themeable icon
+  ansible.builtin.copy:
+    src: templates/gnome_desktop/slack.desktop
+    dest: /home/{{ local_user }}/.local/share/applications/slack.desktop
+    owner: "{{ local_user }}"
+    group: "{{ local_user }}"
+    mode: "0644"
+  when: slack_present.stat.exists
   tags: [third_party, slack]

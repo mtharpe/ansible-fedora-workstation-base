@@ -1,0 +1,48 @@
+---
+# Twingate zero-trust client.
+#
+# Upstream ships no signed RPM repo: packages.twingate.com/rpm/ has no gpg.key
+# and no detached repomd signature (both 404), and Twingate's own installer at
+# binaries.twingate.com/client/linux/install.sh explicitly sets gpgcheck=0 for
+# the dnf path. So this repo is unverified by upstream's design, not by choice
+# here — packages are trusted on TLS alone. Set install_twingate: false if that
+# tradeoff is not acceptable on a given machine.
+#
+# Installing only lays down the client; `twingate setup` still has to be run
+# once interactively to join a network.
+
+- name: Probe Twingate RPM repo
+  ansible.builtin.uri:
+    url: "{{ twingate_repo_baseurl }}repodata/repomd.xml"
+    method: HEAD
+    status_code: [200, 301, 302]
+  register: twingate_probe
+  failed_when: false
+  changed_when: false
+  tags: [third_party, twingate]
+
+- name: Note unreachable Twingate repo
+  ansible.builtin.debug:
+    msg: "Twingate RPM repo unreachable — skipping."
+  when: twingate_probe.status | default(0) != 200
+  tags: [third_party, twingate]
+
+- name: Add Twingate DNF repository
+  ansible.builtin.yum_repository:
+    name: twingate
+    description: Twingate Client
+    baseurl: "{{ twingate_repo_baseurl }}"
+    enabled: true
+    # See the note above: upstream publishes no key for this repo.
+    gpgcheck: false
+  become: true
+  when: twingate_probe.status | default(0) == 200
+  tags: [third_party, twingate]
+
+- name: Install Twingate
+  ansible.builtin.dnf:
+    name: twingate
+    state: present
+  become: true
+  when: twingate_probe.status | default(0) == 200
+  tags: [third_party, twingate]

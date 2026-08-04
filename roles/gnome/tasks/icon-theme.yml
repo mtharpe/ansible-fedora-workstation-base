@@ -1,0 +1,90 @@
+---
+# Colloid icon theme (https://github.com/vinceliuice/Colloid-icon-theme).
+#
+# Installed per-user under ~/.local/share/icons rather than system-wide: the
+# upstream installer is a shell script with no packaging, so keeping it in $HOME
+# means no root-owned files outside dnf's control and a trivial uninstall.
+#
+# Upstream ships no google-keep / google-tasks icons, so this role adds
+# hand-drawn ones matching Colloid's Google family (colored tile, white panel,
+# colored glyph). They are re-copied after every install run because the
+# upstream installer rm -rf's each theme directory before recreating it.
+
+- name: Install icon theme build dependencies
+  ansible.builtin.dnf:
+    name:
+      - git
+      - gtk-update-icon-cache  # install.sh calls gtk-update-icon-cache directly
+    state: present
+  become: true
+  tags: [gnome, icon-theme]
+
+- name: Clone the Colloid icon theme
+  ansible.builtin.git:
+    repo: "{{ colloid_icon_repo }}"
+    dest: "{{ colloid_icon_src }}"
+    version: "{{ colloid_icon_version }}"
+    depth: 1
+    force: true
+  become: true
+  become_user: "{{ local_user }}"
+  register: gnome_colloid_clone
+  tags: [gnome, icon-theme]
+
+- name: Check whether Colloid is already installed
+  ansible.builtin.stat:
+    path: "{{ colloid_icon_dest }}/{{ gnome_icon_theme }}/index.theme"
+  register: gnome_colloid_installed
+  tags: [gnome, icon-theme]
+
+- name: Ensure the user icon directory exists
+  ansible.builtin.file:
+    path: "{{ colloid_icon_dest }}"
+    state: directory
+    owner: "{{ local_user }}"
+    group: "{{ local_user }}"
+    mode: "0755"
+  become: true
+  become_user: "{{ local_user }}"
+  tags: [gnome, icon-theme]
+
+# Only re-run when the checkout moved or the theme is missing — the installer
+# rebuilds ~170MB of icons and is far too slow to run on every provision.
+- name: Install the Colloid icon theme
+  ansible.builtin.command:
+    cmd: ./install.sh -d {{ colloid_icon_dest | quote }} {{ colloid_icon_install_args }}
+    chdir: "{{ colloid_icon_src }}"
+  become: true
+  become_user: "{{ local_user }}"
+  when: gnome_colloid_clone.changed or not gnome_colloid_installed.stat.exists
+  register: gnome_colloid_install
+  changed_when: gnome_colloid_install.rc == 0
+  tags: [gnome, icon-theme]
+
+# Colloid/apps and Colloid-Dark/apps/scalable are symlinks into Colloid-Light,
+# so one copy serves every variant.
+- name: Add the custom Colloid icons upstream does not ship
+  ansible.builtin.copy:
+    src: "colloid-icons/{{ item }}"
+    dest: "{{ colloid_icon_dest }}/Colloid-Light/apps/scalable/{{ item }}"
+    owner: "{{ local_user }}"
+    group: "{{ local_user }}"
+    mode: "0644"
+  become: true
+  become_user: "{{ local_user }}"
+  loop: "{{ colloid_extra_icons }}"
+  register: gnome_colloid_extra
+  tags: [gnome, icon-theme]
+
+- name: Refresh the icon caches
+  ansible.builtin.command:
+    cmd: gtk-update-icon-cache -f {{ colloid_icon_dest }}/{{ item }}
+  become: true
+  become_user: "{{ local_user }}"
+  loop:
+    - Colloid
+    - Colloid-Light
+    - Colloid-Dark
+  when: gnome_colloid_install.changed | default(false) or gnome_colloid_extra.changed | default(false)
+  changed_when: true
+  tags: [gnome, icon-theme]

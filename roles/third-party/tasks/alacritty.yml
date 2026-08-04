@@ -54,22 +54,78 @@
     alacritty_terminal_icon: "{{ (alacritty_icon_probe.stdout | trim) or 'utilities-terminal' }}"
   tags: [third_party, alacritty]
 
-# Filename must match the system .desktop ID (com.alacritty.Alacritty.desktop)
-# so this user-level file overrides the upstream one. Using any other name
-# leaves two entries matching StartupWMClass=Alacritty and the dock shows a
-# duplicate icon when Alacritty launches.
+# A user-level .desktop only *overrides* the system one when its desktop ID —
+# the filename relative to the applications dir — matches byte for byte. Any
+# other name is a brand-new entry, so two entries end up declaring
+# StartupWMClass=Alacritty. GNOME Shell then resolves the window's Wayland
+# app_id ("Alacritty") to the system entry, and clicking our launcher spawns a
+# second, differently-iconed dock icon. Probe for the shipped filename rather
+# than hardcoding it, so an upstream rename can't silently reintroduce that.
+- name: Probe for the system Alacritty .desktop ID
+  ansible.builtin.shell: |
+    set -o pipefail
+    found="$(find /usr/local/share/applications /usr/share/applications -maxdepth 1 \
+        -iname '*alacritty*.desktop' -printf '%f\n' 2>/dev/null | sort | head -n1)"
+    echo "${found:-Alacritty.desktop}"
+  args:
+    executable: /bin/bash
+  register: alacritty_desktop_probe
+  changed_when: false
+  tags: [third_party, alacritty]
+
+- name: Set fact alacritty_desktop_id
+  ansible.builtin.set_fact:
+    alacritty_desktop_id: "{{ alacritty_desktop_probe.stdout | trim }}"
+  tags: [third_party, alacritty]
+
 - name: Template Alacritty .desktop override
   ansible.builtin.template:
-    src: templates/gnome_desktop/com.alacritty.Alacritty.desktop
-    dest: /home/{{ local_user }}/.local/share/applications/com.alacritty.Alacritty.desktop
+    src: templates/gnome_desktop/Alacritty.desktop
+    dest: "/home/{{ local_user }}/.local/share/applications/{{ alacritty_desktop_id }}"
     owner: "{{ local_user }}"
     group: "{{ local_user }}"
     mode: "0644"
+  tags: [third_party, alacritty]
 
-- name: Remove legacy alacritty.desktop from previous provisions
+# Earlier provisions wrote the override under names that shadow nothing. Left
+# behind they are the duplicate-icon bug, so drop every name but the live one.
+- name: Remove stale Alacritty .desktop entries from previous provisions
   ansible.builtin.file:
-    path: /home/{{ local_user }}/.local/share/applications/alacritty.desktop
+    path: "/home/{{ local_user }}/.local/share/applications/{{ item }}"
     state: absent
+  loop:
+    - alacritty.desktop
+    - Alacritty.desktop
+    - com.alacritty.Alacritty.desktop
+  when: item != alacritty_desktop_id
+  tags: [third_party, alacritty]
+
+# The dock pins apps by desktop ID. A favorite still naming a stale override
+# renders as a blank/generic tile, so repoint it at whatever we just wrote.
+- name: Read GNOME dock favorites
+  community.general.dconf:
+    key: /org/gnome/shell/favorite-apps
+    state: read
+  register: alacritty_favorites
+  become: true
+  become_user: "{{ local_user }}"
+  when: not is_container | default(false)
+  tags: [third_party, alacritty]
+
+- name: Repoint GNOME dock favorites at the current Alacritty .desktop ID
+  community.general.dconf:
+    key: /org/gnome/shell/favorite-apps
+    value: >-
+      {{ alacritty_favorites.value
+         | regex_replace("'(com\.alacritty\.)?[Aa]lacritty\.desktop'",
+                         "'" ~ alacritty_desktop_id ~ "'") }}
+    state: present
+  become: true
+  become_user: "{{ local_user }}"
+  when:
+    - not is_container | default(false)
+    - alacritty_favorites.value | default('', true) is search('alacritty', ignorecase=True)
+  tags: [third_party, alacritty]
 
 - name: Drop legacy Alacritty.desktop cleanup cron (replaced by user overrides)
   ansible.builtin.cron:

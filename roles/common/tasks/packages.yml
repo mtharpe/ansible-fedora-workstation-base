@@ -82,7 +82,10 @@
     - common_rpmfusion_nonfree_available | default(false)
   block:
     # Swap ffmpeg-free with full ffmpeg (only when ffmpeg-free is still installed)
-    - name: Check whether ffmpeg-free is installed
+    # rpm -q is a targeted presence check. The modules this rule suggests
+    # (yum / rpm_key) cannot answer "is this package installed?", and
+    # package_facts would read the entire RPM database to learn one bit.
+    - name: Check whether ffmpeg-free is installed  # noqa: command-instead-of-module
       ansible.builtin.command: rpm -q ffmpeg-free
       register: common_ffmpeg_free_check
       changed_when: false
@@ -172,11 +175,29 @@
   changed_when: false
   when: not is_container | default(false)
 
-# Install podman only if docker is not requested
+# Install podman only if docker is not requested. podman-docker supplies the
+# `docker` CLI shim (and a docker.io alias for the socket), so muscle memory and
+# scripts that shell out to `docker` keep working without Docker installed.
 - name: Install podman if docker is not enabled
   ansible.builtin.dnf:
-    name: podman
+    name:
+      - podman
+      - podman-docker
     state: present
+  when: not install_docker | default(false)
+
+# podman-docker prints "Emulate Docker CLI using podman. Create /etc/containers/
+# nodocker to quiet msg." on EVERY docker invocation until this file exists. Only
+# its presence is checked, never its contents, so an empty file is the fix.
+# force: false keeps it empty-and-untouched rather than rewriting it each run.
+- name: Silence the podman-docker emulation notice
+  ansible.builtin.copy:
+    dest: /etc/containers/nodocker
+    content: ""
+    owner: root
+    group: root
+    mode: "0644"
+    force: false
   when: not install_docker | default(false)
 
 # Install extra fonts

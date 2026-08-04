@@ -19,6 +19,10 @@
   ansible.builtin.import_tasks: zoom.yml
   when: install_zoom | default(false)
 
+- name: Setup Twingate
+  ansible.builtin.import_tasks: twingate.yml
+  when: install_twingate | default(false)
+
 - name: Setup Lutris
   ansible.builtin.import_tasks: lutris.yml
   when: install_lutris | default(false)
@@ -46,6 +50,12 @@
 - name: Setup Alacritty
   ansible.builtin.import_tasks: alacritty.yml
   when: install_alacritty | default(false)
+
+- name: Setup standalone Google web apps
+  ansible.builtin.import_tasks: google-apps.yml
+  when:
+    - install_google_apps | default(false)
+    - not is_container | default(false)
 
 - name: Setup eza
   ansible.builtin.import_tasks: eza.yml

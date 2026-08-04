@@ -1,6 +1,7 @@
 {
   "theme": "dark",
   "skipAutoPermissionPrompt": true,
+  "preferredNotifChannel": "notifications_disabled",
   "attribution": {
     "commit": "",
     "pr": ""

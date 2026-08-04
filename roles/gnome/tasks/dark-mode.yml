@@ -32,29 +32,29 @@
     - adwaita-qt5
     - adwaita-qt6
   become: true
-  register: darkmode_pkg_probe
+  register: gnome_darkmode_pkg_probe
   changed_when: false
   failed_when: false
   tags: [gnome, dark-mode]
 
 - name: Partition dark-mode packages into available vs missing
   ansible.builtin.set_fact:
-    darkmode_pkgs_available: "{{ darkmode_pkg_probe.results | selectattr('stdout', 'truthy') | map(attribute='item') | list }}"
-    darkmode_pkgs_missing: "{{ darkmode_pkg_probe.results | rejectattr('stdout', 'truthy') | map(attribute='item') | list }}"
+    gnome_darkmode_pkgs_available: "{{ gnome_darkmode_pkg_probe.results | selectattr('stdout', 'truthy') | map(attribute='item') | list }}"
+    gnome_darkmode_pkgs_missing: "{{ gnome_darkmode_pkg_probe.results | rejectattr('stdout', 'truthy') | map(attribute='item') | list }}"
   tags: [gnome, dark-mode]
 
 - name: Note legacy-toolkit dark-mode packages not shipped by this release
   ansible.builtin.debug:
-    msg: "Skipping theming packages not in this Fedora release's repos: {{ darkmode_pkgs_missing | join(', ') }}"
-  when: darkmode_pkgs_missing | length > 0
+    msg: "Skipping theming packages not in this Fedora release's repos: {{ gnome_darkmode_pkgs_missing | join(', ') }}"
+  when: gnome_darkmode_pkgs_missing | length > 0
   tags: [gnome, dark-mode]
 
 - name: Install available legacy-toolkit dark-mode integration packages
   ansible.builtin.dnf:
-    name: "{{ darkmode_pkgs_available }}"
+    name: "{{ gnome_darkmode_pkgs_available }}"
     state: present
   become: true
-  when: darkmode_pkgs_available | length > 0
+  when: gnome_darkmode_pkgs_available | length > 0
   tags: [gnome, dark-mode]
 
 - name: Ensure GTK config directories exist
