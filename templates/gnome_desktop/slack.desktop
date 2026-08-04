@@ -1,0 +1,15 @@
+[Desktop Entry]
+Name=Slack
+StartupWMClass=Slack
+Comment=Slack Desktop
+GenericName=Slack Client for Linux
+Exec=/usr/bin/slack %U
+# Upstream ships Icon=/usr/share/pixmaps/slack.png. An absolute path bypasses
+# icon-theme lookup entirely (desktop-entry spec), so no icon theme can ever
+# restyle Slack. Using the bare name lets Colloid's slack.svg win, and still
+# resolves to that same pixmap under Adwaita, so this is safe either way.
+Icon=slack
+Type=Application
+StartupNotify=true
+Categories=GNOME;GTK;Network;InstantMessaging;
+MimeType=x-scheme-handler/slack;

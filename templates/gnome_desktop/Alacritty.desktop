@@ -9,6 +9,9 @@ Categories=System;TerminalEmulator;
 Name=Terminal
 GenericName=Terminal
 Comment=A fast, cross-platform, OpenGL terminal emulator
+# StartupNotify lets GNOME Shell bind the new window to *this* launcher via the
+# startup-notification ID, independent of the StartupWMClass/app_id lookup.
+StartupNotify=true
 StartupWMClass=Alacritty
 Actions=New;
 

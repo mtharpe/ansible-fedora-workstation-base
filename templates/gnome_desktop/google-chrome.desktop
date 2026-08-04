@@ -5,6 +5,11 @@ GenericName=Web Browser
 Comment=Access the Internet
 Exec=/usr/bin/google-chrome-stable --enable-features=UseOzonePlatform,TouchpadOverscrollHistoryNavigation --ozone-platform=wayland %U
 StartupNotify=true
+# Chrome's Wayland xdg-toplevel app_id is "google-chrome" (verified via
+# WAYLAND_DEBUG). GNOME Shell resolves a window to an app by consulting the
+# StartupWMClass index first, so omitting this leaves the pinned tile unmatched
+# and the window binds to whichever other entry claims the class.
+StartupWMClass=google-chrome
 Terminal=false
 Icon=google-chrome
 Type=Application

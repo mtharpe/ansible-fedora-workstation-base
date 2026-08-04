@@ -70,3 +70,34 @@
     - slack_installed.rc != 0
     - slack_probe.status | default(0) == 200
   tags: [third_party, slack]
+
+- name: Re-check Slack after install
+  ansible.builtin.stat:
+    path: /usr/bin/slack
+  register: slack_present
+  tags: [third_party, slack]
+
+- name: Ensure user applications directory exists
+  ansible.builtin.file:
+    path: /home/{{ local_user }}/.local/share/applications
+    state: directory
+    owner: "{{ local_user }}"
+    group: "{{ local_user }}"
+    mode: "0755"
+  become: true
+  when: slack_present.stat.exists
+  tags: [third_party, slack]
+
+# Shadows /usr/share/applications/slack.desktop (exact desktop-ID match, so it
+# overrides rather than adding a second entry) purely to swap the hardcoded
+# absolute Icon= path for a themeable icon name. StartupWMClass is preserved so
+# window-to-launcher matching keeps working and the dock shows one tile.
+- name: Deploy user slack.desktop with a themeable icon
+  ansible.builtin.copy:
+    src: templates/gnome_desktop/slack.desktop
+    dest: /home/{{ local_user }}/.local/share/applications/slack.desktop
+    owner: "{{ local_user }}"
+    group: "{{ local_user }}"
+    mode: "0644"
+  when: slack_present.stat.exists
+  tags: [third_party, slack]

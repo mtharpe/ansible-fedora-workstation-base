@@ -1,0 +1,83 @@
+---
+# Standalone Google web apps (Gmail, Calendar, Tasks, Keep) built from
+# https://github.com/mtharpe/linux-google-apps — Electron wrappers rather than
+# Chrome --app windows, because Chrome's singleton would hand every one of them
+# back to the running browser process and they would all share its app_id.
+#
+# Each app is packaged with its own productName, which is what Electron derives
+# the Wayland app_id from, so every window matches its own .desktop entry and the
+# dock shows four distinct tiles instead of one. build-linux.sh writes everything
+# under ~/.local — the app, a launcher symlink, the .desktop entry and the
+# hicolor icon ladder — so nothing here needs root.
+#
+# Icons: Colloid supplies gmail and google-calendar, and this repo's custom
+# icons cover google-keep and google-tasks, so the PNGs the build script drops
+# into hicolor are only a fallback for when the Colloid theme is disabled.
+
+- name: Install Google web app build dependencies
+  ansible.builtin.dnf:
+    name:
+      - git
+      - npm          # pulls nodejs; build-linux.sh drives npx electron-packager
+      - ImageMagick  # used to render the icon size ladder
+    state: present
+  become: true
+  tags: [third_party, google-apps]
+
+# Anonymous HTTPS clone — no SSH key or GitHub login needed on a fresh machine.
+- name: Clone the Google web apps repository
+  ansible.builtin.git:
+    repo: "{{ google_apps_repo }}"
+    dest: "{{ google_apps_src }}"
+    version: "{{ google_apps_version }}"
+    depth: 1
+    force: true
+  become: true
+  become_user: "{{ local_user }}"
+  register: thirdparty_google_apps_clone
+  tags: [third_party, google-apps]
+
+- name: Check which Google web apps are already built
+  ansible.builtin.stat:
+    path: "{{ google_apps_prefix }}/lib/{{ item }}/{{ item }}"
+  register: thirdparty_google_apps_installed
+  loop: "{{ google_apps_slugs }}"
+  tags: [third_party, google-apps]
+
+# Rebuild decisions key off a recorded commit rather than the git module's own
+# changed flag: with depth=1 + force the module reports changed on every run, and
+# gating on that rebuilt all four apps each provision (minutes of Electron
+# packaging) even when nothing had moved.
+- name: Read the revision the Google web apps were last built from
+  ansible.builtin.slurp:
+    src: "{{ google_apps_prefix }}/lib/.google-apps-revision"
+  register: thirdparty_google_apps_stamp
+  failed_when: false
+  changed_when: false
+  tags: [third_party, google-apps]
+
+# Skipped once everything is in place: the first run downloads the Electron
+# runtime and packages four apps, which is far too slow for every provision.
+# The revision stamp is written by this same task rather than a follow-up one, so
+# it can only ever record a build that actually succeeded — `set -e` plus the
+# ordering means a failed build leaves the old stamp (or none) and the next run
+# retries instead of assuming the apps are current.
+- name: Build and install the Google web apps
+  ansible.builtin.shell:
+    cmd: |
+      set -euo pipefail
+      ./build-linux.sh
+      printf '%s\n' {{ thirdparty_google_apps_clone.after | quote }} > {{ (google_apps_prefix ~ '/lib/.google-apps-revision') | quote }}
+    chdir: "{{ google_apps_src }}"
+  environment:
+    PREFIX: "{{ google_apps_prefix }}"
+  become: true
+  become_user: "{{ local_user }}"
+  when: >-
+    thirdparty_google_apps_installed.results
+      | rejectattr('stat.exists') | list | length > 0
+    or (thirdparty_google_apps_stamp.content | default('') | b64decode | trim)
+       != thirdparty_google_apps_clone.after
+  register: thirdparty_google_apps_build
+  changed_when: thirdparty_google_apps_build.rc == 0
+  tags: [third_party, google-apps]
