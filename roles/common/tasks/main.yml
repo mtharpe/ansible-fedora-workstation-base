@@ -1,5 +1,10 @@
 ---
-- name: Detect container environment
+# Deliberately unprefixed. This fact is consumed by the gnome and third-party
+# roles and by both molecule scenarios — 16 files outside this role — as the
+# single "are we in a container" switch. A common_ prefix would leave every
+# other role gating on a variable named for a role it has nothing to do with,
+# which is more confusing than the rule it satisfies.
+- name: Detect container environment  # noqa: var-naming[no-role-prefix]
   ansible.builtin.set_fact:
     is_container: "{{ ansible_facts['virtualization_type'] | default('') in
       ['container', 'docker', 'podman', 'lxc', 'systemd-nspawn', 'oci'] }}"

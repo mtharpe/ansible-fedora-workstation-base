@@ -60,7 +60,7 @@
       swap-priority = 100
       fs-type = swap
   become: true
-  register: zram_conf
+  register: common_zram_conf
   when: not is_container | default(false)
 
 - name: Reload systemd to register zram units
@@ -69,7 +69,7 @@
   become: true
   when:
     - not is_container | default(false)
-    - zram_conf is changed
+    - common_zram_conf is changed
 
 - name: Activate zram swap now
   ansible.builtin.systemd:

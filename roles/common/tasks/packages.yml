@@ -82,7 +82,10 @@
     - common_rpmfusion_nonfree_available | default(false)
   block:
     # Swap ffmpeg-free with full ffmpeg (only when ffmpeg-free is still installed)
-    - name: Check whether ffmpeg-free is installed
+    # rpm -q is a targeted presence check. The modules this rule suggests
+    # (yum / rpm_key) cannot answer "is this package installed?", and
+    # package_facts would read the entire RPM database to learn one bit.
+    - name: Check whether ffmpeg-free is installed  # noqa: command-instead-of-module
       ansible.builtin.command: rpm -q ffmpeg-free
       register: common_ffmpeg_free_check
       changed_when: false

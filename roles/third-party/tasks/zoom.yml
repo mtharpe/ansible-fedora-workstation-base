@@ -1,5 +1,8 @@
 ---
-- name: Check if Zoom is already installed
+# rpm -q is a targeted presence check. The modules this rule suggests
+# (yum / rpm_key) cannot answer "is this package installed?", and
+# package_facts would read the entire RPM database to learn one bit.
+- name: Check if Zoom is already installed  # noqa: command-instead-of-module
   ansible.builtin.command:
     cmd: rpm -q zoom
   register: zoom_installed

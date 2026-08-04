@@ -25,7 +25,11 @@
   register: claude_bin_stat
   tags: [third_party, claude]
 
-- name: Install Claude Code via official installer
+# The vendor installer is a script piped into a shell. get_url can fetch the
+# script but cannot run it, so splitting this into get_url + shell would add a
+# task without removing the shell — and would drop the `creates` guard that
+# makes this idempotent.
+- name: Install Claude Code via official installer  # noqa: command-instead-of-module
   ansible.builtin.shell:
     cmd: curl -fsSL https://claude.ai/install.sh | bash
     creates: "/home/{{ local_user }}/.local/bin/claude"
