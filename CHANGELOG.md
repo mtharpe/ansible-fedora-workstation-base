@@ -1,6 +1,27 @@
 # Changelog
 
 ## Unreleased
+- Fix Qt and Electron apps rendering light window decorations under a dark
+  GNOME session. `QT_QPA_PLATFORMTHEME` was `gnome`, which selected
+  qgnomeplatform — dropped from Fedora after 43, so it silently degraded to
+  Qt's built-in light-only fallback theme. It is now `gtk3` (libqgtk3, still
+  shipped for Qt5 and Qt6), which derives the Qt palette from the active GTK3
+  theme. Adds `QT_WAYLAND_DECORATION=adwaita` so Qt's client-side Wayland
+  titlebars use the portal-following Adwaita decoration instead of the
+  always-light `bradient` default, and `ELECTRON_OZONE_PLATFORM_HINT=auto` so
+  Electron apps run natively on Wayland rather than drawing their own light
+  XWayland titlebar
+- Write the dark-mode environment to `~/.config/environment.d/90-dark-mode.conf`
+  in addition to `/etc/environment`: PAM covers login, but `systemd --user` is
+  what actually launches apps from the Shell and does not inherit it
+- Probe for and install `qadwaitadecorations-qt{5,6}` /
+  `qt6-qtwayland-adwaita-decoration`, and move the probe list and the
+  environment into `gnome_darkmode_candidate_pkgs` / `gnome_darkmode_env`
+- Set `gtk-theme-name` in `~/.config/gtk-4.0/settings.ini`;
+  `gtk-application-prefer-dark-theme` alone is a GTK3-only key and does nothing
+  for GTK4
+- Launch Chrome with `--force-dark-mode` so its self-drawn Wayland titlebar does
+  not depend on the per-profile theme toggle in `chrome://settings/appearance`
 - Fix duplicate dock icons for Alacritty and Chrome: a user-level `.desktop` only
   overrides the system one when its desktop ID matches exactly, so the Alacritty
   override is now written under the filename the distro actually ships (probed,

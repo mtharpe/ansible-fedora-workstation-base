@@ -3,8 +3,14 @@ Version=1.0
 Name=Google Chrome
 GenericName=Web Browser
 Comment=Access the Internet
-Exec=/usr/bin/google-chrome-stable --enable-features=UseOzonePlatform,TouchpadOverscrollHistoryNavigation --ozone-platform=wayland %U
+Exec=/usr/bin/google-chrome-stable --enable-features=UseOzonePlatform,TouchpadOverscrollHistoryNavigation --ozone-platform=wayland --force-dark-mode %U
 StartupNotify=true
+# --force-dark-mode pins the browser UI (frame, tab strip, menus) dark. Chrome
+# draws its own titlebar under --ozone-platform=wayland, and left to itself it
+# picks light unless the GTK theme is selected in chrome://settings/appearance —
+# a per-profile toggle no flag or policy can set. This makes it deterministic.
+# It affects only Chrome's chrome, not page content (that is
+# --enable-features=WebContentsForceDark, deliberately not set).
 # Chrome's Wayland xdg-toplevel app_id is "google-chrome" (verified via
 # WAYLAND_DEBUG). GNOME Shell resolves a window to an app by consulting the
 # StartupWMClass index first, so omitting this leaves the pinned tile unmatched
@@ -19,8 +25,8 @@ Actions=new-window;new-private-window;
 
 [Desktop Action new-window]
 Name=New Window
-Exec=/usr/bin/google-chrome-stable --enable-features=UseOzonePlatform,TouchpadOverscrollHistoryNavigation --ozone-platform=wayland
+Exec=/usr/bin/google-chrome-stable --enable-features=UseOzonePlatform,TouchpadOverscrollHistoryNavigation --ozone-platform=wayland --force-dark-mode
 
 [Desktop Action new-private-window]
 Name=New Incognito Window
-Exec=/usr/bin/google-chrome-stable --enable-features=UseOzonePlatform,TouchpadOverscrollHistoryNavigation --ozone-platform=wayland --incognito
+Exec=/usr/bin/google-chrome-stable --enable-features=UseOzonePlatform,TouchpadOverscrollHistoryNavigation --ozone-platform=wayland --force-dark-mode --incognito

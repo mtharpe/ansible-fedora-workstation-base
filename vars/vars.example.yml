@@ -95,6 +95,38 @@ gnome_notification_blocked_apps:
   - org-gnome-console
   - kgx
 
+# Toolkit-integration packages probed for by roles/gnome/tasks/dark-mode.yml.
+# Availability swings between Fedora releases — the qgnomeplatform / adwaita-qt
+# / GTK2-Adwaita set was dropped after F43 — so the role installs whichever of
+# these the running release still carries and reports the rest instead of
+# failing. The qadwaitadecorations entries are what give Qt's client-side
+# Wayland titlebars a dark, portal-following decoration.
+gnome_darkmode_candidate_pkgs:
+  - gnome-themes-extra
+  - adwaita-gtk2-theme
+  - qgnomeplatform-qt5
+  - qgnomeplatform-qt6
+  - adwaita-qt5
+  - adwaita-qt6
+  - qadwaitadecorations-qt5
+  - qadwaitadecorations-qt6
+  - qt6-qtwayland-adwaita-decoration
+
+# Environment that makes non-GTK toolkits follow GNOME's dark mode. Written to
+# both /etc/environment (PAM/login) and ~/.config/environment.d (systemd --user,
+# which is what launches apps from the Shell). Takes effect at next login.
+#   QT_QPA_PLATFORMTHEME       libqgtk3.so; builds the Qt palette from the
+#                              active GTK3 theme. Replaces "gnome", which now
+#                              resolves to Qt's built-in light-only fallback.
+#   QT_WAYLAND_DECORATION      the Adwaita client-side decoration rather than
+#                              the always-light "bradient" default.
+#   ELECTRON_OZONE_PLATFORM_HINT  runs Electron apps natively on Wayland; under
+#                              XWayland they draw their own light titlebar.
+gnome_darkmode_env:
+  QT_QPA_PLATFORMTHEME: gtk3
+  QT_WAYLAND_DECORATION: adwaita
+  ELECTRON_OZONE_PLATFORM_HINT: auto
+
 # GNOME Shell extensions to install + enable. UUIDs must match
 # extensions.gnome.org. Edit if any UUID needs to change.
 gnome_extensions:
