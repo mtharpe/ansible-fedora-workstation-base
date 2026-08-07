@@ -1,6 +1,15 @@
 # Changelog
 
 ## Unreleased
+- Rename the `google_apps_*` variables, task file, tags, and local checkout dir
+  to `electron_apps_*` / `electron-apps.yml` / `~/.local/src/electron-apps`.
+  Upstream `linux-google-apps` was renamed to `electron-apps` after it grew
+  wrappers for Tidal and Messenger — a Google-only name no longer described
+  what the role installs. Existing systems get a one-shot `mv` migration of
+  the legacy checkout dir and revision-stamp file, so the recorded build state
+  survives and no unnecessary rebuild fires. Adds `google-messages`, `tidal`,
+  and `messenger` to `electron_apps_slugs` so the per-slug "already built?"
+  check matches the full services.conf
 - Fix Qt and Electron apps rendering light window decorations under a dark
   GNOME session. `QT_QPA_PLATFORMTHEME` was `gnome`, which selected
   qgnomeplatform — dropped from Fedora after 43, so it silently degraded to

@@ -1,0 +1,111 @@
+---
+# Standalone Electron web-app wrappers (Gmail, Calendar, Tasks, Keep, Messages,
+# Tidal, Messenger) built from https://github.com/mtharpe/electron-apps — one
+# packaged Electron per site rather than Chrome --app windows, because Chrome's
+# singleton would hand every one of them back to the running browser process and
+# they would all share its app_id.
+#
+# Each app is packaged with its own productName, which is what Electron derives
+# the Wayland app_id from, so every window matches its own .desktop entry and the
+# dock shows a distinct tile per app. build-linux.sh writes everything under
+# ~/.local — the app, a launcher symlink, the .desktop entry and the hicolor
+# icon ladder — so nothing here needs root.
+#
+# Icons: Colloid supplies gmail and google-calendar, and this repo's custom
+# icons cover google-keep and google-tasks (roles/gnome/files/colloid-icons/).
+# Services outside that set (google-messages, tidal, messenger) fall back to the
+# PNGs the build script drops into hicolor.
+
+- name: Install Electron web app build dependencies
+  ansible.builtin.dnf:
+    name:
+      - git
+      - npm          # pulls nodejs; build-linux.sh drives npx electron-packager
+      - ImageMagick  # used to render the icon size ladder
+    state: present
+  become: true
+  tags: [third_party, electron-apps]
+
+# One-shot migration: an earlier version of this role cloned into
+# ~/.local/src/linux-google-apps (upstream's original repo name before castlabs'
+# electron fork spread to Tidal/Messenger and it was renamed). If that legacy
+# path is still there and the new one is not, move it in place so the clone
+# task below finds an existing checkout instead of cloning again and orphaning
+# the old dir.
+- name: Migrate legacy linux-google-apps checkout to electron-apps
+  ansible.builtin.command:
+    cmd: mv "/home/{{ local_user }}/.local/src/linux-google-apps" "{{ electron_apps_src }}"
+    creates: "{{ electron_apps_src }}"
+    removes: "/home/{{ local_user }}/.local/src/linux-google-apps"
+  become: true
+  become_user: "{{ local_user }}"
+  tags: [third_party, electron-apps]
+
+# Symmetric migration for the build-revision stamp: keep the recorded commit
+# across the rename so a matching checkout doesn't get pointlessly rebuilt.
+- name: Migrate legacy google-apps revision stamp
+  ansible.builtin.command:
+    cmd: mv "{{ electron_apps_prefix }}/lib/.google-apps-revision" "{{ electron_apps_prefix }}/lib/.electron-apps-revision"
+    creates: "{{ electron_apps_prefix }}/lib/.electron-apps-revision"
+    removes: "{{ electron_apps_prefix }}/lib/.google-apps-revision"
+  become: true
+  become_user: "{{ local_user }}"
+  tags: [third_party, electron-apps]
+
+# Anonymous HTTPS clone — no SSH key or GitHub login needed on a fresh machine.
+- name: Clone the Electron web apps repository
+  ansible.builtin.git:
+    repo: "{{ electron_apps_repo }}"
+    dest: "{{ electron_apps_src }}"
+    version: "{{ electron_apps_version }}"
+    depth: 1
+    force: true
+  become: true
+  become_user: "{{ local_user }}"
+  register: thirdparty_electron_apps_clone
+  tags: [third_party, electron-apps]
+
+- name: Check which Electron web apps are already built
+  ansible.builtin.stat:
+    path: "{{ electron_apps_prefix }}/lib/{{ item }}/{{ item }}"
+  register: thirdparty_electron_apps_installed
+  loop: "{{ electron_apps_slugs }}"
+  tags: [third_party, electron-apps]
+
+# Rebuild decisions key off a recorded commit rather than the git module's own
+# changed flag: with depth=1 + force the module reports changed on every run, and
+# gating on that rebuilt every app each provision (minutes of Electron packaging)
+# even when nothing had moved.
+- name: Read the revision the Electron web apps were last built from
+  ansible.builtin.slurp:
+    src: "{{ electron_apps_prefix }}/lib/.electron-apps-revision"
+  register: thirdparty_electron_apps_stamp
+  failed_when: false
+  changed_when: false
+  tags: [third_party, electron-apps]
+
+# Skipped once everything is in place: the first run downloads the Electron
+# runtime and packages every service in services.conf, which is far too slow for
+# every provision. The revision stamp is written by this same task rather than a
+# follow-up one, so it can only ever record a build that actually succeeded —
+# `set -e` plus the ordering means a failed build leaves the old stamp (or none)
+# and the next run retries instead of assuming the apps are current.
+- name: Build and install the Electron web apps
+  ansible.builtin.shell:
+    cmd: |
+      set -euo pipefail
+      ./build-linux.sh
+      printf '%s\n' {{ thirdparty_electron_apps_clone.after | quote }} > {{ (electron_apps_prefix ~ '/lib/.electron-apps-revision') | quote }}
+    chdir: "{{ electron_apps_src }}"
+  environment:
+    PREFIX: "{{ electron_apps_prefix }}"
+  become: true
+  become_user: "{{ local_user }}"
+  when: >-
+    thirdparty_electron_apps_installed.results
+      | rejectattr('stat.exists') | list | length > 0
+    or (thirdparty_electron_apps_stamp.content | default('') | b64decode | trim)
+       != thirdparty_electron_apps_clone.after
+  register: thirdparty_electron_apps_build
+  changed_when: thirdparty_electron_apps_build.rc == 0
+  tags: [third_party, electron-apps]
