@@ -100,8 +100,10 @@ gnome_notification_blocked_apps:
 # / GTK2-Adwaita set was dropped after F43 — so the role installs whichever of
 # these the running release still carries and reports the rest instead of
 # failing. The qadwaitadecorations entries are what give Qt's client-side
-# Wayland titlebars a dark, portal-following decoration.
+# Wayland titlebars a dark, portal-following decoration. adw-gtk3-theme
+# provides the on-disk "adw-gtk3-dark" theme this role pins gtk-theme to.
 gnome_darkmode_candidate_pkgs:
+  - adw-gtk3-theme
   - gnome-themes-extra
   - adwaita-gtk2-theme
   - qgnomeplatform-qt5

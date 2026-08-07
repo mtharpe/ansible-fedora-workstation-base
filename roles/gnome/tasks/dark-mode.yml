@@ -23,8 +23,12 @@
 # layout but NO dark palette — and, worse, claiming the slot stops Qt from
 # reaching for a plugin that would have worked. That silent downgrade is why Qt
 # apps went light. "gtk3" selects libqgtk3.so, which is still shipped for both
-# Qt5 and Qt6 and lifts its palette straight out of the active GTK3 theme, so
-# dark Adwaita propagates and GNOME's light/dark toggle keeps working.
+# Qt5 and Qt6 and lifts its palette straight out of the active GTK3 theme by
+# parsing the theme's on-disk CSS directly — it does NOT consult
+# gtk-application-prefer-dark-theme. So the palette is only dark if the pinned
+# gtk-theme resolves to a theme whose CSS is dark; the compiled-in Adwaita is
+# light-only from libqgtk3's viewpoint. The pin below uses adw-gtk3-dark for
+# exactly that reason (see the block above the dconf task).
 #
 # The probe below stays because release-to-release availability is exactly what
 # bit us: install what this Fedora actually ships and note the rest, rather than
@@ -70,6 +74,16 @@
 # touches that combo can still clobber the key. Pinning gtk-theme in the system
 # database and locking it makes the key non-writable, so the Tweaks write is
 # refused and the value cannot drift again.
+# On the pinned value: the earlier choice of 'Adwaita' + gtk-application-prefer-
+# dark-theme=1 gets GTK3 apps that consult that key onto the dark Adwaita
+# variant, but leaves consumers that read the theme CSS directly on the light
+# palette. libqgtk3 (QT_QPA_PLATFORMTHEME=gtk3), CEF's GTK integration, and the
+# Adwaita CSD decoration all fall into the second bucket. adw-gtk3-dark is a
+# distinct on-disk theme (from adw-gtk3-theme, tracked in
+# gnome_darkmode_candidate_pkgs) whose CSS is dark unconditionally, so every
+# consumer resolves it to dark without needing to know about the prefer-dark
+# key. Its palette follows libadwaita's design, so GTK3 apps end up visually
+# indistinguishable from the GTK4/libadwaita apps next to them.
 - name: Pin the legacy (GTK3) application theme in the system dconf database
   ansible.builtin.copy:
     dest: /etc/dconf/db/local.d/00-legacy-app-theme
@@ -79,7 +93,7 @@
     content: |
       # {{ ansible_managed }}
       [org/gnome/desktop/interface]
-      gtk-theme='Adwaita'
+      gtk-theme='adw-gtk3-dark'
   become: true
   notify: Update dconf database
   tags: [gnome, dark-mode]
@@ -129,20 +143,16 @@
     mode: "0644"
     content: |
       # {{ ansible_managed }}
-      gtk-theme-name = "Adwaita-dark"
+      gtk-theme-name = "adw-gtk3-dark"
       gtk-icon-theme-name = "Adwaita"
       gtk-cursor-theme-name = "Adwaita"
   become: true
   tags: [gnome, dark-mode]
 
-# gtk-theme-name matters beyond GTK3 itself: with QT_QPA_PLATFORMTHEME=gtk3,
-# libqgtk3 reads this same theme to build the Qt palette, so Qt apps started
-# outside the session inherit dark from here too.
-#
-# Adwaita, not Adwaita-dark: the latter came from gnome-themes-extra, which this
-# release no longer ships, and naming a theme that isn't on disk makes GTK3 fall
-# back to light. Adwaita is compiled into GTK3 and carries both variants, so
-# gtk-application-prefer-dark-theme below is what selects dark.
+# Fallback file for GTK3 apps that don't see the session's dconf values (e.g.
+# started from an SSH terminal or a systemd-run one-shot). Keeps
+# gtk-application-prefer-dark-theme=1 for GTK3 apps that key off it, alongside
+# the theme-name pin so CSS-reading consumers still see dark.
 - name: Configure GTK3 dark theme (~/.config/gtk-3.0/settings.ini)
   ansible.builtin.copy:
     dest: "/home/{{ local_user }}/.config/gtk-3.0/settings.ini"
@@ -153,15 +163,18 @@
       # {{ ansible_managed }}
       [Settings]
       gtk-application-prefer-dark-theme = 1
-      gtk-theme-name = Adwaita
+      gtk-theme-name = adw-gtk3-dark
       gtk-icon-theme-name = Adwaita
       gtk-cursor-theme-name = Adwaita
   become: true
   tags: [gnome, dark-mode]
 
-# GTK4/libadwaita ignores gtk-application-prefer-dark-theme — that key is GTK3
-# only. Dark selection there comes from the portal's color-scheme, but
-# gtk-theme-name is still honoured for non-libadwaita GTK4 apps, so set both.
+# GTK4/libadwaita ignores gtk-application-prefer-dark-theme *and* gtk-theme-name;
+# it selects dark from the portal's color-scheme instead. adw-gtk3-theme ships
+# GTK3 assets only (no gtk-4.0/ subdir), so a non-libadwaita GTK4 app pointed at
+# adw-gtk3-dark would fall back to Adwaita — and Adwaita is what we want here
+# anyway, since GTK4 carries both variants compiled in and prefer-dark-theme
+# still selects the dark one for legacy GTK4 apps that consult it.
 - name: Configure GTK4 dark theme preference (~/.config/gtk-4.0/settings.ini)
   ansible.builtin.copy:
     dest: "/home/{{ local_user }}/.config/gtk-4.0/settings.ini"
