@@ -51,10 +51,10 @@
   ansible.builtin.import_tasks: alacritty.yml
   when: install_alacritty | default(false)
 
-- name: Setup standalone Google web apps
-  ansible.builtin.import_tasks: google-apps.yml
+- name: Setup standalone Electron web apps
+  ansible.builtin.import_tasks: electron-apps.yml
   when:
-    - install_google_apps | default(false)
+    - install_electron_apps | default(false)
     - not is_container | default(false)
 
 - name: Setup eza
