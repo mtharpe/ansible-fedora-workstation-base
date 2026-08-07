@@ -76,6 +76,31 @@
       when: firewalld_allowed_ports is defined and firewalld_allowed_ports | length > 0
       become: true
 
+# Recover the Intel Wi-Fi/BT combo chip after resume. The btintel_pcie
+# controller can wedge across suspend — Powered:no, hci_reset times out — and
+# only a driver unbind/rebind clears it. Skipped in containers (no PCI, no
+# suspend cycle). Fedora doesn't ship /etc/systemd/system-sleep by default, so
+# create it before dropping the hook.
+- name: Ensure systemd-sleep hook directory exists
+  ansible.builtin.file:
+    path: /etc/systemd/system-sleep
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  become: true
+  when: not is_container | default(false)
+
+- name: Install btintel_pcie post-suspend rebind hook
+  ansible.builtin.copy:
+    src: templates/50-btintel-pcie-rebind
+    dest: /etc/systemd/system-sleep/50-btintel-pcie-rebind
+    owner: root
+    group: root
+    mode: "0755"
+  become: true
+  when: not is_container | default(false)
+
 # Configure git user settings
 - name: Ensure .gitconfig exists in user home directory
   ansible.builtin.file:

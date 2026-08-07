@@ -1,0 +1,22 @@
+#!/bin/sh
+# ansible-managed
+# systemd-sleep(8) hook: on resume, rebind any device driven by btintel_pcie
+# to force a firmware reload. Recovers from the HCI-lockup wedge where the
+# Intel Wi-Fi/BT combo chip stops answering commands after suspend — bluetoothctl
+# reports Powered:no, dmesg shows "Timeout on alive interrupt / hci_reset" and
+# "Failed to set mode: 0x03".
+set -eu
+
+# systemd-sleep(8): $1 is pre|post, $2 is the sleep action.
+[ "${1:-}" = "post" ] || exit 0
+
+driver=/sys/bus/pci/drivers/btintel_pcie
+[ -d "$driver" ] || exit 0
+
+for path in "$driver"/0000:*; do
+    [ -e "$path" ] || continue
+    addr=${path##*/}
+    printf '%s\n' "$addr" > "$driver/unbind"
+    sleep 1
+    printf '%s\n' "$addr" > "$driver/bind"
+done
