@@ -69,6 +69,12 @@ electron_apps_slugs:
   - tidal
   - messenger
 
+# Cursor size (px). Written to the GTK settings.ini fallbacks so apps that
+# don't consult dconf (GTK apps launched outside a logged-in session, Flatpaks
+# missing XCURSOR_SIZE, wxWidgets menus/decorations) draw the same size as the
+# rest of the desktop instead of falling back to the ancient X core cursor.
+gnome_cursor_size: 24
+
 # Colloid icon theme (https://github.com/vinceliuice/Colloid-icon-theme).
 # Installed per-user into ~/.local/share/icons and selected via gnome_icon_theme.
 # Set install_colloid_icons: false to stay on Adwaita.

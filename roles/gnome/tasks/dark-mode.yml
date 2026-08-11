@@ -144,8 +144,9 @@
     content: |
       # {{ ansible_managed }}
       gtk-theme-name = "adw-gtk3-dark"
-      gtk-icon-theme-name = "Adwaita"
+      gtk-icon-theme-name = "{{ gnome_icon_theme if install_colloid_icons | default(false) else 'Adwaita' }}"
       gtk-cursor-theme-name = "Adwaita"
+      gtk-cursor-theme-size = {{ gnome_cursor_size }}
   become: true
   tags: [gnome, dark-mode]
 
@@ -164,8 +165,9 @@
       [Settings]
       gtk-application-prefer-dark-theme = 1
       gtk-theme-name = adw-gtk3-dark
-      gtk-icon-theme-name = Adwaita
+      gtk-icon-theme-name = {{ gnome_icon_theme if install_colloid_icons | default(false) else 'Adwaita' }}
       gtk-cursor-theme-name = Adwaita
+      gtk-cursor-theme-size = {{ gnome_cursor_size }}
   become: true
   tags: [gnome, dark-mode]
 
@@ -186,8 +188,9 @@
       [Settings]
       gtk-application-prefer-dark-theme = 1
       gtk-theme-name = Adwaita
-      gtk-icon-theme-name = Adwaita
+      gtk-icon-theme-name = {{ gnome_icon_theme if install_colloid_icons | default(false) else 'Adwaita' }}
       gtk-cursor-theme-name = Adwaita
+      gtk-cursor-theme-size = {{ gnome_cursor_size }}
   become: true
   tags: [gnome, dark-mode]
 
