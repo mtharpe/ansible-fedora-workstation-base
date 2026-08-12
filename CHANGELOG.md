@@ -1,6 +1,17 @@
 # Changelog
 
 ## Unreleased
+- Repurpose `Shift+Alt+4` from area-to-clipboard to area-to-Satty. The new
+  `area-screenshot-annotate` helper captures via the xdg-desktop-portal
+  Screenshot interface (same path the clipboard helpers use — the only
+  sanctioned capture on GNOME 50) then pipes the PNG into Satty so arrows,
+  highlights, text, and blur can be added before saving. Save destination is
+  `~/Pictures/Screenshots/satty-<timestamp>.png`; Satty's copy hook is wired to
+  `wl-copy` and it exits after Save or Copy. Satty is not carried on the org's
+  filtered Flathub view, so `keybindings.yml` installs the upstream x86_64
+  tarball to `/usr/local/bin/satty`, pinned to `satty_version` /
+  `satty_sha256` in `vars/vars.yml`. `Shift+Alt+3` (fullscreen to clipboard)
+  is unchanged
 - Rename the `google_apps_*` variables, task file, tags, and local checkout dir
   to `electron_apps_*` / `electron-apps.yml` / `~/.local/src/electron-apps`.
   Upstream `linux-google-apps` was renamed to `electron-apps` after it grew

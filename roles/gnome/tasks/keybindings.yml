@@ -18,6 +18,36 @@
   become: true
   tags: [gnome, keybindings, screenshot]
 
+- name: Check installed Satty version
+  ansible.builtin.command: /usr/local/bin/satty --version
+  register: gnome_satty_installed
+  failed_when: false
+  changed_when: false
+  check_mode: false
+  tags: [gnome, keybindings, screenshot, satty]
+
+- name: Download Satty release tarball
+  ansible.builtin.get_url:
+    url: "https://github.com/gabm/Satty/releases/download/v{{ satty_version }}/satty-x86_64-unknown-linux-gnu.tar.gz"
+    dest: "/tmp/satty-{{ satty_version }}.tar.gz"
+    checksum: "sha256:{{ satty_sha256 }}"
+    mode: "0644"
+  when: gnome_satty_installed.stdout | default('') is not search('satty ' ~ satty_version)
+  tags: [gnome, keybindings, screenshot, satty]
+
+- name: Install Satty binary to /usr/local/bin
+  ansible.builtin.unarchive:
+    src: "/tmp/satty-{{ satty_version }}.tar.gz"
+    dest: /usr/local/bin/
+    include: [satty]
+    remote_src: true
+    owner: root
+    group: root
+    mode: "0755"
+  become: true
+  when: gnome_satty_installed.stdout | default('') is not search('satty ' ~ satty_version)
+  tags: [gnome, keybindings, screenshot, satty]
+
 - name: Ensure the user's ~/.local/bin exists
   ansible.builtin.file:
     path: "/home/{{ local_user }}/.local/bin"
@@ -28,7 +58,17 @@
   become: true
   tags: [gnome, keybindings, screenshot]
 
-- name: Install screenshot-to-clipboard helper scripts
+- name: Ensure the user's Screenshots directory exists
+  ansible.builtin.file:
+    path: "/home/{{ local_user }}/Pictures/Screenshots"
+    state: directory
+    owner: "{{ local_user }}"
+    group: "{{ local_user }}"
+    mode: "0755"
+  become: true
+  tags: [gnome, keybindings, screenshot]
+
+- name: Install screenshot helper scripts
   ansible.builtin.copy:
     src: "{{ item }}"
     dest: "/home/{{ local_user }}/.local/bin/{{ item }}"
@@ -40,6 +80,7 @@
     - portal-screenshot-clip      # shared core: drives the portal Screenshot call
     - area-screenshot-clip        # wrapper -> core --interactive
     - fullscreen-screenshot-clip  # wrapper -> core --fullscreen
+    - area-screenshot-annotate    # capture -> pipe into Satty for annotation
   tags: [gnome, keybindings, screenshot]
 
 # Build the GVariant array of custom-keybinding paths (one per entry):

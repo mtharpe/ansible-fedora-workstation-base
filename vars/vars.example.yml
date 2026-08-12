@@ -151,11 +151,20 @@ gnome_extensions:
 # roles/gnome/files/local-extensions/<uuid>/). Leave empty if none.
 gnome_local_extensions: []
 
+# Satty (github.com/gabm/Satty) — Wayland-native screenshot annotator, used by
+# the Shift+Alt+4 shortcut. Not on the org's filtered Flathub view, so the
+# gnome role installs the upstream x86_64 tarball to /usr/local/bin/satty.
+# Bump both when moving to a new release: sha256 of
+# satty-x86_64-unknown-linux-gnu.tar.gz on the release page.
+satty_version: "0.22.0"
+satty_sha256: "eb7a028c4a5ce331c2f355add8e2b807a7d697fe4495f7e1965786a4f6bcd5b8"
+
 # Custom GNOME keyboard shortcuts, reproduced on every run so a fresh install
 # matches your existing setup. Each entry maps a key binding to a command.
 # The screenshot entries call helper scripts the gnome role installs to
-# ~/.local/bin (they capture to the Wayland clipboard via wl-copy). Leave the
-# list empty to skip custom shortcuts entirely.
+# ~/.local/bin — Shift+Alt+3 captures fullscreen to the Wayland clipboard;
+# Shift+Alt+4 captures an area and hands it to Satty for annotation before
+# save. Leave the list empty to skip custom shortcuts entirely.
 gnome_custom_keybindings:
   - name: "1Password Quick Access"
     binding: "<Shift><Control>space"
@@ -163,9 +172,9 @@ gnome_custom_keybindings:
   - name: "Open File Manager"
     binding: "<Super>e"
     command: "nautilus --new-window"
-  - name: "Area Screenshot (to clipboard)"
+  - name: "Area Screenshot (annotate)"
     binding: "<Shift><Alt>4"
-    command: "/home/{{ local_user }}/.local/bin/area-screenshot-clip"
+    command: "/home/{{ local_user }}/.local/bin/area-screenshot-annotate"
   - name: "Fullscreen Screenshot (to clipboard)"
     binding: "<Shift><Alt>3"
     command: "/home/{{ local_user }}/.local/bin/fullscreen-screenshot-clip"
