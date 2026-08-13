@@ -1,0 +1,22 @@
+---
+# Cider — Apple Music client. Upstream ships no RPM repo for Fedora; the
+# sanctioned Linux install path is the Flathub flatpak (`sh.cider.Cider`).
+# Installed system-wide so it is available to every user and shares the
+# same runtime as any other system flatpaks on the box.
+
+- name: Ensure the flathub remote is available (system)
+  community.general.flatpak_remote:
+    name: flathub
+    flatpakrepo_url: https://flathub.org/repo/flathub.flatpakrepo
+    state: present
+    method: system
+  become: true
+  tags: [third_party, cider]
+
+- name: Install Cider
+  community.general.flatpak:
+    name: sh.cider.Cider
+    state: present
+    method: system
+  become: true
+  tags: [third_party, cider]

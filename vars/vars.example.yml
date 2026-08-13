@@ -25,6 +25,10 @@ install_printers: true
 install_chrome: true
 install_slack: true
 install_spotify: false
+# Cider — Apple Music client. Installed as the sh.cider.Cider flatpak from
+# Flathub (upstream ships no RPM). The task also ensures the flathub remote
+# is present system-wide, so no manual setup is required on a fresh install.
+install_cider: true
 install_vscode: true
 install_zoom: true
 # Twingate zero-trust client. Upstream publishes no GPG key for its RPM repo,

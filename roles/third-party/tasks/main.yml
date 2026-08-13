@@ -11,6 +11,10 @@
   ansible.builtin.import_tasks: spotify.yml
   when: install_spotify | default(false)
 
+- name: Setup Cider
+  ansible.builtin.import_tasks: cider.yml
+  when: install_cider | default(false)
+
 - name: Setup VSCode
   ansible.builtin.import_tasks: vscode.yml
   when: install_vscode | default(false)

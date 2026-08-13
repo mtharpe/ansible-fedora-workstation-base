@@ -1,6 +1,11 @@
 # Changelog
 
 ## Unreleased
+- Add Cider (Apple Music client) as a third-party app, gated by
+  `install_cider`. Upstream ships no Fedora RPM repo, so the task installs
+  the `sh.cider.Cider` flatpak from Flathub — first ensuring the flathub
+  remote is present system-wide, so a fresh machine gets both without
+  manual setup
 - Repurpose `Shift+Alt+4` from area-to-clipboard to area-to-Satty. The new
   `area-screenshot-annotate` helper captures via the xdg-desktop-portal
   Screenshot interface (same path the clipboard helpers use — the only
