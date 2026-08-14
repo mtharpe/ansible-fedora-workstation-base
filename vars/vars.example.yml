@@ -63,14 +63,17 @@ electron_apps_version: main
 electron_apps_src: "/home/{{ local_user }}/.local/src/electron-apps"
 electron_apps_prefix: "/home/{{ local_user }}/.local"
 # Filesystem slugs build-linux.sh derives from the names in its services.conf.
-# Used only to detect whether a rebuild is needed.
+# Authoritative: this list is passed to build-linux.sh as the set of apps to
+# build, AND drives the per-slug "already built?" idempotency check. Adding a
+# service upstream does nothing on its own — it has to be listed here to be
+# picked up. Removing a slug stops it being (re)built, but does not uninstall
+# a copy already on disk; run `build-linux.sh --uninstall <slug>` for that.
 electron_apps_slugs:
   - gmail
   - google-calendar
   - google-tasks
   - google-keep
   - google-messages
-  - tidal
   - messenger
 
 # Cursor size (px). Written to the GTK settings.ini fallbacks so apps that

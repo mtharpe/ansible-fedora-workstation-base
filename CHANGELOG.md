@@ -1,6 +1,14 @@
 # Changelog
 
 ## Unreleased
+- Make `electron_apps_slugs` authoritative for what build-linux.sh builds,
+  not just for the "already built?" idempotency check. The build task now
+  passes the slugs to build-linux.sh explicitly instead of letting its
+  default ("everything in services.conf") apply, so a service being added
+  upstream no longer implicitly ships. Drops `tidal` from the default slug
+  list — Apple Music (Cider) covers the same audience without the Widevine
+  build machinery. Existing tidal installs are left in place; use
+  `build-linux.sh --uninstall tidal` to remove
 - Add Cider (Apple Music client) as a third-party app, gated by
   `install_cider`. Upstream ships no Fedora RPM repo, so the task installs
   the `sh.cider.Cider` flatpak from Flathub — first ensuring the flathub

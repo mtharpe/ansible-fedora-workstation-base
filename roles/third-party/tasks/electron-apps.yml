@@ -85,16 +85,19 @@
   tags: [third_party, electron-apps]
 
 # Skipped once everything is in place: the first run downloads the Electron
-# runtime and packages every service in services.conf, which is far too slow for
-# every provision. The revision stamp is written by this same task rather than a
-# follow-up one, so it can only ever record a build that actually succeeded —
-# `set -e` plus the ordering means a failed build leaves the old stamp (or none)
-# and the next run retries instead of assuming the apps are current.
+# runtime and packages every listed slug, which is far too slow for every
+# provision. build-linux.sh is called with the explicit slug list rather than
+# bare (its default is "everything in services.conf"), so adding a service
+# upstream doesn't silently start building it — it only ships if vars asks for
+# it. The revision stamp is written by this same task rather than a follow-up
+# one, so it can only ever record a build that actually succeeded — `set -e`
+# plus the ordering means a failed build leaves the old stamp (or none) and
+# the next run retries instead of assuming the apps are current.
 - name: Build and install the Electron web apps
   ansible.builtin.shell:
     cmd: |
       set -euo pipefail
-      ./build-linux.sh
+      ./build-linux.sh {{ electron_apps_slugs | map('quote') | join(' ') }}
       printf '%s\n' {{ thirdparty_electron_apps_clone.after | quote }} > {{ (electron_apps_prefix ~ '/lib/.electron-apps-revision') | quote }}
     chdir: "{{ electron_apps_src }}"
   environment:
