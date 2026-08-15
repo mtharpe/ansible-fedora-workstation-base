@@ -1,6 +1,26 @@
 # Changelog
 
 ## Unreleased
+- Close the gap between the icon theme this repo provisions and the one
+  actually on the workstation. Three icons had been added to
+  `~/.local/share/icons` by hand and existed nowhere in the repo, so a fresh
+  provision would have left Messages and Messenger showing the un-themed
+  hicolor PNGs their build script drops (theme lookup runs before hicolor, so
+  a name Colloid can't resolve is what puts one un-themed tile in a row of
+  themed ones). Adds the hand-drawn `google-messages.svg` and `tidal.svg` to
+  `colloid_extra_icons`, and introduces `colloid_icon_aliases` for names the
+  theme does not otherwise answer to — `messenger.svg` is symlinked to
+  upstream's `fbmessenger.svg` rather than vendored, so it keeps tracking
+  upstream if the artwork is restyled
+- Draw a Colloid-style Cider icon, so Apple Music stops being the one
+  un-themed tile in the dock. Cider is a flatpak and its desktop entry asks
+  for `sh.cider.Cider`, which Colloid has nothing for, so this adds
+  `cider.svg` to `colloid_extra_icons` plus an `sh.cider.Cider` alias onto it
+  — the same two-name pattern Colloid itself uses for `gmail.svg`. The glyph
+  is scaled from the geometry in Cider's own `cider-outline.svg` rather than
+  redrawn by eye; the tile is flat, matching Colloid's other brand tiles
+  (`spotify.svg`, `discord.svg`), using the midpoint of Cider's
+  crimson-to-magenta gradient
 - Make `electron_apps_slugs` authoritative for what build-linux.sh builds,
   not just for the "already built?" idempotency check. The build task now
   passes the slugs to build-linux.sh explicitly instead of letting its

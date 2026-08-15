@@ -5,10 +5,26 @@
 # upstream installer is a shell script with no packaging, so keeping it in $HOME
 # means no root-owned files outside dnf's control and a trivial uninstall.
 #
-# Upstream ships no google-keep / google-tasks icons, so this role adds
-# hand-drawn ones matching Colloid's Google family (colored tile, white panel,
-# colored glyph). They are re-copied after every install run because the
-# upstream installer rm -rf's each theme directory before recreating it.
+# Every app this repo installs needs a name Colloid resolves, or the desktop
+# entry falls through the theme to whatever PNG the app dropped into hicolor and
+# the dock shows one un-themed tile in a row of themed ones. Two gaps get filled
+# here, both re-applied after every install run because the upstream installer
+# rm -rf's each theme directory before recreating it:
+#
+#   colloid_extra_icons    icons upstream has nothing for at all (Google Keep,
+#                          Tasks, Messages, TIDAL, Cider). Hand-drawn to match
+#                          Colloid's own tile construction: 56.002 tile at
+#                          rx 13.002, flat brand colour, white glyph, and its two
+#                          shading overlays.
+#   colloid_icon_aliases   a second name for an icon already in the theme, either
+#                          because Colloid draws the app under a different name
+#                          (Messenger is fbmessenger.svg) or because the .desktop
+#                          entry asks by reverse-DNS id (the Cider flatpak wants
+#                          sh.cider.Cider). Symlinked, not copied, so the alias
+#                          keeps tracking whatever it points at.
+#
+# Order matters: extras are copied before aliases are linked, so an alias may
+# target an extra as well as an upstream icon.
 
 - name: Install icon theme build dependencies
   ansible.builtin.dnf:
@@ -76,6 +92,56 @@
   register: gnome_colloid_extra
   tags: [gnome, icon-theme]
 
+# Checked separately rather than left to the file module: the alias has to be
+# created with force (the name it replaces starts life as a real file, copied by
+# an older version of this role), and force is also what makes a missing target
+# succeed into a dangling symlink instead of failing. A dangling alias resolves
+# to nothing and drops the app straight back to the un-themed hicolor PNG —
+# exactly what this task exists to prevent — so an upstream rename has to stop
+# the run rather than quietly undo it.
+- name: Check the icons the aliases point at are present
+  ansible.builtin.stat:
+    path: "{{ colloid_icon_dest }}/Colloid-Light/apps/scalable/{{ item.target }}"
+  loop: "{{ colloid_icon_aliases }}"
+  loop_control:
+    label: "{{ item.target }}"
+  register: gnome_colloid_alias_targets
+  changed_when: false
+  tags: [gnome, icon-theme]
+
+- name: Fail when an icon an alias points at is missing
+  ansible.builtin.assert:
+    that: item.stat.exists
+    fail_msg: >-
+      {{ item.item.target }} is not in the theme, so the {{ item.item.name }}
+      alias would dangle and the app would fall back to its un-themed hicolor
+      icon. If it is an upstream icon, check Colloid for a rename and update
+      colloid_icon_aliases, or add a replacement to colloid_extra_icons if
+      upstream dropped it. If it is a colloid_extra_icons entry, check it is
+      still listed there and that the file exists in
+      roles/gnome/files/colloid-icons/.
+  loop: "{{ gnome_colloid_alias_targets.results }}"
+  loop_control:
+    label: "{{ item.item.target }}"
+  tags: [gnome, icon-theme]
+
+# Relative link target, so it resolves inside whichever prefix the theme is
+# installed under.
+- name: Link the second names apps look their icons up by
+  ansible.builtin.file:
+    src: "{{ item.target }}"
+    dest: "{{ colloid_icon_dest }}/Colloid-Light/apps/scalable/{{ item.name }}"
+    state: link
+    force: true
+    follow: false
+  become: true
+  become_user: "{{ local_user }}"
+  loop: "{{ colloid_icon_aliases }}"
+  loop_control:
+    label: "{{ item.name }} -> {{ item.target }}"
+  register: gnome_colloid_aliases
+  tags: [gnome, icon-theme]
+
 - name: Refresh the icon caches
   ansible.builtin.command:
     cmd: gtk-update-icon-cache -f {{ colloid_icon_dest }}/{{ item }}
@@ -85,6 +151,9 @@
     - Colloid
     - Colloid-Light
     - Colloid-Dark
-  when: gnome_colloid_install.changed | default(false) or gnome_colloid_extra.changed | default(false)
+  when: >-
+    gnome_colloid_install.changed | default(false)
+    or gnome_colloid_extra.changed | default(false)
+    or gnome_colloid_aliases.changed | default(false)
   changed_when: true
   tags: [gnome, icon-theme]

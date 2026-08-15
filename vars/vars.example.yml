@@ -93,10 +93,30 @@ colloid_icon_src: "/home/{{ local_user }}/.local/src/Colloid-icon-theme"
 colloid_icon_dest: "/home/{{ local_user }}/.local/share/icons"
 # Extra install.sh flags, e.g. "-t purple -s nord -b". Empty = default blue.
 colloid_icon_install_args: ""
-# Icons Colloid does not ship upstream; sourced from roles/gnome/files/colloid-icons/.
+# Icons Colloid has nothing for; sourced from roles/gnome/files/colloid-icons/.
+# Keep this in step with electron_apps_slugs — an app with no name Colloid
+# resolves falls back to the un-themed hicolor PNG its installer dropped.
 colloid_extra_icons:
   - google-keep.svg
   - google-tasks.svg
+  - google-messages.svg
+  - cider.svg
+  # TIDAL is no longer in electron_apps_slugs; drop this line too if you don't
+  # want the icon on disk.
+  - tidal.svg
+
+# Second name -> icon that already exists in the theme, symlinked in place.
+# Covers both directions: an app Colloid draws under a different name than the
+# .desktop entry uses (Messenger), and a colloid_extra_icons entry that also has
+# to answer to a reverse-DNS name (Cider ships as a flatpak, so its desktop entry
+# asks for sh.cider.Cider). Symlinked rather than copied so the alias keeps
+# tracking the icon it points at. Targets must already be in the theme — the
+# extras above are copied in first, so they are fair game as targets.
+colloid_icon_aliases:
+  - name: messenger.svg
+    target: fbmessenger.svg
+  - name: sh.cider.Cider.svg
+    target: cider.svg
 
 # Claude Code notification channel. "notifications_disabled" stops it raising
 # desktop notifications; "terminal_bell" or "auto" re-enable them.

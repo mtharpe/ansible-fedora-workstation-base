@@ -1,6 +1,6 @@
 ---
 # Standalone Electron web-app wrappers (Gmail, Calendar, Tasks, Keep, Messages,
-# Tidal, Messenger) built from https://github.com/mtharpe/electron-apps — one
+# Messenger) built from https://github.com/mtharpe/electron-apps — one
 # packaged Electron per site rather than Chrome --app windows, because Chrome's
 # singleton would hand every one of them back to the running browser process and
 # they would all share its app_id.
@@ -11,10 +11,13 @@
 # ~/.local — the app, a launcher symlink, the .desktop entry and the hicolor
 # icon ladder — so nothing here needs root.
 #
-# Icons: Colloid supplies gmail and google-calendar, and this repo's custom
-# icons cover google-keep and google-tasks (roles/gnome/files/colloid-icons/).
-# Services outside that set (google-messages, tidal, messenger) fall back to the
-# PNGs the build script drops into hicolor.
+# Icons: build-linux.sh drops a PNG ladder into hicolor, but theme lookup runs
+# before hicolor, so every slug also needs a name the active icon theme resolves
+# or that one tile shows up un-themed in the dock. Colloid covers gmail (aliased
+# to its generic mail glyph upstream) and google-calendar; roles/gnome's
+# colloid_extra_icons cover google-keep, google-tasks and google-messages, and
+# colloid_icon_aliases points messenger at Colloid's fbmessenger. Adding a slug
+# here means checking it has one of those too.
 
 - name: Install Electron web app build dependencies
   ansible.builtin.dnf:
